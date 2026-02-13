@@ -1,7 +1,6 @@
 {
-	"parents": "item/generated",
+	"parent": "item/generated",
 	"textures:": {
-		"layer0": "untransfur:item/untransfur_syringe_liquid",
-		"layer1": "changed:items/latex_syringe_base"
+		"layer0": "untransfur:item/untransfur_syringe_liquid"
 	}
 }
