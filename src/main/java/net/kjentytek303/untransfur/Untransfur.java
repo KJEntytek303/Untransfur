@@ -47,8 +47,7 @@ public class Untransfur
     // Creates a new BlockItem with the id "untransfur:example_block", combining the namespace and path
     public static final RegistryObject<Item> EXAMPLE_BLOCK_ITEM = ITEMS.register("example_block", () -> new BlockItem(EXAMPLE_BLOCK.get(), new Item.Properties()));
 */
-
-    //TODO
+    
     //Creates a creative tab with the id "untransfur:example_tab" for the example item, that is placed after the combat tab
 
  
