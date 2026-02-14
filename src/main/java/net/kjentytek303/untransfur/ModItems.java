@@ -1,7 +1,7 @@
-package net.kjentytek303.untransfur.item;
+package net.kjentytek303.untransfur;
 
 
-import net.kjentytek303.untransfur.Untransfur;
+import net.kjentytek303.untransfur.item.UntransfurSyringeItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -27,6 +27,7 @@ public class ModItems
 	//Registry
 	public static RegistryObject<Item> UNTRANSFUR_SYRINGE = ITEM_REGISTER.register(
 		   "untransfur_syringe",
-		   () -> new Item( new Item.Properties() )
+		   () -> new UntransfurSyringeItem( new Item.Properties()
+				 .stacksTo(1) )
 	);
 }

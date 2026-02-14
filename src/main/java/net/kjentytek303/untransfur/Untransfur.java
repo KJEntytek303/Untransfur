@@ -1,10 +1,7 @@
 package net.kjentytek303.untransfur;
 
 import com.mojang.logging.LogUtils;
-import net.kjentytek303.untransfur.item.ModItems;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
