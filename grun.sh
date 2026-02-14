@@ -1,3 +1,3 @@
 #!/bin/bash
 ./gradlew build --info --stacktrace && \
-./gradlew runClient
+./gradlew runClient > /dev/null 2> /dev/null &

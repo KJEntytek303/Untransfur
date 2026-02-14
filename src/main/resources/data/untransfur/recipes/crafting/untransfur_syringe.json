@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "changed:orange"
+    },
+    {
+      "item": "minecraft:ender_pearl"
+    },
+    {
+      "item": "changed:latex_syringe"
+    },
+    {
+      "item": "minecraft:milk_bucket"
+    },
+    {
+      "item": "minecraft:glistering_melon_slice"
+    }
+  ],
+  "result": {
+    "item": "untransfur:untransfur_syringe"
+  }
+}
