@@ -1,9 +1,10 @@
 package net.kjentytek303.untransfur.item;
 
 
-import net.ltxprogrammer.changed.init.ChangedDamageSources;
+//import net.ltxprogrammer.changed.init.ChangedDamageSources;
 import net.ltxprogrammer.changed.init.ChangedItems;
 import net.ltxprogrammer.changed.init.ChangedSounds;
+import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,8 +16,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class UntransfurSyringeItem extends Item implements net.ltxprogrammer.changed.item.SpecializedAnimations
 {
@@ -40,7 +45,7 @@ public class UntransfurSyringeItem extends Item implements net.ltxprogrammer.cha
 		return 32;
 	}
 	
-	//If stab, then kill
+	//If stab, then kill //LATER
 	@Override
 	public @NotNull ItemStack finishUsingItem(@NotNull ItemStack pStack, @NotNull Level pLevel, @NotNull LivingEntity pLivingEntity) {
 		Player player = ( pLivingEntity instanceof Player ) ? (Player) pLivingEntity : null;
@@ -56,17 +61,17 @@ public class UntransfurSyringeItem extends Item implements net.ltxprogrammer.cha
 			
 			pStack = new ItemStack(ChangedItems.SYRINGE.get());
 			
-			//100 000 000 000 000 000 000 000 000 000 000 000 000 damage.
-			player.hurt( ChangedDamageSources.BLOODLOSS.source(player.level().registryAccess()), 1e37f );
-			
+			ProcessTransfur.removePlayerTransfurVariant(player);
+			ProcessTransfur.setPlayerTransfurProgress(player, 0.0f);
 		}
 		return pStack;
 	}
 	
 	
 	@Override
-	public @NotNull Component getDescription() {
-		return Component.translatable("item.untransfur.untransfur_syringe.desc");
+	public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
+		pTooltipComponents.add(Component.translatable("item.untransfur.untransfur_syringe.desc"));
+		super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
 	}
 }
 

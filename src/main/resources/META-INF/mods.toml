@@ -35,11 +35,11 @@ description='''${mod_description}'''
     side="BOTH"
 
 [[dependencies.${mod_id}]]
-modId="changed"
-mandatory=true
-versionRange="[0.15, 0.16)"
-ordering="NONE"
-side="BOTH"
+    modId="changed"
+    mandatory=true
+    versionRange="[0.15, 0.16)"
+    ordering="NONE"
+    side="BOTH"
 
 # Features are specific properties of the game environment, that you may want to declare you require. This example declares
 # that your mod requires GL version 3.2 or higher. Other features will be added. They are side aware so declaring this won't
