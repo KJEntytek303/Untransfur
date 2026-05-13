@@ -8,13 +8,17 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
+import static net.kjentytek303.untransfur.init.CreativeTabs.CT_TABS_REGISTRY;
+import static net.kjentytek303.untransfur.init.InitBlockEntities.BLOCK_ENTITY_REGISTRY;
+import static net.kjentytek303.untransfur.init.InitBlocks.BLOCK_REGISTRY;
+import static net.kjentytek303.untransfur.init.InitItems.ITEM_REGISTRY;
+
+
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(Untransfur.MODID)
 public class Untransfur
 {
-    // Define mod id in a common place for everything to reference
     public static final String MODID = "untransfur";
-    // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public Untransfur(FMLJavaModLoadingContext context)
@@ -23,13 +27,14 @@ public class Untransfur
         IEventBus modEventBus = context.getModEventBus();
         modEventBus.addListener(this::commonSetup);
 
-        //Register stuff
-        ModItems.register(modEventBus);
+        BLOCK_REGISTRY.register(modEventBus);
+        ITEM_REGISTRY.register(modEventBus);
+        CT_TABS_REGISTRY.register(modEventBus);
+        BLOCK_ENTITY_REGISTRY.register(modEventBus);
         
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
-        
-        CreativeTabs.register(modEventBus);
+
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)

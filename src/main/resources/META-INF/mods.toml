@@ -14,7 +14,7 @@ displayName="${mod_name}" #mandatory
 #updateJSONURL="https://change.me.example.invalid/updates.json" #optional
 # A URL for the "homepage" for this mod, displayed in the mod UI
 #displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional
-#logoFile="untransfur.png" 
+logoFile="untransfur.png" 
 credits="Brown Bakers (inspiration), Foxyas (motivation)"
 authors="${mod_authors}" 
 displayTest="MATCH_VERSION" 
@@ -37,7 +37,7 @@ description='''${mod_description}'''
 [[dependencies.${mod_id}]]
     modId="changed"
     mandatory=true
-    versionRange="[0.15, 0.16)"
+    versionRange="[0.15.4, 0.16)"
     ordering="NONE"
     side="BOTH"
 
