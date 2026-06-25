@@ -1,7 +1,7 @@
 package net.kjentytek303.untransfur.init;
 
 import net.kjentytek303.untransfur.block.MSCControllerBlock;
-import net.kjentytek303.untransfur.block.MSCTankBlock;
+//import net.kjentytek303.untransfur.block.MSCTankBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -28,15 +28,15 @@ public class InitBlocks {
 		),
 		new Item.Properties()
 	);
-
+/*
 	public static final RegistryObject<Block> MSC_TANK = registerWithItem(
-		"msc_controller",
+		"msc_tank",
 		() -> new MSCTankBlock(
 			BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
 		),
 		new Item.Properties()
 	);
-
+*/
 
 	private static <T extends Block> RegistryObject<T> registerWithItem(String name, Supplier<T> supplier, Item.Properties properties) {
 		var ret = BLOCK_REGISTRY.register(name, supplier);

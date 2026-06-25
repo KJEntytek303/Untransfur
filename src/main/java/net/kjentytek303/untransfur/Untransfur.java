@@ -1,6 +1,7 @@
 package net.kjentytek303.untransfur;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -19,7 +20,7 @@ import static net.kjentytek303.untransfur.init.InitItems.ITEM_REGISTRY;
 public class Untransfur
 {
     public static final String MODID = "untransfur";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public Untransfur(FMLJavaModLoadingContext context)
     {
@@ -39,8 +40,13 @@ public class Untransfur
 
     private void commonSetup(final FMLCommonSetupEvent event)
     {}
+    public static ResourceLocation modResource(String path) {
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    }
 
-
+    public static String modResourceStr(String path) {
+        return MODID + ":" + path;
+    }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
 
