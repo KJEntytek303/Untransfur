@@ -20,6 +20,8 @@ build
 # other
 eclipse
 run
+utils/datagen/tmp
+utils/datagen/generated
 
 # Files from Forge MDK
 forge*changelog.txt
