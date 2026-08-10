@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "untransfur:block/msc_output_bus_front",
+    "side": "untransfur:block/msc_metal_block",
+    "top": "untransfur:block/msc_metal_block"
+  }
+}

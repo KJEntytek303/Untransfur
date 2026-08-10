@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "untransfur:block/msc_input_hatch"
+    },
+    "facing=east": {
+      "model": "untransfur:block/msc_input_hatch",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "untransfur:block/msc_input_hatch",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "untransfur:block/msc_input_hatch",
+      "y": 270
+    },
+    "facing=down": {
+      "model": "untransfur:block/msc_input_hatch",
+      "x": 90
+    },
+    "facing=up": {
+      "model": "untransfur:block/msc_input_hatch",
+      "x": 270
+    }
+  }
+}
+

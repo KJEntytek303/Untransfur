@@ -2,7 +2,14 @@
 	"block.untransfur.msc_controller": "Mega Stasis Chamber Controller",
 	"block.untransfur.msc_tank": "MSC Tank",
 	"block.untransfur.msc_metal_block": "MSC Plating",
+	"block.untransfur.msc_output_bus": "MSC Output Bus",
+	"block.untransfur.msc_input_bus": "MSC Input Bus",
+	"block.untransfur.msc_redstone_logic_adapter": "MSC Redstone Logic Adapter",
+	"block.untransfur.msc_advanced_logic_adapter": "MSC Advanced Logic Adapter",
+	"block.untransfur.msc_input_hatch": "MSC Input Hatch",
+	"block.untransfur.msc_output_hatch": "MSC Output Hatch",
 
+	"item.untransfur.msc_program_rom": "MSC Program ROM",
 	"item.untransfur.untransfur_syringe": "Untransfur Syringe",
 	"item.untransfur.untransfur_syringe.desc": "Maybe i shouldn't stab myself with this...",
 
