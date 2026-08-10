@@ -19,8 +19,9 @@ public class CreativeTabs
 				.icon(() -> InitItems.UNTRANSFUR_SYRINGE.get().getDefaultInstance())
 				.displayItems(
 					(parameters, item) -> {
-						item.accept(InitItems.UNTRANSFUR_SYRINGE.get());
-						item.accept(InitBlocks.MSC_CONTROLLER.get());
+						InitItems.ITEM_REGISTRY.getEntries().forEach(
+							itemRegistryObject -> item.accept(itemRegistryObject.get())
+						);
 					}
 		        	)
 				.build()

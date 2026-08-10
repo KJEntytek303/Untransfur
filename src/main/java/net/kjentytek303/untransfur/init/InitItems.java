@@ -18,5 +18,10 @@ public class InitItems
 		   () -> new UntransfurSyringeItem( new Item.Properties().stacksTo(1) )
 	);
 
+	public static final RegistryObject<Item> UNTRANSFUR_ROM = ITEM_REGISTRY.register(
+		"untransfur_rom",
+		() -> new Item(new Item.Properties().stacksTo(1))
+	);
+
 
 }

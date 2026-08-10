@@ -1,2 +1,5 @@
-minecraft:iron_block
-;untransfur:msc_controller
+untransfur:msc_metal_block
+untransfur:msc_input_bus
+untransfur:msc_output_bus
+untransfur:msc_redstone_adapter
+untransfur:msc_energy_hatch
