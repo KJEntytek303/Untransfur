@@ -28,6 +28,31 @@ public class InitBlocks {
 		),
 		new Item.Properties()
 	);
+	public static final RegistryObject<Block> MSC_METAL_BLOCK = registerWithItem(
+		"msc_metal_block",
+		() -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
+		new Item.Properties()
+	);
+
+	public static final RegistryObject<Block> MSC_INPUT_BUs = registerWithItem(
+		"msc_input_bus",
+		() -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
+		new Item.Properties()
+	);
+
+	public static final RegistryObject<Block> MSC_OUTPUT_BUS = registerWithItem(
+		"msc_output_bus",
+		() -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
+		new Item.Properties()
+	);
+
+	public static final RegistryObject<Block> MSC_REDSTONE_ADAPTER = registerWithItem(
+		"msc_redstone_adapter",
+		() -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
+		new Item.Properties()
+	);
+
+
 /*
 	public static final RegistryObject<Block> MSC_TANK = registerWithItem(
 		"msc_tank",
