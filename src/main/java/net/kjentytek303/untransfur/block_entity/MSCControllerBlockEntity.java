@@ -498,6 +498,45 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 
 	public void setWaitDuration(int wait_duration, @Nullable ServerPlayer controller) {
 		wait_duration = Mth.clamp(wait_duration, 0, ServerCfg.MSC_MAX_STASIS_DURATION.get());
+
+		if( wait_duration > this.wait_duration && !this.isPlayerAllowedToConfigure(controller)) {
+			return;
+		}
+		this.wait_duration = wait_duration;
+		markUpdated();
+	}
+
+	public boolean isStabilized() {
+		return stabilized;
+	}
+
+	public void inputProgram( String program, @Nullable ServerPlayer controller, Object arguments) {
+		//TODO: crash feature.
+		if( MSCScheduledCommand.contains(program)) {
+			this.scheduled_commands.add(program);
+		}
+	}
+
+	public void openDoor() {
+		//TODO: UPDATE MULTIBLOCK STRUCTURE IN WORLD.
+		this.getBlockState().setValue(OPEN, true);
+	}
+
+	public void closeDoor() {
+		//TODO: UPDATE MULTIBLOCK STRUCTURE IN WORLD.
+		this.getBlockState().setValue(OPEN, false);
+	}
+
+	public Optional<TransfurVariant<?>> useVariantSyringe() {
+		//Check if internal inventory has a syringe.
+		//If so, use it.
+		//Else, check for input buses.
+		//If any input bus has a valid syringe, check if the syringe can be put in the output slot.
+			//Of any output buses
+			//In internal controller slot
+			//if not, return null.
+		//Store tf variant, pop syringe stack and put away the syringe.
+		return Optional.of(null);
 	}
 
 	/*
@@ -535,7 +574,7 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 					if ( ! ( MSC_MULTIBLOCK_DEFINITION.get(x, y, z).test(level.getBlockState(iterator)))
 					) {
 						if (player != null ) { //TODO: Move this into component translatable
-							player.sendSystemMessage(Component.literal("Error: Invalid block " + level.getBlockState(iterator) + " at " + iterator.toString()));
+							player.sendSystemMessage(Component.literal("Error: Invalid block " + level.getBlockState(iterator) + " at " + iterator));
 						}
 						return false;
 					}
@@ -545,14 +584,18 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 			}
 			iterator = TransformHorizontalDirection(iterator, msc_direction, 1, -10, 0);
 		}
-		player.sendSystemMessage(Component.literal("Multiblock formed successfully"));
+		if( player != null ) {
+			player.sendSystemMessage(Component.literal("Multiblock formed successfully"));
+		}
 		return true;
 	}
 
 	public void invalidateMultiblock() {
 
 	}
+
 	public static final List3Wrapper<Predicate<BlockState>> MSC_MULTIBLOCK_DEFINITION;
+	public static final List3Wrapper<Predicate<BlockState>> MSC_OPEN_MULTIBLOCK_DEFINITION;
 
 	static {
 		MSC_MULTIBLOCK_DEFINITION = new List3Wrapper<>(5, 10, 6);
@@ -610,5 +653,8 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 9, 2, 4, 9, 4, BlockUtilities.isBlock(ChangedBlocks.WALL_GRAY_STAIRS.get()));
 		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 9, 1, 3, 9, 5, BlockUtilities.isBlock(ChangedBlocks.WALL_GRAY_STAIRS.get()));
 		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 9, 2, 3, 9, 4, BlockUtilities.isBlock(ChangedBlocks.WALL_GRAY.get()));
+
+		MSC_OPEN_MULTIBLOCK_DEFINITION = MSC_MULTIBLOCK_DEFINITION.clone();
+		fillWithBlock(MSC_OPEN_MULTIBLOCK_DEFINITION, 1, 1, 5, 3, 5, 5, BlockUtilities.isBlock(AIR));
 	}
 }

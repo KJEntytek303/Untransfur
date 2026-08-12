@@ -1,5 +1,5 @@
 {
-  "parent": "untransfur:block/msc_controller",
+  "parent": "untransfur:block/msc_advanced_logic_adapter",
   "display": {
     "thirdperson": {
       "rotation": [

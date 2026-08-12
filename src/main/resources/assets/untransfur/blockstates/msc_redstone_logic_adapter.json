@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "untransfur:block/msc_redstone_logic_adapter"
+    },
+    "facing=east": {
+      "model": "untransfur:block/msc_redstone_logic_adapter",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "untransfur:block/msc_redstone_logic_adapter",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "untransfur:block/msc_redstone_logic_adapter",
+      "y": 270
+    },
+    "facing=down": {
+      "model": "untransfur:block/msc_redstone_logic_adapter",
+      "x": 90
+    },
+    "facing=up": {
+      "model": "untransfur:block/msc_redstone_logic_adapter",
+      "x": 270
+    }
+  }
+}
+

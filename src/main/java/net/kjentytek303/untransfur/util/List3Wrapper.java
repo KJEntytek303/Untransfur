@@ -12,6 +12,13 @@ public class List3Wrapper<T> {
 		list = new ArrayList<>(x*y*z);
 	}
 
+	@Override
+	public List3Wrapper<T> clone() {
+		List3Wrapper<T> newlist = new List3Wrapper<>(x, y, z);
+		newlist.list.addAll(list);
+		return newlist;
+	}
+
 	public void set( int x, int y, int z, T elem ) {
 		list.set( x * this.y * this.z + y * this.z + z, elem );
 	}
@@ -24,6 +31,4 @@ public class List3Wrapper<T> {
 	public int x;
 	public int y;
 	public int z;
-
-
 }

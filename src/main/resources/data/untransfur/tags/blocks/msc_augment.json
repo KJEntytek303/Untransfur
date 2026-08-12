@@ -1,7 +1,13 @@
 {
   "replace": false,
   "values": [
-     "untransfur:msc_metal_block"
+     "untransfur:msc_metal_block",
+     "untransfur:msc_input_bus",
+     "untransfur:msc_output_bus",
+     "untransfur:msc_redstone_logic_adapter",
+     "untransfur:msc_advanced_logic_adapter",
+     "untransfur:msc_input_hatch",
+     "untransfur:msc_output_hatch"
 
   ]
 }

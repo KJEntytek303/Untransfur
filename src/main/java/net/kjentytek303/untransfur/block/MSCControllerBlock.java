@@ -127,6 +127,29 @@ public class MSCControllerBlock extends BaseEntityBlock {
 		return new AABB( left_bottom_back, right_top_front);
 	}
 
+	public boolean markAsActive(BlockState state, Level level, BlockPos pos) {
+		if( state.getValue(ACTIVE) ) {
+			return false;
+		}
+		if( level.getBlockState(pos).getBlock() != this ) {
+			return false;
+		}
+
+		level.setBlockAndUpdate(pos, state.setValue(ACTIVE, true));
+		return true;
+	}
+	public boolean markAsInActive(BlockState state, Level level, BlockPos pos) {
+		if( !state.getValue(ACTIVE) ) {
+			return false;
+		}
+		if( level.getBlockState(pos).getBlock() != this ) {
+			return false;
+		}
+
+		level.setBlockAndUpdate(pos, state.setValue(ACTIVE, false));
+		return true;
+	}
+
 
 	/*
 	public AABB getDetectionSize(BlockState state, Level level, BlockPos pos) {

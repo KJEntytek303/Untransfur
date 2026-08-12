@@ -2,6 +2,11 @@ package net.kjentytek303.untransfur.init;
 
 import net.kjentytek303.untransfur.block.MSCControllerBlock;
 //import net.kjentytek303.untransfur.block.MSCTankBlock;
+import net.kjentytek303.untransfur.block.MSCInputBusBlock;
+import net.kjentytek303.untransfur.block.MSCInputHatchBlock;
+import net.kjentytek303.untransfur.block.MSCOutputBusBlock;
+import net.kjentytek303.untransfur.block.MSCOutputHatchBlock;
+import net.kjentytek303.untransfur.block.MSCRedstoneLogicAdapterBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -34,21 +39,38 @@ public class InitBlocks {
 		new Item.Properties()
 	);
 
-	public static final RegistryObject<Block> MSC_INPUT_BUs = registerWithItem(
+	public static final RegistryObject<Block> MSC_INPUT_BUS = registerWithItem(
 		"msc_input_bus",
-		() -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
+		() -> new MSCInputBusBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
 		new Item.Properties()
 	);
 
 	public static final RegistryObject<Block> MSC_OUTPUT_BUS = registerWithItem(
 		"msc_output_bus",
-		() -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
+		() -> new MSCOutputBusBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
+		new Item.Properties()
+	);
+	public static final RegistryObject<Block> MSC_INPUT_HATCH = registerWithItem(
+		"msc_input_hatch",
+		() -> new MSCInputHatchBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
 		new Item.Properties()
 	);
 
-	public static final RegistryObject<Block> MSC_REDSTONE_ADAPTER = registerWithItem(
-		"msc_redstone_adapter",
-		() -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
+	public static final RegistryObject<Block> MSC_OUTPUT_HATCH = registerWithItem(
+		"msc_output_hatch",
+		() -> new MSCOutputHatchBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
+		new Item.Properties()
+	);
+
+	public static final RegistryObject<Block> MSC_REDSTONE_LOGIC_ADAPTER = registerWithItem(
+		"msc_redstone_logic_adapter",
+		() -> new MSCRedstoneLogicAdapterBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
+		new Item.Properties()
+	);
+
+	public static final RegistryObject<Block> MSC_ADVANCED_LOGIC_ADAPTER = registerWithItem(
+		"msc_advanced_logic_adapter",
+		() -> new MSCRedstoneLogicAdapterBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
 		new Item.Properties()
 	);
 

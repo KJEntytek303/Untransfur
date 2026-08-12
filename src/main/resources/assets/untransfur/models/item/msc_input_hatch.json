@@ -1,5 +1,5 @@
 {
-  "parent": "untransfur:block/msc_controller",
+  "parent": "untransfur:block/msc_input_hatch",
   "display": {
     "thirdperson": {
       "rotation": [
