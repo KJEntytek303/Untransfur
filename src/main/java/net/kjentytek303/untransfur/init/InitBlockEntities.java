@@ -3,6 +3,7 @@ package net.kjentytek303.untransfur.init;
 //import net.kjentytek303.untransfur.block.MSCTankBlock;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
 //import net.kjentytek303.untransfur.block_entity.MSCTankBlockEntity;
+import net.kjentytek303.untransfur.block_entity.MSCInputBusBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
@@ -21,6 +22,11 @@ public class InitBlockEntities {
 		"msc_controller_block_entity",
 		() -> BlockEntityType.Builder.of( MSCControllerBlockEntity::new, MSC_CONTROLLER.get()
 			).build(null)
+	);
+
+	public static final RegistryObject<BlockEntityType<MSCInputBusBlockEntity>> MSC_INPUT_BUS_BLOCK_ENTITY = BLOCK_ENTITY_REGISTRY.register(
+		"msc_input_bus_be",
+		() -> BlockEntityType.Builder.of( MSCInputBusBlockEntity::new, InitBlocks.MSC_INPUT_BUS.get()).build(null)
 	);
 /*
 	public static final RegistryObject<BlockEntityType<MSCTankBlockEntity>> MSC_TANK_BLOCK_ENTITY = BLOCK_ENTITY_REGISTRY.register(

@@ -27,26 +27,26 @@ public class InitBlocks {
 	public static final DeferredRegister<Block> BLOCK_REGISTRY = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
 
 	public static final RegistryObject<Block> MSC_CONTROLLER = registerWithItem(
-		"msc_controller",
+		"msc_controller", //;! -I --bs=horizontal --txt=untransfur:block/msc_metal_block,untransfur:msc_metal_block
 		() -> new MSCControllerBlock (
 			BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
 		),
 		new Item.Properties()
 	);
 	public static final RegistryObject<Block> MSC_METAL_BLOCK = registerWithItem(
-		"msc_metal_block",
+		"msc_metal_block", //;! -i
 		() -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
 		new Item.Properties()
 	);
 
 	public static final RegistryObject<Block> MSC_INPUT_BUS = registerWithItem(
-		"msc_input_bus",
+		"msc_input_bus", //;! --bs=gt_io --txt=untransfur:block/msc_metal_block
 		() -> new MSCInputBusBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
 		new Item.Properties()
 	);
 
 	public static final RegistryObject<Block> MSC_OUTPUT_BUS = registerWithItem(
-		"msc_output_bus",
+		"msc_output_bus", //;! --bs=gt_io --txt=untransfur/block/msc_metal_block
 		() -> new MSCOutputBusBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
 		new Item.Properties()
 	);

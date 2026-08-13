@@ -14,14 +14,12 @@ public class InitItems
 	public static final DeferredRegister<Item> ITEM_REGISTRY = DeferredRegister.create(ForgeRegistries.ITEMS, Untransfur.MODID);
 
 	public static final RegistryObject<Item> UNTRANSFUR_SYRINGE = ITEM_REGISTRY.register(
-		   "untransfur_syringe",
-		   () -> new UntransfurSyringeItem( new Item.Properties().stacksTo(1) )
+		"untransfur_syringe",
+		() -> new UntransfurSyringeItem( new Item.Properties().stacksTo(1) )
 	);
 
 	public static final RegistryObject<Item> MSC_PROGRAM_ROM = ITEM_REGISTRY.register(
 		"msc_program_rom",
 		() -> new Item(new Item.Properties().stacksTo(1))
 	);
-
-
 }
