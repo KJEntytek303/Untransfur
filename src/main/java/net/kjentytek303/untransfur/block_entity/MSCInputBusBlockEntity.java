@@ -16,12 +16,13 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -35,12 +36,14 @@ public class MSCInputBusBlockEntity extends BaseContainerBlockEntity implements 
 
 	public static final int AMOUNT_OF_SLOTS = 4;
 	public NonNullList<ItemStack> items = NonNullList.withSize(AMOUNT_OF_SLOTS, ItemStack.EMPTY);
-	private LazyOptional<IItemHandler> lazy_item_handler = LazyOptional.empty();
+	private LazyOptional<IItemHandler> lazy_item_handler;
 	public static final int[] SLOTS = IntStream.range(0, AMOUNT_OF_SLOTS).toArray();
 
 
 	public MSCInputBusBlockEntity(BlockPos pPos, BlockState pBlockState) {
 		super(MSC_CONTROLLER_BLOCK_ENTITY.get(), pPos, pBlockState);
+
+		//lazy_item_handler = SidedInvWrapper.create(this, pBlockState.getValue(FACING));
 	}
 	@Override
 	protected @NotNull Component getDefaultName() {
@@ -55,12 +58,15 @@ public class MSCInputBusBlockEntity extends BaseContainerBlockEntity implements 
 	public int getContainerSize() {
 		return AMOUNT_OF_SLOTS;
 	}
-
+	@Override
+	public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
+		return super.getCapability(cap);
+	}
 	public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-		if( cap == ForgeCapabilities.ITEM_HANDLER && side == this.getBlockState().getValue(FACING) ) {
-			return lazy_item_handler.cast();
+		if( cap == ForgeCapabilities.ITEM_HANDLER && ( side == null || side == this.getBlockState().getValue(FACING) ) ) {
+			return super.getCapability(cap, side);
 		}
-		return super.getCapability(cap, side);
+		return LazyOptional.empty().cast();
 	}
 
 	@Override
@@ -79,30 +85,16 @@ public class MSCInputBusBlockEntity extends BaseContainerBlockEntity implements 
 		return this.items.get( pSlot );
 	}
 
-	/**
-	 * Removes up to a specified number of items from an inventory slot and returns them in a new stack.
-	 *
-	 * @param pSlot
-	 * @param pAmount
-	 */
 	@Override
 	public @NotNull ItemStack removeItem(int pSlot, int pAmount) {
 		return ContainerHelper.removeItem(items, pSlot, pAmount);
 	}
-	/**
-	 * Removes a stack from the given slot and returns it.
-	 * @param pSlot
-	 */
+
 	@Override
 	public @NotNull ItemStack removeItemNoUpdate(int pSlot) {
 		return ContainerHelper.takeItem(items, pSlot);
 	}
-	/**
-	 * Sets the given item stack to the specified slot in the inventory (can be crafting or armor sections).
-	 *
-	 * @param pSlot
-	 * @param pStack
-	 */
+
 	@Override
 	public void setItem(int pSlot, @NotNull ItemStack pStack) {
 		ItemStack existingItem = this.items.get(pSlot);
@@ -132,11 +124,13 @@ public class MSCInputBusBlockEntity extends BaseContainerBlockEntity implements 
 		this.items.clear();
 	}
 
+	//@Override
 	public void load(CompoundTag tag) {
 		super.load( tag );
 		ContainerHelper.loadAllItems(tag, items);
 	}
 
+	//@Override
 	public void saveAdditional(@NotNull CompoundTag tag) {
 		super.saveAdditional(tag);
 		ContainerHelper.saveAllItems( tag, items);
@@ -152,7 +146,7 @@ public class MSCInputBusBlockEntity extends BaseContainerBlockEntity implements 
 		if( pIndex >= AMOUNT_OF_SLOTS )
 			return false;
 
-		if( pDirection != this.getBlockState().getValue(FACING).getOpposite() ) {
+		if( pDirection != this.getBlockState().getValue(FACING) ) {
 			return false;
 		}
 		return true;
@@ -163,6 +157,20 @@ public class MSCInputBusBlockEntity extends BaseContainerBlockEntity implements 
 		return false;
 	}
 
+//	@Override
+//	public void onLoad() {
+//		super.onLoad();
+//		lazy_item_handler = SidedInvWrapper.create(this, this.getBlockState().getValue(FACING));
+//	}
+//	@Override
+//	public void invalidateCaps() {
+//		lazy_item_handler[0].invalidate();
+//		super.invalidateCaps();
+//	}
+
+	/*public void reviveCaps() {
+		lazy_item_handler = SidedInvWrapper.create(this, this.getBlockState().getValue(FACING));
+	}*/
 
 	public void tick(Level level, BlockPos pos, BlockState state) {
 	}

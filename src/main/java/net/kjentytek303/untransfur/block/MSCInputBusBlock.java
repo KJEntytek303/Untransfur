@@ -82,7 +82,7 @@ public class MSCInputBusBlock extends BaseEntityBlock {
 			NetworkHooks.openScreen((ServerPlayer) player, msc_in, pos);
 			return InteractionResult.sidedSuccess(false);
 		}
-		Untransfur.LOGGER.error("Missing container provider in MSCInputBusBlock", new IllegalStateException("Missing container provider"));
+		Untransfur.LOGGER.error("Assertion failed: Missing container provider in MSCInputBusBlock", new IllegalStateException("Missing container provider"));
 		//unreachable.
 		return InteractionResult.sidedSuccess(false);
 	}
