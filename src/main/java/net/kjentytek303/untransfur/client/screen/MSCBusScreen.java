@@ -10,10 +10,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 
-public class MSCInputBusScreen extends AbstractContainerScreen<MSCInputBusMenu> {
+public class MSCBusScreen extends AbstractContainerScreen<MSCBusMenu> {
 		private static final ResourceLocation TEXTURE = Untransfur.modResource("textures/gui/msc_bus_gui.png");
 
-	public MSCInputBusScreen(MSCInputBusMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
+	public MSCBusScreen(MSCBusMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
 		super(pMenu, pPlayerInventory, pTitle);
 		//this.imageWidth = 176;
 		//this.imageHeight = 145;

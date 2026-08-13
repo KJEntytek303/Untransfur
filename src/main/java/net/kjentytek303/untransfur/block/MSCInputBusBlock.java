@@ -2,6 +2,7 @@ package net.kjentytek303.untransfur.block;
 
 import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.block_entity.MSCInputBusBlockEntity;
+import net.kjentytek303.untransfur.block_entity.MSCOutputBusBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,64 +28,19 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+
 import static net.kjentytek303.untransfur.init.InitBlockEntities.MSC_INPUT_BUS_BLOCK_ENTITY;
 
 
-public class MSCInputBusBlock extends BaseEntityBlock {
-
-	public static final DirectionProperty FACING = DirectionalBlock.FACING;
+public class MSCInputBusBlock extends AbstractMSCBusBlock{
 
 	public MSCInputBusBlock(Properties pProperties) {
 		super(pProperties);
-		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
 	}
-
-	public BlockState getStateForPlacement(BlockPlaceContext pContext) {
-		return this.defaultBlockState().setValue(FACING, pContext.getNearestLookingDirection().getOpposite());
-	}
-
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(new Property[]{FACING});
-	}
-
-	@Override
-	public RenderShape getRenderShape( BlockState state ) {
-		return RenderShape.MODEL;
-	}
-
 	@Override
 	public @Nullable BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
 		return new MSCInputBusBlockEntity(pPos, pState);
-	}
-
-	@Override
-	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pMovedByPiston) {
-		if( pState.getBlock() == pNewState.getBlock()) {
-			super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston);
-			return;
-		}
-
-		BlockEntity blockentity = pLevel.getBlockEntity(pPos);
-		if (blockentity instanceof Container container) {
-			Containers.dropContents(pLevel, pPos, container);
-			pLevel.updateNeighbourForOutputSignal(pPos, this);
-		}
-		super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston);
-	}
-
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-		if( level.isClientSide() ) {
-			return InteractionResult.sidedSuccess(true);
-		}
-
-		BlockEntity entity = level.getBlockEntity(pos);
-		if( entity instanceof MSCInputBusBlockEntity msc_in ) {
-			NetworkHooks.openScreen((ServerPlayer) player, msc_in, pos);
-			return InteractionResult.sidedSuccess(false);
-		}
-		Untransfur.LOGGER.error("Assertion failed: Missing container provider in MSCInputBusBlock", new IllegalStateException("Missing container provider"));
-		//unreachable.
-		return InteractionResult.sidedSuccess(false);
 	}
 
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> be_type) {

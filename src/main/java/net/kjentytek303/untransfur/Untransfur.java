@@ -1,7 +1,7 @@
 package net.kjentytek303.untransfur;
 
 import com.mojang.logging.LogUtils;
-import net.kjentytek303.untransfur.client.screen.MSCInputBusScreen;
+import net.kjentytek303.untransfur.client.screen.MSCBusScreen;
 import net.kjentytek303.untransfur.init.InitMenus;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.resources.ResourceLocation;
@@ -65,7 +65,7 @@ public class Untransfur
     {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
-            MenuScreens.register(InitMenus.MSC_INPUT_BUS_MENU.get(), MSCInputBusScreen::new);
+            MenuScreens.register(InitMenus.MSC_BUS_MENU.get(), MSCBusScreen::new);
         }
     }
 }

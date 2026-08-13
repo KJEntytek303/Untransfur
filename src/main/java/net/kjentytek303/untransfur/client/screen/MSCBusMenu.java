@@ -1,6 +1,6 @@
 package net.kjentytek303.untransfur.client.screen;
 
-import net.kjentytek303.untransfur.block_entity.MSCInputBusBlockEntity;
+import net.kjentytek303.untransfur.block_entity.AbstractMSCBusBlockEntity;
 import net.kjentytek303.untransfur.init.InitBlocks;
 import net.kjentytek303.untransfur.init.InitMenus;
 import net.minecraft.network.FriendlyByteBuf;
@@ -16,17 +16,17 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.SlotItemHandler;
 
 
-public class MSCInputBusMenu extends AbstractContainerMenu {
-	private final MSCInputBusBlockEntity bentity;
+public class MSCBusMenu extends AbstractContainerMenu {
+	private final AbstractMSCBusBlockEntity bentity;
 	private final Level level;
 
-	public MSCInputBusMenu(int container_id, Inventory inv, FriendlyByteBuf extra) {
+	public MSCBusMenu(int container_id, Inventory inv, FriendlyByteBuf extra) {
 		this(container_id, inv, inv.player.level().getBlockEntity(extra.readBlockPos()));
 	}
 
-	public MSCInputBusMenu( int container_id, Inventory inv, BlockEntity bentity) {
-		super(InitMenus.MSC_INPUT_BUS_MENU.get(), container_id);
-		this.bentity = (MSCInputBusBlockEntity) bentity;
+	public MSCBusMenu(int container_id, Inventory inv, BlockEntity bentity) {
+		super(InitMenus.MSC_BUS_MENU.get(), container_id);
+		this.bentity = (AbstractMSCBusBlockEntity) bentity;
 		this.level = inv.player.level();
 		checkContainerSize(inv, 4);
 		addPlayerInventory(inv);
@@ -93,7 +93,8 @@ public class MSCInputBusMenu extends AbstractContainerMenu {
 
 	@Override
 	public boolean stillValid(Player pPlayer) {
-		return stillValid(ContainerLevelAccess.create(level, bentity.getBlockPos()), pPlayer, InitBlocks.MSC_INPUT_BUS.get());
+		return stillValid(ContainerLevelAccess.create(level, bentity.getBlockPos()), pPlayer, InitBlocks.MSC_INPUT_BUS.get()) ||
+			stillValid(ContainerLevelAccess.create(level, bentity.getBlockPos()), pPlayer, InitBlocks.MSC_OUTPUT_BUS.get());
 	}
 
 	private void addPlayerInventory( Inventory inv ) {
