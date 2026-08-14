@@ -1,17 +1,17 @@
 {
+	"block.untransfur.msc_advanced_logic_adapter": "Nagy sztáziskamra fejlett logikai adapter",
 	"block.untransfur.msc_controller": "Nagy sztáziskamra vezérlő",
-	"block.untransfur.msc_tank": "Nagy sztáziskamra tartály",
+	"block.untransfur.msc_input_bus": "Nagy sztáziskamra bemeneti busz",
+	"block.untransfur.msc_input_hatch": "Nagy sztáziskamra bemeneti sraffozás",
 	"block.untransfur.msc_metal_block": "Nagy sztáziskamra fémbevonat",
 	"block.untransfur.msc_output_bus": "Nagy sztáziskamra kimeneti busz",
-	"block.untransfur.msc_input_bus": "Nagy sztáziskamra bemeneti busz",
-	"block.untransfur.msc_redstone_logic_adapter": "Nagy sztáziskamra redstone logikai adapter",
-	"block.untransfur.msc_advanced_logic_adapter": "Nagy sztáziskamra fejlett logikai adapter",
-	"block.untransfur.msc_input_hatch": "Nagy sztáziskamra bemeneti sraffozás",
 	"block.untransfur.msc_output_hatch": "Nagy sztáziskamra kimeneti sraffozás",
+	"block.untransfur.msc_redstone_logic_adapter": "Nagy sztáziskamra redstone logikai adapter",
+	"block.untransfur.msc_tank": "Nagy sztáziskamra tartály",
 
 	"item.untransfur.msc_program_rom": "Nagy sztáziskamra ROM program",
-	"item.untransfur.untransfur_syringe": "Visszatranszfuráló fecskendő",
 	"item.untransfur.untransfur_syringe.desc": "Talán nem kéne ezzel szúrnom magam...",
+	"item.untransfur.untransfur_syringe": "Visszatranszfuráló fecskendő",
 
 	"untransfur.creative_tabs.untransfur": "Untransfur Mod"
 }
