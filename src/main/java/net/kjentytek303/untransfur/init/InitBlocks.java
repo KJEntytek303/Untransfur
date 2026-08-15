@@ -74,6 +74,12 @@ public class InitBlocks {
 		new Item.Properties()
 	);
 
+	public static final RegistryObject<Block> MSC_SMOOTH_WALL = registerWithItem(
+		"msc_smooth_wall", //;! -i
+		() -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
+		new Item.Properties()
+	);
+
 
 /*
 	public static final RegistryObject<Block> MSC_TANK = registerWithItem(

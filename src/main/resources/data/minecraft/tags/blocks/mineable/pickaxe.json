@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+     "#untransfur:msc_augment",
+     "untransfur:msc_controller",
+     "untransfur:msc_smooth_wall"
+
+  ]
+}
