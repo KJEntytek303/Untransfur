@@ -60,6 +60,7 @@ import static net.kjentytek303.untransfur.block.MSCControllerBlock.FACING;
 import static net.kjentytek303.untransfur.block.MSCControllerBlock.OPEN;
 import static net.kjentytek303.untransfur.init.InitBlockEntities.MSC_CONTROLLER_BLOCK_ENTITY;
 import static net.kjentytek303.untransfur.init.InitBlocks.MSC_CONTROLLER;
+import static net.kjentytek303.untransfur.init.InitBlocks.MSC_SMOOTH_WALL;
 import static net.kjentytek303.untransfur.init.InitItems.UNTRANSFUR_SYRINGE;
 import static net.kjentytek303.untransfur.util.BlockUtilities.TransformHorizontalDirection;
 import static net.kjentytek303.untransfur.util.BlockUtilities.fillWithBlock;
@@ -600,7 +601,7 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 	static {
 		MSC_MULTIBLOCK_DEFINITION = new List3Wrapper<>(5, 10, 6);
 		for(int i=0; i<5*10*6; i++) {
-			MSC_MULTIBLOCK_DEFINITION.list.add(isBlock(ChangedBlocks.WALL_GRAY.get()));
+			MSC_MULTIBLOCK_DEFINITION.list.add(isBlock(MSC_SMOOTH_WALL.get()));
 		}
 
 		//Bottom layer
@@ -612,7 +613,8 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 
 		//Backplate
 		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 1, 0, 3, 2, 0, BlockUtilities.isBlock(ChangedBlocks.OXYGENATED_WATER_CANISTER.get()));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 3, 0, 3, 4, 0, BlockUtilities.isBlock(SMOOTH_STONE));
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 3, 0, 3, 3, 0, BlockUtilities.isBlock(SMOOTH_STONE));
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 4, 0, 3, 4,0, BlockUtilities.isBlock(MSC_SMOOTH_WALL.get()));
 		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 5, 0, 4, 9, 0, BlockUtilities.any);
 
 		//Front Panel
@@ -624,8 +626,8 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 0, 0, 0, 4, 0, BlockUtilities.isBlock(ChangedBlocks.WALL_VENT.get()));
 		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 4, 0, 0, 4, 4, 0, BlockUtilities.isBlock(ChangedBlocks.WALL_VENT.get()));
 		  //back-up
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 4, 1, 0, 8, 1, BlockUtilities.isBlock(ChangedBlocks.WALL_VENT.get()));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 4, 4, 1, 4, 8, 1, BlockUtilities.isBlock(ChangedBlocks.WALL_VENT.get()));
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 5, 1, 0, 8, 1, BlockUtilities.isBlock(ChangedBlocks.WALL_VENT.get()));
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 4, 5, 1, 4, 8, 1, BlockUtilities.isBlock(ChangedBlocks.WALL_VENT.get()));
 		  //front
 		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 0, 5, 0, 8, 5, BlockUtilities.isBlock(ChangedBlocks.WALL_VENT.get()));
 		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 4, 0, 5, 4, 8, 5, BlockUtilities.isBlock(ChangedBlocks.WALL_VENT.get()));
