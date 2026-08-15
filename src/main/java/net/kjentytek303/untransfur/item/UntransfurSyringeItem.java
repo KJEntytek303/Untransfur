@@ -2,8 +2,11 @@ package net.kjentytek303.untransfur.item;
 
 
 //import net.ltxprogrammer.changed.init.ChangedDamageSources;
+import net.kjentytek303.untransfur.config.ServerCfg;
 import net.ltxprogrammer.changed.init.ChangedItems;
 import net.ltxprogrammer.changed.init.ChangedSounds;
+import net.ltxprogrammer.changed.item.SpecializedAnimations;
+import net.ltxprogrammer.changed.item.Syringe;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.network.chat.Component;
@@ -23,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class UntransfurSyringeItem extends Item implements net.ltxprogrammer.changed.item.SpecializedAnimations
+public class UntransfurSyringeItem extends Item implements SpecializedAnimations
 {
 	
 	public UntransfurSyringeItem(Properties properties){
@@ -31,7 +34,7 @@ public class UntransfurSyringeItem extends Item implements net.ltxprogrammer.cha
 	}
 	@Override
 	public AnimationHandler getAnimationHandler() {
-		return new net.ltxprogrammer.changed.item.Syringe.SyringeAnimation(this);
+		return new Syringe.SyringeAnimation(this);
 	}
 	
 	@Override
@@ -44,8 +47,7 @@ public class UntransfurSyringeItem extends Item implements net.ltxprogrammer.cha
 	public int getUseDuration(@NotNull ItemStack pStack) {
 		return 32;
 	}
-	
-	//If stab, then kill //LATER
+
 	@Override
 	public @NotNull ItemStack finishUsingItem(@NotNull ItemStack pStack, @NotNull Level pLevel, @NotNull LivingEntity pLivingEntity) {
 		Player player = ( pLivingEntity instanceof Player ) ? (Player) pLivingEntity : null;
@@ -53,16 +55,35 @@ public class UntransfurSyringeItem extends Item implements net.ltxprogrammer.cha
 			CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayer)player, pStack);
 		}
 		ChangedSounds.broadcastSound(pLivingEntity, ChangedSounds.SYRINGE_PRICK, 1, 1);
-		if (player != null) {
-			player.awardStat(Stats.ITEM_USED.get(this));
-			if (!player.getAbilities().instabuild) {
-				pStack.shrink(1);
+		if (player == null) {
+			return pStack;
+		}
+
+		player.awardStat(Stats.ITEM_USED.get(this));
+		if (!player.getAbilities().instabuild) {
+			pStack.shrink(1);
+		}
+		pStack = new ItemStack(ChangedItems.SYRINGE.get());
+		switch (ServerCfg.UNTRANSFUR_HANDLE_MODE.get()) {
+			case SIMPLE -> {
+				ProcessTransfur.removePlayerTransfurVariant(player);
+				ProcessTransfur.setPlayerTransfurProgress(player, 0.0f);
+				return pStack;
 			}
-			
-			pStack = new ItemStack(ChangedItems.SYRINGE.get());
-			
-			ProcessTransfur.removePlayerTransfurVariant(player);
-			ProcessTransfur.setPlayerTransfurProgress(player, 0.0f);
+			case ORGANICS_ONLY -> {
+				if( !ProcessTransfur.isPlayerNotLatex(player) ) {
+					//TODO: add unsafe untransfur effect
+					return pStack;
+				}
+
+				ProcessTransfur.removePlayerTransfurVariant(player);
+				ProcessTransfur.setPlayerTransfurProgress(player, 0.0f);
+				return pStack;
+			}
+			case COMPLEX -> {
+				//TODO: add unsafe untransfur or deadly untransfur.
+				return pStack;
+			}
 		}
 		return pStack;
 	}
@@ -74,4 +95,3 @@ public class UntransfurSyringeItem extends Item implements net.ltxprogrammer.cha
 		super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
 	}
 }
-
