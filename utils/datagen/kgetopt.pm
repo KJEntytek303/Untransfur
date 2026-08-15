@@ -1,17 +1,13 @@
-#!/usr/bin/perl
-package kgetopt
+package kgetopt;
 
 use strict;
 use warnings;
-use Exporter qw(import);
+use Exporter qw (import);
 
-our @EXPORT_DEF = qw ( str_getopt $errno );
-our @EXPORT_OK;
+our @EXPORT_OK = qw ( str_getopt $errno );
 
-our %EXPORT_TAGS = ( "default" => \@EXPORT_DEF);
+our %EXPORT_TAGS = ( "default" => \@EXPORT_OK );
 
-#our $optarg="";
-#our $optind="";
 our $errno="";
 
 sub getShortOpt {
@@ -111,4 +107,4 @@ sub compare_simple_arrays {
 	return 1;
 }
 
-my $opthash = { "txt" => "" }; 
+1;

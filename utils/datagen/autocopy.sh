@@ -20,9 +20,6 @@ errored=0
 if [[ $errored != 0 ]]; then
 	echo "autocopy.sh: Error: Assembly failed." >&2
 else
-	cp -R ./generated/java/registry/* ../../src/main/java/net/kjentytek303/additional_transfurs/init/
-	cp -R ./generated/java/transfurs/* ../../src/main/java/net/kjentytek303/additional_transfurs/entity/generated/
-	cp -R ./generated/java/renderers/* ../../src/main/java/net/kjentytek303/additional_transfurs/client/renderer/generated/
 	cp -R ./generated/data/* ../../src/main/resources/data/
 	cp -R ./generated/assets/* ../../src/main/resources/assets/
 fi
