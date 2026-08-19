@@ -22,6 +22,7 @@ eclipse
 run
 utils/datagen/tmp
 utils/datagen/generated
+/libs
 
 # Files from Forge MDK
 forge*changelog.txt
