@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import net.kjentytek303.untransfur.client.screen.MSCBusScreen;
 import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.init.InitMenus;
+import net.kjentytek303.untransfur.init.InitPackets;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -32,6 +33,7 @@ import static net.kjentytek303.untransfur.init.InitBlockEntities.BLOCK_ENTITY_RE
 import static net.kjentytek303.untransfur.init.InitBlocks.BLOCK_REGISTRY;
 import static net.kjentytek303.untransfur.init.InitItems.ITEM_REGISTRY;
 import static net.kjentytek303.untransfur.init.InitMenus.MENU_REGISTRY;
+import static net.kjentytek303.untransfur.init.InitMobEffects.EFFECT_REGISTRY;
 
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -55,6 +57,7 @@ public class Untransfur
         CT_TABS_REGISTRY.register(modEventBus);
         BLOCK_ENTITY_REGISTRY.register(modEventBus);
         MENU_REGISTRY.register(modEventBus);
+        EFFECT_REGISTRY.register(modEventBus);
 
         context.registerConfig(ModConfig.Type.SERVER, ServerCfg.SPEC, "untransfur-server.toml");
         
@@ -83,16 +86,19 @@ public class Untransfur
         return MODID + ":" + path;
     }
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-
-    // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents
-    {
+    public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             MenuScreens.register(InitMenus.MSC_BUS_MENU.get(), MSCBusScreen::new);
+        }
+    }
+
+    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    public static class CommonEvents {
+        @SubscribeEvent
+        public static void commonSetup( FMLCommonSetupEvent event ) {
+            InitPackets.addPackets(event);
         }
     }
 }

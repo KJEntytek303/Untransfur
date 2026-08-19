@@ -8,6 +8,7 @@ import net.ltxprogrammer.changed.init.ChangedSounds;
 import net.ltxprogrammer.changed.item.SpecializedAnimations;
 import net.ltxprogrammer.changed.item.Syringe;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.process.TransfurEvents;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,38 +62,40 @@ public class UntransfurSyringeItem extends Item implements SpecializedAnimations
 		}
 
 		player.awardStat(Stats.ITEM_USED.get(this));
+		switch (ServerCfg.UNTRANSFUR_HANDLE_MODE.get()) {
+			case SIMPLE -> {
+				var event = new TransfurEvents.UntransfurPlayerByItemEvent( player, pStack, player, ProcessTransfur.getPlayerTransfurVariant(player), null );
+				if(MinecraftForge.EVENT_BUS.post(event)){ break; }
+				TransfurEvents.finalizeUntransfurPlayerEvent(event);
+			}
+			case ORGANICS_ONLY -> {
+				if( ProcessTransfur.isPlayerNotLatex(player) ) {
+					var event = new TransfurEvents.UntransfurPlayerByItemEvent( player, pStack, player, ProcessTransfur.getPlayerTransfurVariant(player), null );
+					if(MinecraftForge.EVENT_BUS.post(event)){ break; }
+					TransfurEvents.finalizeUntransfurPlayerEvent(event);
+					break;
+				}
+				//TODO: add unsafe untransfur effect
+			}
+			case COMPLEX -> {
+				if( ProcessTransfur.isPlayerNotLatex(player)) {
+					//TODO: add unsafe untransfur effect
+				}
+				//TODO: add Flinston Solution effect.
+			}
+		}
 		if (!player.getAbilities().instabuild) {
 			pStack.shrink(1);
 		}
 		pStack = new ItemStack(ChangedItems.SYRINGE.get());
-		switch (ServerCfg.UNTRANSFUR_HANDLE_MODE.get()) {
-			case SIMPLE -> {
-				ProcessTransfur.removePlayerTransfurVariant(player);
-				ProcessTransfur.setPlayerTransfurProgress(player, 0.0f);
-				return pStack;
-			}
-			case ORGANICS_ONLY -> {
-				if( !ProcessTransfur.isPlayerNotLatex(player) ) {
-					//TODO: add unsafe untransfur effect
-					return pStack;
-				}
-
-				ProcessTransfur.removePlayerTransfurVariant(player);
-				ProcessTransfur.setPlayerTransfurProgress(player, 0.0f);
-				return pStack;
-			}
-			case COMPLEX -> {
-				//TODO: add unsafe untransfur or deadly untransfur.
-				return pStack;
-			}
-		}
 		return pStack;
 	}
-	
-	
+
 	@Override
 	public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
-		pTooltipComponents.add(Component.translatable("item.untransfur.untransfur_syringe.desc"));
 		super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
+		if( ServerCfg.UNTRANSFUR_HANDLE_MODE.get() != ServerCfg.UntransfurHandleMode.SIMPLE ) {
+			pTooltipComponents.add(Component.translatable("item.untransfur.untransfur_syringe.desc"));
+		}
 	}
 }
