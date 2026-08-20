@@ -50,7 +50,6 @@ public class Untransfur
     {
         
         IEventBus modEventBus = context.getModEventBus();
-        modEventBus.addListener(this::commonSetup);
 
         BLOCK_REGISTRY.register(modEventBus);
         ITEM_REGISTRY.register(modEventBus);
@@ -65,8 +64,6 @@ public class Untransfur
         MinecraftForge.EVENT_BUS.register(this);
 
     }
-
-    private void commonSetup(final FMLCommonSetupEvent event) {}
 
     public static <T> void addNetworkMessage(Class<T> messageType, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, Supplier<NetworkEvent.Context>> messageConsumer) {
         PACKET_HANDLER.registerMessage(message_id, messageType, encoder, decoder, messageConsumer);

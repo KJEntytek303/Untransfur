@@ -15,8 +15,6 @@ public class MSCBusScreen extends AbstractContainerScreen<MSCBusMenu> {
 
 	public MSCBusScreen(MSCBusMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
 		super(pMenu, pPlayerInventory, pTitle);
-		//this.imageWidth = 176;
-		//this.imageHeight = 145;
 	}
 	@Override
 	protected void init() {

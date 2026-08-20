@@ -4,7 +4,6 @@ import net.kjentytek303.untransfur.event.UntransfurPlayerByEffectEvent;
 import net.kjentytek303.untransfur.init.InitDamageSources;
 import net.kjentytek303.untransfur.init.InitMobEffects;
 import net.kjentytek303.untransfur.util.ProcessUntransfur;
-import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.process.TransfurEvents;
 import net.minecraft.world.effect.MobEffect;
@@ -12,6 +11,8 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
+
+import static net.kjentytek303.untransfur.util.ProcessUntransfur.ProcUntfRetVal.UNTRANSFUR;
 
 
 public class UnsafeUntransfurEffect extends MobEffect {
@@ -30,18 +31,15 @@ public class UnsafeUntransfurEffect extends MobEffect {
 		}
 
 		//Progress untransfur by 0.05% * `effect strength` / `tick` (untransfur after 100 seconds)
-		ProcessUntransfur.incrementPlayerUntransfurProgress(player, 0.0005 * (pAmplifier + 1) );
-		if( ProcessUntransfur.getUntransfurProgress(player) < 1.0 || ProcessTransfur.getPlayerTransfurVariant(player) == null ) {
-			return;
+		if(ProcessUntransfur.incrementPlayerUntransfurProgress(player, 0.0005 * (pAmplifier + 1) ) == UNTRANSFUR ) {
+
+			//On untransfur, deal 8 * `effect strength` damage to the entity. Damage is halved for organics.
+			player.hurt(InitDamageSources.FLINSTON_SOLUTION.source(player.level().registryAccess()), 4 * (ProcessTransfur.isPlayerLatex(player) ? 2 : 1) * (1 + pAmplifier));
+
+			var event = new UntransfurPlayerByEffectEvent(player, ProcessTransfur.getPlayerTransfurVariant(player), null, InitMobEffects.UNSAFE_UNTRANSFUR.get());
+			if (MinecraftForge.EVENT_BUS.post(event)) {return;}
+			TransfurEvents.finalizeUntransfurPlayerEvent(event);
 		}
-
-		//On untransfur, deal 8 * `effect strength` damage to the entity. Damage is halved for organics.
-		player.hurt(InitDamageSources.FLINSTON_SOLUTION.source(player.level().registryAccess()), 4 * (ProcessTransfur.isPlayerLatex(player) ? 2 : 1) * ( 1 + pAmplifier));
-		ProcessUntransfur.setPlayerUntransfurProgress(player, 0);
-
-		var event = new UntransfurPlayerByEffectEvent( player, ProcessTransfur.getPlayerTransfurVariant(player), null, InitMobEffects.UNSAFE_UNTRANSFUR.get() );
-		if(MinecraftForge.EVENT_BUS.post(event)){ return; }
-		TransfurEvents.finalizeUntransfurPlayerEvent(event);
 
 		//TODO: //LATER
 		//If caddon is installed, progress it's untransfur too.

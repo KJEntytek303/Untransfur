@@ -1,5 +1,6 @@
 package net.kjentytek303.untransfur.init;
 
+import net.kjentytek303.untransfur.block.DroppedUntransfurSyringe;
 import net.kjentytek303.untransfur.block.MSCControllerBlock;
 //import net.kjentytek303.untransfur.block.MSCTankBlock;
 import net.kjentytek303.untransfur.block.MSCInputBusBlock;
@@ -9,9 +10,9 @@ import net.kjentytek303.untransfur.block.MSCOutputHatchBlock;
 import net.kjentytek303.untransfur.block.MSCRedstoneLogicAdapterBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -78,6 +79,11 @@ public class InitBlocks {
 		"msc_smooth_wall", //;! -i
 		() -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
 		new Item.Properties()
+	);
+
+	public static final RegistryObject<DroppedUntransfurSyringe> DROPPED_UNTRANSFUR_SYRINGE = BLOCK_REGISTRY.register(
+		"untransfur_syringe",
+		() -> new DroppedUntransfurSyringe( BlockBehaviour.Properties.of().sound(SoundType.CANDLE).instabreak())
 	);
 
 

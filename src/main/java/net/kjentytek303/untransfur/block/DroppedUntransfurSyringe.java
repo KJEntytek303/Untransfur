@@ -1,12 +1,18 @@
 package net.kjentytek303.untransfur.block;
 
 import net.kjentytek303.untransfur.config.ServerCfg;
+import net.kjentytek303.untransfur.init.InitMobEffects;
+import net.kjentytek303.untransfur.util.ProcessUntransfur;
+import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.process.TransfurEvents;
 import net.ltxprogrammer.changed.util.LevelUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -27,6 +33,9 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.common.MinecraftForge;
+
+import static net.kjentytek303.untransfur.util.ProcessUntransfur.ProcUntfRetVal.UNTRANSFUR;
 
 
 public class DroppedUntransfurSyringe extends Block implements SimpleWaterloggedBlock {
@@ -62,18 +71,43 @@ public class DroppedUntransfurSyringe extends Block implements SimpleWaterlogged
 			return;
 		}
 
+		if( !( living_entity instanceof Player player )) {
+			living_entity.addEffect(new MobEffectInstance(InitMobEffects.UNSAFE_UNTRANSFUR.get(), 10, 0));
+			level.removeBlock(pos, false);
+			return;
+		}
+
+		if( player.isCreative() || player.isSpectator() ) {
+			return;
+		}
+
 		switch(ServerCfg.UNTRANSFUR_HANDLE_MODE.get() ) {
 			case SIMPLE -> {
-				//TODO: Progress untransfur immediately.
+				ProcessUntransfur.incrementPlayerUntransfurProgress(player, 0.15);
 			}
 			case ORGANICS_ONLY -> {
-				//TODO: IF organic THEN progress untransfur, ELSE apply unsafe untranfur FI.
+				if (ProcessTransfur.isPlayerNotLatex(player) ) {
+					if(ProcessUntransfur.incrementPlayerUntransfurProgress(player, 0.15) == UNTRANSFUR) {
+						var event = new TransfurEvents.UntransfurPlayerByBlockEvent(state, pos, player, ProcessTransfur.getPlayerTransfurVariant(player), null );
+						if(!MinecraftForge.EVENT_BUS.post(event)) {
+							TransfurEvents.finalizeUntransfurPlayerEvent(event);
+						}
+					}
+
+				} else {
+					player.addEffect(new MobEffectInstance(InitMobEffects.UNSAFE_UNTRANSFUR.get(), 10, 0));
+				}
 			}
 
 			case COMPLEX -> {
-				//TODO: IF organic or null THEN apply unsafe untransfur, ELSE apply Flinston Solution FI.
+				if (ProcessTransfur.isPlayerNotLatex(player) ) {
+					player.addEffect(new MobEffectInstance(InitMobEffects.UNSAFE_UNTRANSFUR.get(), 10, 0));
+				} else {
+					//TODO: Flinston Solution
+				}
 			}
 		}
+		level.removeBlock(pos, false);
 	}
 
 	public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos ) {
@@ -93,7 +127,7 @@ public class DroppedUntransfurSyringe extends Block implements SimpleWaterlogged
 	}
 
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		return this.defaultBlockState().setValue(ROTATION, Mth.floor((context.getRotation() * 16.0 / 360.0) + 0.5) & 15);
+		return this.defaultBlockState().setValue(ROTATION, Mth.floor((context.getRotation() * 16.0 / 360.0) + 0.5) & 15).setValue(WATERLOGGED, false);
 	}
 
 	public BlockState rotate(BlockState state, Rotation rotation) {

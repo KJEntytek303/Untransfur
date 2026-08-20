@@ -17,12 +17,10 @@ public class CreativeTabs
 		 	() -> CreativeModeTab.builder()
 				.title( Component.translatable("untransfur.creative_tabs.untransfur") )
 				.icon(() -> InitItems.UNTRANSFUR_SYRINGE.get().getDefaultInstance())
-				.displayItems(
-					(parameters, item) -> {
-						InitItems.ITEM_REGISTRY.getEntries().forEach(
-							itemRegistryObject -> item.accept(itemRegistryObject.get())
-						);
-					}
+				.displayItems( (parameters, item) ->
+					InitItems.ITEM_REGISTRY.getEntries().forEach(
+						itemRegistryObject -> item.accept(itemRegistryObject.get())
+					)
 		        	)
 				.build()
 	);

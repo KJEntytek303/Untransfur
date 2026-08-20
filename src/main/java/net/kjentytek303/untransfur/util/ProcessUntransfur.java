@@ -1,6 +1,5 @@
 package net.kjentytek303.untransfur.util;
 
-import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.network.UntransfurVariables;
 import net.minecraft.world.entity.player.Player;
 
@@ -32,6 +31,13 @@ public class ProcessUntransfur {
 
 		double current_progress = vars.getUntfProgress();
 		vars.setUntfProgress(current_progress + amount );
+
+		if( vars.getUntfProgress() > 1.0 ) {
+			vars.setUntfProgress(0.0);
+			vars.syncPlayerVariables(player);
+			return ProcUntfRetVal.UNTRANSFUR;
+		}
+
 		vars.syncPlayerVariables(player);
 		return ProcUntfRetVal.SUCCESS;
 	}
@@ -60,6 +66,7 @@ public class ProcessUntransfur {
 
 	public enum ProcUntfRetVal {
 		SUCCESS,
+		UNTRANSFUR,
 		ERROR,
 		PLAYER_IMMUNE
 	}

@@ -1,15 +1,10 @@
 package net.kjentytek303.untransfur.client.screen;
 
-import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
 import net.ltxprogrammer.changed.block.entity.StasisChamberBlockEntity;
 import net.ltxprogrammer.changed.world.inventory.StasisChamberMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 
