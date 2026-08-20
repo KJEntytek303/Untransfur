@@ -1,5 +1,6 @@
 package net.kjentytek303.untransfur.util;
 
+import net.kjentytek303.untransfur.init.InitDamageSources;
 import net.kjentytek303.untransfur.network.UntransfurVariables;
 import net.minecraft.world.entity.player.Player;
 
@@ -57,11 +58,53 @@ public class ProcessUntransfur {
 	}
 
 	public static double getPlayerFlinstonSolution( Player player ) {
-		return 0.0;
+		var vars = UntransfurVariables.of(player);
+		if( vars == null ) {
+			return -2.0;
+		}
+		return vars.getFlinstonProgress();
 	}
 
-	public static void setPlayerFlinstonSolution( Player player, double amount) {
+	public static ProcUntfRetVal setPlayerFlinstonSolution( Player player, double amount) {
+		var vars = UntransfurVariables.of(player);
+		if( vars == null ) {
+			return ProcUntfRetVal.ERROR;
+		}
+		vars.setFlinstonDissolvement(amount);
+		vars.syncPlayerVariables(player);
+		return ProcUntfRetVal.SUCCESS;
+	}
 
+	public static ProcUntfRetVal tickPlayerFlinstonProgress( Player player ) {
+		return decrementPlayerFlinstonProgress(player, 0.0001220703125); // 1/8192
+	}
+
+	public static ProcUntfRetVal decrementPlayerFlinstonProgress( Player player, double amount ) {
+		var vars = UntransfurVariables.of(player);
+		if( vars == null ) { return ProcUntfRetVal.ERROR; }
+
+		double current_progress = vars.getFlinstonProgress();
+		vars.setFlinstonDissolvement(current_progress - amount);
+		vars.syncPlayerVariables(player);
+		return ProcUntfRetVal.SUCCESS;
+	}
+
+	public static ProcUntfRetVal incrementPlayerFlinstonProgress(Player player, double amount) {
+		var vars = UntransfurVariables.of(player);
+		if( vars == null ) { return ProcUntfRetVal.ERROR; }
+
+		double current_progress = vars.getFlinstonProgress();
+		vars.setFlinstonDissolvement(current_progress + amount );
+
+		if( vars.getFlinstonProgress() > 1.0 ) {
+			vars.setFlinstonDissolvement(1.0);
+			player.hurt(InitDamageSources.FLINSTON_SOLUTION.source(player.level().registryAccess(), player), 2137 * 420 * 69);
+			vars.syncPlayerVariables(player);
+			return ProcUntfRetVal.UNTRANSFUR;
+		}
+
+		vars.syncPlayerVariables(player);
+		return ProcUntfRetVal.SUCCESS;
 	}
 
 	public enum ProcUntfRetVal {
