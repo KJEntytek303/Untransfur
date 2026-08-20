@@ -35,17 +35,22 @@ public class UntransfurVariables {
 
 	public static class PlayerVariables {
 		private double untransfur_progress = 0.0;
+		private double flinston_dissolvement = 0.0;
 
 		public double getUntfProgress() { return this.untransfur_progress; }
+		public double getFlinstonProgress() { return this.flinston_dissolvement; }
 		public void setUntfProgress(double new_progress) { this.untransfur_progress = new_progress; }
+		public void setFlinstonDissolvement(double new_dissolvement) { this.flinston_dissolvement = new_dissolvement; }
 
 		public CompoundTag serializeNBT() {
 			CompoundTag tag = new CompoundTag();
 			tag.putDouble("untransfur_progress", this.untransfur_progress);
+			tag.putDouble("flinston_dissolvement", this.flinston_dissolvement);
 			return tag;
 		}
 		public void deserializeNBT(CompoundTag nbt) {
 			untransfur_progress = nbt.contains("untransfur_progress") ? nbt.getDouble("untransfur_progress") : untransfur_progress;
+			flinston_dissolvement = nbt.contains("flinston_dissolvement") ? nbt.getDouble("flinston_dissolvement") : flinston_dissolvement;
 		}
 
 		public void syncPlayerVariables(Entity entity) {
@@ -59,6 +64,7 @@ public class UntransfurVariables {
 				return;
 			}
 			this.setUntfProgress(present.getUntfProgress());
+			this.setFlinstonDissolvement(present.getFlinstonProgress());
 		}
 	}
 

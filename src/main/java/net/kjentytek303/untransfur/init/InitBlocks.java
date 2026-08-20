@@ -1,6 +1,7 @@
 package net.kjentytek303.untransfur.init;
 
 import net.kjentytek303.untransfur.block.DroppedUntransfurSyringe;
+import net.kjentytek303.untransfur.block.MSCAdvancedLogicAdapterBlock;
 import net.kjentytek303.untransfur.block.MSCControllerBlock;
 //import net.kjentytek303.untransfur.block.MSCTankBlock;
 import net.kjentytek303.untransfur.block.MSCInputBusBlock;
@@ -71,7 +72,7 @@ public class InitBlocks {
 
 	public static final RegistryObject<Block> MSC_ADVANCED_LOGIC_ADAPTER = registerWithItem(
 		"msc_advanced_logic_adapter",
-		() -> new MSCRedstoneLogicAdapterBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
+		() -> new MSCAdvancedLogicAdapterBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)),
 		new Item.Properties()
 	);
 
