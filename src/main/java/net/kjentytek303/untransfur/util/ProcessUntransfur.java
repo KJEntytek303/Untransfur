@@ -28,11 +28,24 @@ public class ProcessUntransfur {
 
 	public static ProcUntfRetVal incrementPlayerUntransfurProgress(Player player, double amount) {
 		var vars = UntransfurVariables.of(player);
-		if( vars == null ) {
-			return ProcUntfRetVal.ERROR;
-		}
+		if( vars == null ) { return ProcUntfRetVal.ERROR; }
+
 		double current_progress = vars.getUntfProgress();
 		vars.setUntfProgress(current_progress + amount );
+		vars.syncPlayerVariables(player);
+		return ProcUntfRetVal.SUCCESS;
+	}
+
+	public static ProcUntfRetVal tickPlayerUntransfurProgress( Player player ) {
+		return decrementPlayerUntransfurProgress(player, 0.0001220703125); // 1/8192
+	}
+
+	public static ProcUntfRetVal decrementPlayerUntransfurProgress( Player player, double amount ) {
+		var vars = UntransfurVariables.of(player);
+		if( vars == null ) { return ProcUntfRetVal.ERROR; }
+
+		double current_progress = vars.getUntfProgress();
+		vars.setUntfProgress(current_progress - amount);
 		vars.syncPlayerVariables(player);
 		return ProcUntfRetVal.SUCCESS;
 	}

@@ -3,6 +3,7 @@ package net.kjentytek303.untransfur.item;
 
 //import net.ltxprogrammer.changed.init.ChangedDamageSources;
 import net.kjentytek303.untransfur.config.ServerCfg;
+import net.kjentytek303.untransfur.init.InitMobEffects;
 import net.ltxprogrammer.changed.init.ChangedItems;
 import net.ltxprogrammer.changed.init.ChangedSounds;
 import net.ltxprogrammer.changed.item.SpecializedAnimations;
@@ -15,6 +16,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -75,11 +77,13 @@ public class UntransfurSyringeItem extends Item implements SpecializedAnimations
 					TransfurEvents.finalizeUntransfurPlayerEvent(event);
 					break;
 				}
-				//TODO: add unsafe untransfur effect
+				player.addEffect(new MobEffectInstance(InitMobEffects.UNSAFE_UNTRANSFUR.get(), 40, 1));
 			}
+
 			case COMPLEX -> {
 				if( ProcessTransfur.isPlayerNotLatex(player)) {
-					//TODO: add unsafe untransfur effect
+					player.addEffect(new MobEffectInstance(InitMobEffects.UNSAFE_UNTRANSFUR.get(), 40, 1));
+					break;
 				}
 				//TODO: add Flinston Solution effect.
 			}

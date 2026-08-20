@@ -31,12 +31,13 @@ public class UnsafeUntransfurEffect extends MobEffect {
 
 		//Progress untransfur by 0.05% * `effect strength` / `tick` (untransfur after 100 seconds)
 		ProcessUntransfur.incrementPlayerUntransfurProgress(player, 0.0005 * (pAmplifier + 1) );
-		if( ProcessUntransfur.getUntransfurProgress(player) < 1.0 ) {
+		if( ProcessUntransfur.getUntransfurProgress(player) < 1.0 || ProcessTransfur.getPlayerTransfurVariant(player) == null ) {
 			return;
 		}
 
 		//On untransfur, deal 8 * `effect strength` damage to the entity. Damage is halved for organics.
 		player.hurt(InitDamageSources.FLINSTON_SOLUTION.source(player.level().registryAccess()), 4 * (ProcessTransfur.isPlayerLatex(player) ? 2 : 1) * ( 1 + pAmplifier));
+		ProcessUntransfur.setPlayerUntransfurProgress(player, 0);
 
 		var event = new UntransfurPlayerByEffectEvent( player, ProcessTransfur.getPlayerTransfurVariant(player), null, InitMobEffects.UNSAFE_UNTRANSFUR.get() );
 		if(MinecraftForge.EVENT_BUS.post(event)){ return; }
