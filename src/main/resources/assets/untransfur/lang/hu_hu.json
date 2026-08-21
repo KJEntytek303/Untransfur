@@ -7,11 +7,15 @@
 	"block.untransfur.msc_output_bus": "Nagy sztáziskamra kimeneti busz",
 	"block.untransfur.msc_output_hatch": "Nagy sztáziskamra kimeneti sraffozás",
 	"block.untransfur.msc_redstone_logic_adapter": "Nagy sztáziskamra redstone logikai adapter",
+	"block.untransfur.msc_smooth_wall": "Nagy sztáziskamra fal",
 	"block.untransfur.msc_tank": "Nagy sztáziskamra tartály",
 
 	"item.untransfur.msc_program_rom": "Nagy sztáziskamra ROM program",
+	"item.untransfur.msc_program_rom.tooltip": "Program: %s",
+	"item.untransfur.msc_program_rom.tooltip.empty": "§c§oÜres§r",
 	"item.untransfur.untransfur_syringe.desc": "Talán nem kéne ezzel szúrnom magam...",
 	"item.untransfur.untransfur_syringe": "Visszatranszfuráló fecskendő",
 
-	"untransfur.creative_tabs.untransfur": "Untransfur Mod"
+	"untransfur.creative_tabs.untransfur": "Untransfur Mod",
+	"untransfur.msc.program.untransfur": "§a§oVisszatranszfur§r"
 }
