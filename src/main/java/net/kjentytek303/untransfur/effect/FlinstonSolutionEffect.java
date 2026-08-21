@@ -3,6 +3,7 @@ package net.kjentytek303.untransfur.effect;
 import net.kjentytek303.untransfur.event.UntransfurPlayerByEffectEvent;
 import net.kjentytek303.untransfur.init.InitDamageSources;
 import net.kjentytek303.untransfur.init.InitMobEffects;
+import net.kjentytek303.untransfur.util.ProcessFlinston;
 import net.kjentytek303.untransfur.util.ProcessUntransfur;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.process.TransfurEvents;
@@ -27,8 +28,11 @@ public class FlinstonSolutionEffect extends MobEffect {
 	@Override
 	public void applyEffectTick(LivingEntity pLivingEntity, int pAmplifier) {
 		//Increase player's "untransfur:flinston" attribute modifier group, which depending on the player flinston contamination
+
+		if( (pLivingEntity.level().getGameTime() % 20 == 0)) {
+			pLivingEntity.hurt(InitDamageSources.FLINSTON_SOLUTION.source(pLivingEntity.level().registryAccess(), pLivingEntity), 0.25f * (pAmplifier + 1));
+		}
 		if(!(pLivingEntity instanceof Player player)) {
-			pLivingEntity.hurt(InitDamageSources.FLINSTON_SOLUTION.source(pLivingEntity.level().registryAccess(), pLivingEntity), 2 * (pAmplifier+1));
 			return;
 		}
 
@@ -38,8 +42,8 @@ public class FlinstonSolutionEffect extends MobEffect {
 		//untransfur:flinston increases at 0.2% / tick.
 		//Organics have halved speed.
 		//Untransfurred players have quartered speed.
-		double progress_amount = 0.0005 * (ProcessTransfur.isPlayerTransfurred(player) ? 2 : 1) * (ProcessTransfur.isPlayerLatex(player) ? 2 : 1);
-		var flinston_reaction = ProcessUntransfur.incrementPlayerFlinstonProgress(player, progress_amount * (pAmplifier + 1) );
+		double progress_amount = 0.0005 * ((ProcessTransfur.isPlayerTransfurred(player) ? 2 : 1) * (ProcessTransfur.isPlayerLatex(player) ? 2 : 1));
+		var flinston_reaction = ProcessFlinston.incrementDissolvement(player, progress_amount * (pAmplifier + 1) );
 
 		//Additionally, Flinston Solution progresses untransfur, at 0.025% speed / tick.
 		var untf_reaction = ProcessUntransfur.incrementPlayerUntransfurProgress(player, 0.00025 * (pAmplifier + 1) );
@@ -47,15 +51,14 @@ public class FlinstonSolutionEffect extends MobEffect {
 			if(player.isDeadOrDying()) {
 				return;
 			}
+			UntransfurPlayerByEffectEvent event;
 			if(flinston_reaction == UNTRANSFUR ) {
-				var event = new UntransfurPlayerByEffectEvent(player, ProcessTransfur.getPlayerTransfurVariant(player), null, InitMobEffects.FLINSTON_SOLUTION.get());
-				if (MinecraftForge.EVENT_BUS.post(event)) {return;}
-				TransfurEvents.finalizeUntransfurPlayerEvent(event);
+				event = new UntransfurPlayerByEffectEvent(player, ProcessTransfur.getPlayerTransfurVariant(player), null, InitMobEffects.FLINSTON_SOLUTION.get());
 			} else {
-				var event = new UntransfurPlayerByEffectEvent(player, ProcessTransfur.getPlayerTransfurVariant(player), null, InitMobEffects.UNSAFE_UNTRANSFUR.get());
-				if (MinecraftForge.EVENT_BUS.post(event)) {return;}
-				TransfurEvents.finalizeUntransfurPlayerEvent(event);
+				event = new UntransfurPlayerByEffectEvent(player, ProcessTransfur.getPlayerTransfurVariant(player), null, InitMobEffects.UNSAFE_UNTRANSFUR.get());
 			}
+			if (MinecraftForge.EVENT_BUS.post(event)) {return;}
+			TransfurEvents.finalizeUntransfurPlayerEvent(event);
 		}
 	}
 }
