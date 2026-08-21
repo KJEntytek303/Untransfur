@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "net.kjentytek303.untransfur.mixin",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "untransfur.refmap.json",
+  "mixins": [
+    "PlayerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+  ]
+}

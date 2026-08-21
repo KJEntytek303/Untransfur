@@ -2,6 +2,7 @@ package net.kjentytek303.untransfur.init;
 
 
 import net.kjentytek303.untransfur.Untransfur;
+import net.kjentytek303.untransfur.item.MSCProgramRomItem;
 import net.kjentytek303.untransfur.item.UntransfurSyringeItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
@@ -20,6 +21,6 @@ public class InitItems
 
 	public static final RegistryObject<Item> MSC_PROGRAM_ROM = ITEM_REGISTRY.register(
 		"msc_program_rom",
-		() -> new Item(new Item.Properties().stacksTo(1))
+		() -> new MSCProgramRomItem(new Item.Properties().stacksTo(1))
 	);
 }

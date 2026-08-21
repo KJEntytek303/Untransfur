@@ -1,18 +1,12 @@
 package net.kjentytek303.untransfur.msc;
 
 import com.mojang.datafixers.util.Pair;
-import net.kjentytek303.untransfur.block.MSCControllerBlock;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
-import net.ltxprogrammer.changed.entity.ModifiableEntity;
-import net.ltxprogrammer.changed.init.ChangedSounds;
-import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
-import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 

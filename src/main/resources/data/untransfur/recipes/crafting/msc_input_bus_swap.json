@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "ingredients": [
+    {
+      "item": "untransfur:msc_output_bus"
+    }
+  ],
+  "result": {
+    "item": "untransfur:msc_input_bus"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "TCD",
+    "PMR",
+    "DCT"
+  ],
+  "key": {
+    "M": {
+      "item": "untransfur:msc_redstone_logic_adapter"
+    },
+    "C": {
+      "item": "minecraft:comparator"
+    },
+    "T": {
+      "item": "minecraft:redstone_torch"
+    },
+    "R": {
+      "item": "changed:computer"
+    },
+    "D": {
+      "item": "minecraft:redstone"
+    },
+    "P": {
+      "item": "minecraft:repeater"
+    }
+  },
+  "result": {
+    "item": "untransfur:msc_advanced_logic_adapter"
+  }
+}

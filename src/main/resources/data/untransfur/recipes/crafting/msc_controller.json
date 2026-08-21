@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PCP",
+    "ISM",
+    "PCP"
+  ],
+  "key": {
+    "P": {
+      "item": "untransfur:msc_metal_block"
+    },
+    "I": {
+      "item": "untransfur:msc_input_bus"
+    },
+    "C": {
+      "item": "minecraft:comparator"
+    },
+    "S": {
+      "item": "changed:stasis_chamber"
+    },
+    "M": {
+      "item": "changed:computer"
+    }
+  },
+  "result": {
+    "item": "untransfur:msc_controller"
+  }
+}

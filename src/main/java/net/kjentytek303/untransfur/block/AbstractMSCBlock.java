@@ -30,7 +30,7 @@ public abstract class AbstractMSCBlock extends BaseEntityBlock {
 	}
 
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(new Property[]{FACING});
+		builder.add(FACING);
 	}
 
 	@Override

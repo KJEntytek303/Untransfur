@@ -3,18 +3,19 @@ package net.kjentytek303.untransfur.msc;
 import net.kjentytek303.untransfur.block.MSCControllerBlock;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
 import net.ltxprogrammer.changed.entity.ModifiableEntity;
-import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedSounds;
 import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
+import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.process.TransfurEvents;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -171,4 +172,23 @@ public class MSCDefaultCommands {
 			if ( !entity.getType)
 		})
 	}*/
+
+	public static boolean UntransfurEntity(@NotNull MSCControllerBlockEntity msc, Object args ) {
+		//Check if we have a flinston syringe.
+		//Check if entity is stabilized
+		//If latex: Check if we have enough biomass
+		//If true, post untransfur event.
+		msc.getChamberedEntity().ifPresent( entity -> {
+			if( !( entity instanceof Player player )) {
+				return;
+				//apply untf
+			}
+			var event = new TransfurEvents.UntransfurPlayerByBlockEvent(msc.getBlockState(), msc.getBlockPos(), player, ProcessTransfur.getPlayerTransfurVariant(player), null);
+			if(!MinecraftForge.EVENT_BUS.post(event)) {
+				TransfurEvents.finalizeUntransfurPlayerEvent(event);
+			}
+		});
+
+		return false;
+	}
 }

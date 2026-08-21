@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "P",
+    "H"
+  ],
+  "key": {
+    "H": {
+      "item": "minecraft:hopper"
+    },
+    "P": {
+      "item": "untransfur:msc_metal_block"
+    }
+  },
+  "result": {
+    "item": "untransfur:msc_output_bus"
+  }
+}

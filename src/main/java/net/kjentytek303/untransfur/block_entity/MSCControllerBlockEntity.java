@@ -3,7 +3,6 @@ package net.kjentytek303.untransfur.block_entity;
 import com.google.common.collect.ImmutableList;
 import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.block.MSCControllerBlock;
-import net.kjentytek303.untransfur.client.screen.MSCControllerMenu;
 import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.msc.MSCScheduledCommand;
 import net.kjentytek303.untransfur.util.BlockUtilities;
