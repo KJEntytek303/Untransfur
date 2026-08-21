@@ -11,8 +11,11 @@
 	"block.untransfur.msc_tank": "Nagy sztáziskamra tartály",
 
 	"item.untransfur.msc_program_rom": "Nagy sztáziskamra ROM program",
+	"item.untransfur.msc_program_rom.tooltip": "Program: %s",
+	"item.untransfur.msc_program_rom.tooltip.empty": "§c§oÜres§r",
 	"item.untransfur.untransfur_syringe.desc": "Talán nem kéne ezzel szúrnom magam...",
 	"item.untransfur.untransfur_syringe": "Visszatranszfuráló fecskendő",
 
-	"untransfur.creative_tabs.untransfur": "Untransfur Mod"
+	"untransfur.creative_tabs.untransfur": "Untransfur Mod",
+	"untransfur.msc.program.untransfur": "§a§oVisszatranszfur§r"
 }
