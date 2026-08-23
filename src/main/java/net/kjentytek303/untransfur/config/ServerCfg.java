@@ -14,6 +14,8 @@ public class ServerCfg {
 
 	public static final ForgeConfigSpec.ConfigValue<UntransfurHandleMode> UNTRANSFUR_HANDLE_MODE;
 
+	public static final ForgeConfigSpec.ConfigValue<Boolean> DROPPED_SYRINGE_SHATTERS_ON_PLAYERS_ONLY;
+
 	static {
 		BUILDER.comment("Max stasis duration for the MSC in seconds.");
 		BUILDER.comment("Default duration for the Stasis Chamber is 120s");
@@ -42,6 +44,11 @@ public class ServerCfg {
 		BUILDER.comment("COMPLEX - Untransfurring requires an MSC and the player must follow MSC procedures described in lore");
 		BUILDER.comment("Default: SIMPLE");
 		UNTRANSFUR_HANDLE_MODE = BUILDER.defineEnum("untf_handle_mode", UntransfurHandleMode.SIMPLE);
+
+		BUILDER.comment("Makes untransfur syringes lying on the ground shatter only when a player steps on them");
+		BUILDER.comment("This was added to prevent cheesing bosses by applying 'Flinston Solution' effect to entities.");
+		BUILDER.comment("Default: true");
+		DROPPED_SYRINGE_SHATTERS_ON_PLAYERS_ONLY = BUILDER.define("dropped_untf_syringes_shatter_on_players_only",true);
 
 		SPEC = BUILDER.build();
 	}
