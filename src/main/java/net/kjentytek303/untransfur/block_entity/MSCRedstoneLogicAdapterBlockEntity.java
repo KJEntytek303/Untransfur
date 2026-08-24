@@ -1,5 +1,6 @@
 package net.kjentytek303.untransfur.block_entity;
 
+import net.kjentytek303.untransfur.init.InitBlockEntities;
 import net.kjentytek303.untransfur.init.InitItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,6 +15,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,8 +30,8 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 	public NonNullList<ItemStack> items = NonNullList.withSize(AMOUNT_OF_SLOTS, ItemStack.EMPTY);
 	public static final int[] SLOTS = IntStream.range(0, AMOUNT_OF_SLOTS).toArray();
 
-	protected MSCRedstoneLogicAdapterBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
-		super(pType, pPos, pBlockState);
+	public MSCRedstoneLogicAdapterBlockEntity(BlockPos pPos, BlockState pBlockState) {
+		super(InitBlockEntities.MSC_REDSTONE_LOGIC_ADAPTER_BE.get(), pPos, pBlockState);
 	}
 	@Override
 	protected Component getDefaultName() {
@@ -106,7 +108,7 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 
 	@Override
 	public boolean canPlaceItemThroughFace(int pIndex, @NotNull ItemStack pItemStack, @Nullable Direction pDirection) {
-		return pIndex < AMOUNT_OF_SLOTS;
+		return pIndex < AMOUNT_OF_SLOTS && pItemStack.is(InitItems.MSC_PROGRAM_ROM.get());
 	}
 
 	@Override
@@ -117,5 +119,9 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 	@Override
 	public int @NotNull [] getSlotsForFace(@NotNull Direction pSide) {
 		return SLOTS;
+	}
+
+	public void tick(Level level, BlockPos pos, BlockState state) {
+
 	}
 }

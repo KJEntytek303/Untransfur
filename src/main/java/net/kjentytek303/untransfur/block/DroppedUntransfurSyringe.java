@@ -42,6 +42,7 @@ public class DroppedUntransfurSyringe extends Block implements SimpleWaterlogged
 
 	public DroppedUntransfurSyringe(Properties pProperties) {
 		super(pProperties);
+		registerDefaultState( this.stateDefinition.any().setValue(WATERLOGGED, false).setValue(ROTATION, 0));
 	}
 
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -71,8 +72,17 @@ public class DroppedUntransfurSyringe extends Block implements SimpleWaterlogged
 			return;
 		}
 
-		if( !( living_entity instanceof Player player )) {
-			living_entity.addEffect(new MobEffectInstance(InitMobEffects.UNSAFE_UNTRANSFUR.get(), 10, 0));
+		//not player and shatters on players only
+		if( !( living_entity instanceof Player ) && ServerCfg.DROPPED_SYRINGE_SHATTERS_ON_PLAYERS_ONLY.get() ) {
+			return;
+		}
+
+		if( !( living_entity instanceof Player player ) ) {
+			if(ServerCfg.UNTRANSFUR_HANDLE_MODE.get() != ServerCfg.UntransfurHandleMode.COMPLEX) {
+				living_entity.addEffect(new MobEffectInstance(InitMobEffects.UNSAFE_UNTRANSFUR.get(), ServerCfg.DROPPED_SYRINGE_UNSAFE_UNTF_LENGTH.get(), ServerCfg.DROPPED_SYRINGE_UNSAFE_UNTF_AMPLIFIER.get()));
+			} else {
+				living_entity.addEffect(new MobEffectInstance(InitMobEffects.FLINSTON_SOLUTION.get(), ServerCfg.DROPPED_SYRINGE_DISSOLVE_LENGTH.get(), ServerCfg.DROPPED_SYRINGE_DISSOLVE_AMPLIFIER.get()));
+			}
 			level.removeBlock(pos, false);
 			return;
 		}
@@ -83,11 +93,16 @@ public class DroppedUntransfurSyringe extends Block implements SimpleWaterlogged
 
 		switch(ServerCfg.UNTRANSFUR_HANDLE_MODE.get() ) {
 			case SIMPLE -> {
-				ProcessUntransfur.incrementPlayerUntransfurProgress(player, 0.15);
+				if (ProcessUntransfur.incrementPlayerUntransfurProgress(player, ServerCfg.DROPPED_SYRINGE_UNTRANSFUR_AMOUNT.get() ) == UNTRANSFUR ) {
+					var event = new TransfurEvents.UntransfurPlayerByBlockEvent(state, pos, player, ProcessTransfur.getPlayerTransfurVariant(player), null);
+					if(!MinecraftForge.EVENT_BUS.post(event)) {
+						TransfurEvents.finalizeUntransfurPlayerEvent(event);
+					}
+				}
 			}
 			case ORGANICS_ONLY -> {
 				if (ProcessTransfur.isPlayerNotLatex(player) ) {
-					if(ProcessUntransfur.incrementPlayerUntransfurProgress(player, 0.15) == UNTRANSFUR) {
+					if(ProcessUntransfur.incrementPlayerUntransfurProgress(player, ServerCfg.DROPPED_SYRINGE_UNTRANSFUR_AMOUNT.get()) == UNTRANSFUR) {
 						var event = new TransfurEvents.UntransfurPlayerByBlockEvent(state, pos, player, ProcessTransfur.getPlayerTransfurVariant(player), null );
 						if(!MinecraftForge.EVENT_BUS.post(event)) {
 							TransfurEvents.finalizeUntransfurPlayerEvent(event);
@@ -95,15 +110,15 @@ public class DroppedUntransfurSyringe extends Block implements SimpleWaterlogged
 					}
 
 				} else {
-					player.addEffect(new MobEffectInstance(InitMobEffects.UNSAFE_UNTRANSFUR.get(), 10, 0));
+					player.addEffect(new MobEffectInstance(InitMobEffects.UNSAFE_UNTRANSFUR.get(), ServerCfg.DROPPED_SYRINGE_UNSAFE_UNTF_LENGTH.get(), ServerCfg.DROPPED_SYRINGE_UNSAFE_UNTF_AMPLIFIER.get()));
 				}
 			}
 
 			case COMPLEX -> {
 				if (ProcessTransfur.isPlayerNotLatex(player) ) {
-					player.addEffect(new MobEffectInstance(InitMobEffects.UNSAFE_UNTRANSFUR.get(), 10, 0));
+					player.addEffect(new MobEffectInstance(InitMobEffects.UNSAFE_UNTRANSFUR.get(), ServerCfg.DROPPED_SYRINGE_UNSAFE_UNTF_LENGTH.get(), ServerCfg.DROPPED_SYRINGE_UNSAFE_UNTF_AMPLIFIER.get()));
 				} else {
-					//TODO: Flinston Solution
+					player.addEffect(new MobEffectInstance(InitMobEffects.FLINSTON_SOLUTION.get(), ServerCfg.DROPPED_SYRINGE_DISSOLVE_LENGTH.get(), ServerCfg.DROPPED_SYRINGE_DISSOLVE_AMPLIFIER.get()));
 				}
 			}
 		}
@@ -131,19 +146,19 @@ public class DroppedUntransfurSyringe extends Block implements SimpleWaterlogged
 	}
 
 	public BlockState rotate(BlockState state, Rotation rotation) {
-		return (BlockState)state.setValue(ROTATION, rotation.rotate((Integer)state.getValue(ROTATION), 16));
+		return state.setValue(ROTATION, rotation.rotate((Integer)state.getValue(ROTATION), 16));
 	}
 
 	public BlockState mirror(BlockState state, Mirror mirror) {
-		return (BlockState)state.setValue(ROTATION, mirror.mirror((Integer)state.getValue(ROTATION), 16));
+		return state.setValue(ROTATION, mirror.mirror((Integer)state.getValue(ROTATION), 16));
 	}
 
 	public FluidState getFluidState(BlockState state) {
-		return (Boolean)state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+		return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
 	}
 
 	public BlockState updateShape(BlockState state, Direction direction, BlockState otherState, LevelAccessor level, BlockPos pos, BlockPos otherPos) {
-		if ((Boolean)state.getValue(WATERLOGGED)) {
+		if (state.getValue(WATERLOGGED)) {
 			level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
 		}
 

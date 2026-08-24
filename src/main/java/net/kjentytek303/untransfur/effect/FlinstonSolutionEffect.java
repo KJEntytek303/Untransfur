@@ -36,6 +36,10 @@ public class FlinstonSolutionEffect extends MobEffect {
 			return;
 		}
 
+		if( player.isCreative() || player.isSpectator()) {
+			return;
+		}
+
 		//contamination decreases player max HP, damage, mining speed, jump strength and speed by %. If this attribute reaches 1, the player dies with the cause
 		//"Player XYZ dissolved themselves" or "Player XYZ poisoned themselves with Flinston solution"
 
