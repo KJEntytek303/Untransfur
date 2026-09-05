@@ -27,7 +27,7 @@ public class CreativeTabs
 						itemRegistryObject -> item.accept(itemRegistryObject.get())
 					);
 					CompoundTag tag = new CompoundTag();
-					tag.putString("program", "untransfur.msc.program.untransfur");
+					tag.putString("program", "untransfur.msc.program.untransfur:untransfur");
 					var item_stack = new ItemStack(InitItems.MSC_PROGRAM_ROM.get());
 					item_stack.setTag(tag);
 					item.accept(item_stack);

@@ -1,8 +1,8 @@
 package net.kjentytek303.untransfur.init;
 
 import net.kjentytek303.untransfur.Untransfur;
-import net.kjentytek303.untransfur.client.screen.MSCBusMenu;
-import net.kjentytek303.untransfur.client.screen.MSCRedstoneLogicAdapterMenu;
+import net.kjentytek303.untransfur.client.menu.MSCBusMenu;
+import net.kjentytek303.untransfur.client.menu.MSCRedstoneLogicAdapterMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.registries.DeferredRegister;

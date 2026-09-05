@@ -1,5 +1,6 @@
 package net.kjentytek303.untransfur.block_entity;
 
+import net.kjentytek303.untransfur.client.menu.MSCRedstoneLogicAdapterMenu;
 import net.kjentytek303.untransfur.init.InitBlockEntities;
 import net.kjentytek303.untransfur.init.InitItems;
 import net.minecraft.core.BlockPos;
@@ -17,7 +18,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,17 +29,18 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 	public static final int AMOUNT_OF_SLOTS = 1;
 	public NonNullList<ItemStack> items = NonNullList.withSize(AMOUNT_OF_SLOTS, ItemStack.EMPTY);
 	public static final int[] SLOTS = IntStream.range(0, AMOUNT_OF_SLOTS).toArray();
+	public MSCControllerBlockEntity controller = null;
 
 	public MSCRedstoneLogicAdapterBlockEntity(BlockPos pPos, BlockState pBlockState) {
 		super(InitBlockEntities.MSC_REDSTONE_LOGIC_ADAPTER_BE.get(), pPos, pBlockState);
 	}
 	@Override
-	protected Component getDefaultName() {
+	public Component getDefaultName() {
 		return Component.translatable("block.untransfur.msc_redstone_logic_adapter");
 	}
 	@Override
-	protected AbstractContainerMenu createMenu(int pContainerId, Inventory pInventory) {
-		return null;
+	public AbstractContainerMenu createMenu(int pContainerId, Inventory pInventory) {
+		return new MSCRedstoneLogicAdapterMenu(pContainerId, pInventory, this);
 	}
 
 	@Override
@@ -121,7 +122,14 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 		return SLOTS;
 	}
 
-	public void tick(Level level, BlockPos pos, BlockState state) {
+	public void tick(Level level, BlockPos pos, BlockState state) {}
 
+	public void addProgram() {
+		ItemStack rom = this.items.get(0);
+		if( !rom.is(InitItems.MSC_PROGRAM_ROM.get()) || rom.getTag() == null || !rom.getTag().contains("program") ) {
+			return;
+		}
+		String program = rom.getTag().getString("program");
+		controller.inputProgram( program, null, null);
 	}
 }

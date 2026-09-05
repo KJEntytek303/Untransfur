@@ -2,6 +2,7 @@ package net.kjentytek303.untransfur.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.kjentytek303.untransfur.Untransfur;
+import net.kjentytek303.untransfur.client.menu.MSCRedstoneLogicAdapterMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;

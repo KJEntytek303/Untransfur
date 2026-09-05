@@ -52,7 +52,7 @@ public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 
 	@Override
 	public boolean isSignalSource(BlockState state) {
-		return state.getValue(POWERED);
+		return true;
 	}
 
 	@Override
@@ -106,4 +106,43 @@ public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 		return InteractionResult.FAIL;
 	}
 
+	public int getInputSignal(BlockState state, Level level, BlockPos pos) {
+		int ret = 0;
+		if( state.getValue(FACING) != Direction.UP ) {
+			ret = Math.max(ret, level.getSignal(pos, Direction.UP));
+		}
+		if( state.getValue(FACING) != Direction.DOWN) {
+			ret = Math.max(ret, level.getSignal(pos, Direction.DOWN));
+		}
+		if( state.getValue(FACING) != Direction.NORTH) {
+			ret = Math.max(ret, level.getSignal(pos, Direction.NORTH));
+		}
+		if( state.getValue(FACING) != Direction.SOUTH ) {
+			ret = Math.max(ret, level.getSignal(pos, Direction.SOUTH));
+		}
+		if( state.getValue(FACING) != Direction.WEST ) {
+			ret = Math.max(ret, level.getSignal(pos, Direction.WEST));
+		}
+		if( state.getValue(FACING) != Direction.EAST ) {
+			ret = Math.max(ret, level.getSignal(pos, Direction.EAST));
+		}
+
+		return ret;
+	}
+
+	@Override
+	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos from_pos, boolean is_moving) {
+		int signal = getInputSignal(state, level, pos);
+		//Powered and receiving signal or unpowered and no signal
+		if( ( signal != 0 && state.getValue(POWERED)) || ( signal == 0 && !state.getValue(POWERED)) ) {
+			return;
+		}
+
+		if( signal > 0 ) {
+			BlockEntity entity = level.getBlockEntity(pos);
+			if (entity instanceof MSCRedstoneLogicAdapterBlockEntity msc_adapter) {
+				msc_adapter.addProgram();
+			}
+		}
+	}
 }

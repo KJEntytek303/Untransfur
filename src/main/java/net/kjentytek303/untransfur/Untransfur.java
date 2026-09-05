@@ -2,7 +2,6 @@ package net.kjentytek303.untransfur;
 
 import com.mojang.logging.LogUtils;
 import net.kjentytek303.untransfur.client.screen.MSCBusScreen;
-import net.kjentytek303.untransfur.client.screen.MSCRedstoneLogicAdapterMenu;
 import net.kjentytek303.untransfur.client.screen.MSCRedstoneLogicAdapterScreen;
 import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.init.InitMenus;

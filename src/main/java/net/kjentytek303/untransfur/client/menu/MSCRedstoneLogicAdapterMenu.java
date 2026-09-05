@@ -1,7 +1,5 @@
-package net.kjentytek303.untransfur.client.screen;
+package net.kjentytek303.untransfur.client.menu;
 
-import net.kjentytek303.untransfur.block.MSCRedstoneLogicAdapterBlock;
-import net.kjentytek303.untransfur.block_entity.AbstractMSCBusBlockEntity;
 import net.kjentytek303.untransfur.block_entity.MSCRedstoneLogicAdapterBlockEntity;
 import net.kjentytek303.untransfur.init.InitBlocks;
 import net.kjentytek303.untransfur.init.InitMenus;
@@ -10,14 +8,12 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.SlotItemHandler;
-import org.jetbrains.annotations.Nullable;
 
 
 public class MSCRedstoneLogicAdapterMenu extends AbstractContainerMenu {
@@ -36,7 +32,7 @@ public class MSCRedstoneLogicAdapterMenu extends AbstractContainerMenu {
 		addPlayerInventory(inv);
 		addPlayerHotbar(inv);
 		this.bentity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(item_handler -> {
-			this.addSlot(new SlotItemHandler(item_handler, 0, 71, 8));
+			this.addSlot(new SlotItemHandler(item_handler, 0, 80, 10));
 		});
 	}
 
@@ -93,14 +89,14 @@ public class MSCRedstoneLogicAdapterMenu extends AbstractContainerMenu {
 	private void addPlayerInventory( Inventory inv ) {
 		for( int y=0; y<3; y++) {
 			for(int x=0; x<9; x++) {
-				this.addSlot(new Slot(inv, x + y*9 + 9, 8 + x*18, 63 + y*18));
+				this.addSlot(new Slot(inv, x + y*9 + 9, 8 + x*18, 44 + y*18));
 			}
 		}
 	}
 
 	private void addPlayerHotbar( Inventory inv ) {
 		for( int x=0; x<9; x++) {
-			this.addSlot(new Slot(inv, x, 8 + x*18, 121));
+			this.addSlot(new Slot(inv, x, 8 + x*18, 102));
 		}
 	}
 

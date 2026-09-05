@@ -1,4 +1,4 @@
-package net.kjentytek303.untransfur.client.screen;
+package net.kjentytek303.untransfur.client.menu;
 
 import net.kjentytek303.untransfur.block_entity.AbstractMSCBusBlockEntity;
 import net.kjentytek303.untransfur.init.InitBlocks;
