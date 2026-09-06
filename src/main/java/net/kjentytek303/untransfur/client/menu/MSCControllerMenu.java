@@ -1,4 +1,4 @@
-package net.kjentytek303.untransfur.client.screen;
+package net.kjentytek303.untransfur.client.menu;
 
 import net.ltxprogrammer.changed.block.entity.StasisChamberBlockEntity;
 import net.ltxprogrammer.changed.world.inventory.StasisChamberMenu;

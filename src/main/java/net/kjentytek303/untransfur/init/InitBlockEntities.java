@@ -5,6 +5,7 @@ import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
 //import net.kjentytek303.untransfur.block_entity.MSCTankBlockEntity;
 import net.kjentytek303.untransfur.block_entity.MSCInputBusBlockEntity;
 import net.kjentytek303.untransfur.block_entity.MSCOutputBusBlockEntity;
+import net.kjentytek303.untransfur.block_entity.MSCRedstoneLogicAdapterBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -32,6 +33,11 @@ public class InitBlockEntities {
 	public static final RegistryObject<BlockEntityType<MSCOutputBusBlockEntity>> MSC_OUTPUT_BUS_BLOCK_ENTITY = BLOCK_ENTITY_REGISTRY.register(
 		"msc_output_bus_be",
 		() -> BlockEntityType.Builder.of( MSCOutputBusBlockEntity::new, InitBlocks.MSC_OUTPUT_BUS.get()).build(null)
+	);
+
+	public static final RegistryObject<BlockEntityType<MSCRedstoneLogicAdapterBlockEntity>> MSC_REDSTONE_LOGIC_ADAPTER_BE = BLOCK_ENTITY_REGISTRY.register (
+		"msc_redstone_logic_adapter",
+		() -> BlockEntityType.Builder.of( MSCRedstoneLogicAdapterBlockEntity::new, InitBlocks.MSC_REDSTONE_LOGIC_ADAPTER.get()).build(null)
 	);
 /*
 	public static final RegistryObject<BlockEntityType<MSCTankBlockEntity>> MSC_TANK_BLOCK_ENTITY = BLOCK_ENTITY_REGISTRY.register(

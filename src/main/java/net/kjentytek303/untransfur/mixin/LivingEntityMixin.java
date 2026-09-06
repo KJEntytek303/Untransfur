@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LivingEntity.class)
 public class LivingEntityMixin {
 
-	@Inject(method = "tick", at=@At("HEAD"), remap = false)
+	@Inject(method = "tick", at=@At("HEAD"), remap = true)
 	private void untransfur$livingEntityPreTick(CallbackInfo ci) {
 		ProcessFlinston.tickDissolvement((LivingEntity)(Object)this);
 	}

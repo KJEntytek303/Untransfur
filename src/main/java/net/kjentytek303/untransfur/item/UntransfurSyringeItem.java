@@ -77,15 +77,15 @@ public class UntransfurSyringeItem extends Item implements SpecializedAnimations
 					TransfurEvents.finalizeUntransfurPlayerEvent(event);
 					break;
 				}
-				player.addEffect(new MobEffectInstance(InitMobEffects.UNSAFE_UNTRANSFUR.get(), 40, 1));
+				player.addEffect(new MobEffectInstance(InitMobEffects.UNSAFE_UNTRANSFUR.get(), 20 * 40, 1));
 			}
 
 			case COMPLEX -> {
 				if( ProcessTransfur.isPlayerNotLatex(player)) {
-					player.addEffect(new MobEffectInstance(InitMobEffects.UNSAFE_UNTRANSFUR.get(), 40, 1));
+					player.addEffect(new MobEffectInstance(InitMobEffects.UNSAFE_UNTRANSFUR.get(), 20 * 40, 1));
 					break;
 				}
-				//TODO: add Flinston Solution effect.
+				player.addEffect(new MobEffectInstance( InitMobEffects.FLINSTON_SOLUTION.get(), 20 * 25, 1));
 			}
 		}
 		if (!player.getAbilities().instabuild) {

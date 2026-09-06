@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.block.MSCControllerBlock;
 import net.kjentytek303.untransfur.config.ServerCfg;
+import net.kjentytek303.untransfur.msc.IMSCAugment;
 import net.kjentytek303.untransfur.msc.MSCScheduledCommand;
 import net.kjentytek303.untransfur.util.BlockUtilities;
 import net.kjentytek303.untransfur.util.List3Wrapper;
@@ -51,7 +52,9 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -83,6 +86,7 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 	public List<String> scheduled_commands = new ArrayList<>();
 	public @Nullable String current_command = null;
 	public LivingEntity cached_entity;
+	public final Map<BlockPos, IMSCAugment> augments = new HashMap<>();
 
 	public final ContainerOpenersCounter openers_counter = new ContainerOpenersCounter() {
 		@Override
@@ -587,12 +591,37 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		if( player != null ) {
 			player.sendSystemMessage(Component.literal("Multiblock formed successfully"));
 		}
+		discoverAugments();
 		return true;
 	}
 
-	public void invalidateMultiblock() {
+	public void discoverAugments() {
+		Direction msc_direction = this.getBlockState().getValue(FACING);
+		BlockPos multiblock_root = BlockUtilities.TransformHorizontalDirection(this.getBlockPos(), msc_direction, -2, 0, -5);
+		BlockPos.MutableBlockPos iterator = multiblock_root.mutable();
 
+		for(int x=0; x<5; x++) {
+			for(int z=0; z<6; z++) {
+				if( !level.getBlockState(iterator).is(UntfTags.Blocks.MSC_AUGMENT_BLOCKS) ) {
+					continue;
+				}
+				if( level.getBlockEntity(iterator) != null && level.getBlockEntity(iterator) instanceof IMSCAugment msc_augment) {
+					msc_augment.addController(this);
+				}
+			}
+		}
 	}
+
+	public void invalidateMultiblock() {
+		augments.forEach((pos, augment) -> augment.invalidateController() );
+		//Halt all programs.
+		//Release the player immediately
+	}
+
+
+//	public void blowUp() {
+//		level.explode(this, this.getBlockPos().getX(), this.getBlockPos().getY(), this.getBlockPos().getZ(), 15, 1)
+//	}
 
 	public static final List3Wrapper<Predicate<BlockState>> MSC_MULTIBLOCK_DEFINITION;
 	public static final List3Wrapper<Predicate<BlockState>> MSC_OPEN_MULTIBLOCK_DEFINITION;

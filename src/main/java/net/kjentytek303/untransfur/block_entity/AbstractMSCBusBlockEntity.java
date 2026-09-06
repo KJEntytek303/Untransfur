@@ -1,6 +1,6 @@
 package net.kjentytek303.untransfur.block_entity;
 
-import net.kjentytek303.untransfur.client.screen.MSCBusMenu;
+import net.kjentytek303.untransfur.client.menu.MSCBusMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;

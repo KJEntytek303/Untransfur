@@ -15,6 +15,12 @@ public class ServerCfg {
 	public static final ForgeConfigSpec.ConfigValue<UntransfurHandleMode> UNTRANSFUR_HANDLE_MODE;
 
 	public static final ForgeConfigSpec.ConfigValue<Boolean> DROPPED_SYRINGE_SHATTERS_ON_PLAYERS_ONLY;
+	public static final ForgeConfigSpec.ConfigValue<Double> DROPPED_SYRINGE_UNTRANSFUR_AMOUNT;
+	public static final ForgeConfigSpec.ConfigValue<Integer> DROPPED_SYRINGE_UNSAFE_UNTF_LENGTH;
+	public static final ForgeConfigSpec.ConfigValue<Integer> DROPPED_SYRINGE_UNSAFE_UNTF_AMPLIFIER;
+
+	public static final ForgeConfigSpec.ConfigValue<Integer> DROPPED_SYRINGE_DISSOLVE_LENGTH;
+	public static final ForgeConfigSpec.ConfigValue<Integer> DROPPED_SYRINGE_DISSOLVE_AMPLIFIER;
 
 	static {
 		BUILDER.comment("Max stasis duration for the MSC in seconds.");
@@ -48,7 +54,36 @@ public class ServerCfg {
 		BUILDER.comment("Makes untransfur syringes lying on the ground shatter only when a player steps on them");
 		BUILDER.comment("This was added to prevent cheesing bosses by applying 'Flinston Solution' effect to entities.");
 		BUILDER.comment("Default: true");
-		DROPPED_SYRINGE_SHATTERS_ON_PLAYERS_ONLY = BUILDER.define("dropped_untf_syringes_shatter_on_players_only",true);
+		DROPPED_SYRINGE_SHATTERS_ON_PLAYERS_ONLY = BUILDER.define("untf_syringe.dropped.shatters_on_players_only",true);
+
+		BUILDER.comment("How much untransfur should stepping on an untransfur syringe give the player?");
+		BUILDER.comment("Only affects players on SIMPLE and ORGANICS_ONLY untransfur handle modes");
+		BUILDER.comment("Default: 0.15");
+		DROPPED_SYRINGE_UNTRANSFUR_AMOUNT = BUILDER.defineInRange("untf_syringe.dropped.untransfur_amount", 0.15, 0.0, 1.0);
+
+		BUILDER.comment("Length of applied untransfur effect, when a player/mob steps on an untf syringe, in seconds.");
+		BUILDER.comment("Only affects mobs when 'shatters_on_players_only' is disabled.");
+		BUILDER.comment("Only affects players on ORGANICS_ONLY and COMPLEX handle modes");
+		BUILDER.comment("0 disables the feature");
+		BUILDER.comment("Default: 10");
+		DROPPED_SYRINGE_UNSAFE_UNTF_LENGTH = BUILDER.defineInRange("untf_syringe.dropped.unsafe_untf_length", 8, 0, Integer.MAX_VALUE);
+
+		BUILDER.comment("Amplifier of applied untransfur effect.");
+		BUILDER.comment("Numbering is the same as the /effect command");
+		BUILDER.comment("Default: 0");
+		DROPPED_SYRINGE_UNSAFE_UNTF_AMPLIFIER = BUILDER.defineInRange("untf_syringe.dropped.unsafe_untf_amplifier", 0, 0, 255);
+
+		BUILDER.comment("Length of applied flinston solution effect, when a player/mob steps on an untf syringe, in seconds.");
+		BUILDER.comment("Only affects mobs when 'shatters_on_players_only' is disabled.");
+		BUILDER.comment("Only affects players on COMPLEX handle modes");
+		BUILDER.comment("0 disables the feature");
+		BUILDER.comment("Default: 10");
+		DROPPED_SYRINGE_DISSOLVE_LENGTH = BUILDER.defineInRange("untf_syringe.dropped.flinston_length", 4, 0, Integer.MAX_VALUE);
+
+		BUILDER.comment("Amplifier of applied flinston solution effect.");
+		BUILDER.comment("Numbering is the same as the /effect command");
+		BUILDER.comment("Default: 0");
+		DROPPED_SYRINGE_DISSOLVE_AMPLIFIER = BUILDER.defineInRange("untf_syringe.dropped.flinston_amplifier", 0, 0, 255);
 
 		SPEC = BUILDER.build();
 	}

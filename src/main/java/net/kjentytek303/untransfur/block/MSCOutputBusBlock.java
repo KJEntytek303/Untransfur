@@ -31,8 +31,7 @@ public class MSCOutputBusBlock extends AbstractMSCBusBlock {
 			return null;
 		}
 
-		return createTickerHelper(be_type, MSC_OUTPUT_BUS_BLOCK_ENTITY.get(), MSCOutputBusBlock::tick
-		);
+		return createTickerHelper(be_type, MSC_OUTPUT_BUS_BLOCK_ENTITY.get(), MSCOutputBusBlock::tick );
 	}
 
 }

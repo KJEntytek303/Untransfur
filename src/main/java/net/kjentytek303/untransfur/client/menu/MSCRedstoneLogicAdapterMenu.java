@@ -1,6 +1,6 @@
-package net.kjentytek303.untransfur.client.screen;
+package net.kjentytek303.untransfur.client.menu;
 
-import net.kjentytek303.untransfur.block_entity.AbstractMSCBusBlockEntity;
+import net.kjentytek303.untransfur.block_entity.MSCRedstoneLogicAdapterBlockEntity;
 import net.kjentytek303.untransfur.init.InitBlocks;
 import net.kjentytek303.untransfur.init.InitMenus;
 import net.minecraft.network.FriendlyByteBuf;
@@ -16,27 +16,23 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.SlotItemHandler;
 
 
-public class MSCBusMenu extends AbstractContainerMenu {
-	private final AbstractMSCBusBlockEntity bentity;
+public class MSCRedstoneLogicAdapterMenu extends AbstractContainerMenu {
+	private final MSCRedstoneLogicAdapterBlockEntity bentity;
 	private final Level level;
 
-	public MSCBusMenu(int container_id, Inventory inv, FriendlyByteBuf extra) {
+	public MSCRedstoneLogicAdapterMenu(int container_id, Inventory inv, FriendlyByteBuf extra) {
 		this(container_id, inv, inv.player.level().getBlockEntity(extra.readBlockPos()));
 	}
 
-	public MSCBusMenu(int container_id, Inventory inv, BlockEntity bentity) {
-		super(InitMenus.MSC_BUS_MENU.get(), container_id);
-		this.bentity = (AbstractMSCBusBlockEntity) bentity;
-		this.level = inv.player.level();
-		checkContainerSize(inv, 4);
+	public MSCRedstoneLogicAdapterMenu(int container_id, Inventory inv, BlockEntity bentity) {
+		super(InitMenus.MSC_REDSTONE_LOGIC_ADAPTER_MENU.get(), container_id);
+		this.bentity =(MSCRedstoneLogicAdapterBlockEntity) bentity;
+		this.level = bentity.getLevel();
+		checkContainerSize(inv, 1);
 		addPlayerInventory(inv);
 		addPlayerHotbar(inv);
-
-		this.bentity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent( item_handler -> {
-			this.addSlot(new SlotItemHandler( item_handler, 0, 71, 8));
-			this.addSlot(new SlotItemHandler( item_handler, 1, 89, 8));
-			this.addSlot(new SlotItemHandler( item_handler, 2, 71, 26));
-			this.addSlot(new SlotItemHandler( item_handler, 3, 89, 26));
+		this.bentity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(item_handler -> {
+			this.addSlot(new SlotItemHandler(item_handler, 0, 80, 10));
 		});
 	}
 
@@ -56,7 +52,7 @@ public class MSCBusMenu extends AbstractContainerMenu {
 	private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
 	// THIS YOU HAVE TO DEFINE!
-	private static final int TE_INVENTORY_SLOT_COUNT = 4;  // must be the number of slots you have!
+	private static final int TE_INVENTORY_SLOT_COUNT = 1;  // must be the number of slots you have!
 	@Override
 	public ItemStack quickMoveStack(Player playerIn, int pIndex) {
 		Slot sourceSlot = slots.get(pIndex);
@@ -90,24 +86,22 @@ public class MSCBusMenu extends AbstractContainerMenu {
 		return copyOfSourceStack;
 	}
 
-
-	@Override
-	public boolean stillValid(Player pPlayer) {
-		return stillValid(ContainerLevelAccess.create(level, bentity.getBlockPos()), pPlayer, InitBlocks.MSC_INPUT_BUS.get()) ||
-			stillValid(ContainerLevelAccess.create(level, bentity.getBlockPos()), pPlayer, InitBlocks.MSC_OUTPUT_BUS.get());
-	}
-
 	private void addPlayerInventory( Inventory inv ) {
 		for( int y=0; y<3; y++) {
 			for(int x=0; x<9; x++) {
-				this.addSlot(new Slot(inv, x + y*9 + 9, 8 + x*18, 63 + y*18));
+				this.addSlot(new Slot(inv, x + y*9 + 9, 8 + x*18, 44 + y*18));
 			}
 		}
 	}
 
 	private void addPlayerHotbar( Inventory inv ) {
 		for( int x=0; x<9; x++) {
-			this.addSlot(new Slot(inv, x, 8 + x*18, 121));
+			this.addSlot(new Slot(inv, x, 8 + x*18, 102));
 		}
+	}
+
+	@Override
+	public boolean stillValid(Player pPlayer) {
+		return stillValid(ContainerLevelAccess.create(level, bentity.getBlockPos()), pPlayer, InitBlocks.MSC_REDSTONE_LOGIC_ADAPTER.get());
 	}
 }

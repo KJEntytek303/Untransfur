@@ -2,7 +2,7 @@
 #IHDa-b - I Hate Datagen for blocks - custom data generator for minecraft registry objects.
 
 #Blocks:
-#	-i --implicit - enable implicit rules
+#	-I - Don't generate an item.
 #	-- - end datagen params
 #
 #	Implicit rules:

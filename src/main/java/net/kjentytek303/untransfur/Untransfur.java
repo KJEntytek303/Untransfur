@@ -2,6 +2,7 @@ package net.kjentytek303.untransfur;
 
 import com.mojang.logging.LogUtils;
 import net.kjentytek303.untransfur.client.screen.MSCBusScreen;
+import net.kjentytek303.untransfur.client.screen.MSCRedstoneLogicAdapterScreen;
 import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.init.InitMenus;
 import net.kjentytek303.untransfur.init.InitPackets;
@@ -88,6 +89,7 @@ public class Untransfur
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             MenuScreens.register(InitMenus.MSC_BUS_MENU.get(), MSCBusScreen::new);
+            MenuScreens.register(InitMenus.MSC_REDSTONE_LOGIC_ADAPTER_MENU.get(), MSCRedstoneLogicAdapterScreen::new);
         }
     }
 
