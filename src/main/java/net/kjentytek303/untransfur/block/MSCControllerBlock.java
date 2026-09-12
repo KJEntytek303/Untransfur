@@ -1,6 +1,7 @@
 package net.kjentytek303.untransfur.block;
 
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
+import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.util.BlockUtilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -38,19 +39,19 @@ public class MSCControllerBlock extends BaseEntityBlock {
 		this.registerDefaultState( this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(OPEN, false).setValue(ACTIVE, false));
 	}
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(new Property[]{FACING, OPEN, ACTIVE });
+		builder.add(FACING, OPEN, ACTIVE);
 	}
 
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		return (BlockState)this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+		return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
 	}
 
 	public BlockState rotate(BlockState state, Rotation rot) {
-		return (BlockState)state.setValue(FACING, rot.rotate((Direction)state.getValue(FACING)));
+		return (BlockState)state.setValue(FACING, rot.rotate(state.getValue(FACING)));
 	}
 
 	public BlockState mirror(BlockState state, Mirror mirrorIn) {
-		return state.rotate(mirrorIn.getRotation((Direction)state.getValue(FACING)));
+		return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
 	}
 	@Override
 	public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
@@ -64,6 +65,7 @@ public class MSCControllerBlock extends BaseEntityBlock {
 
 		return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
 	}
+
 	public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
 	public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
 	public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
@@ -83,6 +85,12 @@ public class MSCControllerBlock extends BaseEntityBlock {
 	}
 	@Override
 	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pMovedByPiston) {
+		if( !pState.is(pNewState.getBlock()) &&
+		     ServerCfg.MSC_CHECK_FAILURE_ON_DESTROY.get() &&
+		     pLevel.getBlockEntity(pPos) instanceof MSCControllerBlockEntity msc &&
+		     msc.checkForBlowUp()
+		) { msc.blowUp(); }
+
 		super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston);
 	}
 
@@ -138,6 +146,7 @@ public class MSCControllerBlock extends BaseEntityBlock {
 		level.setBlockAndUpdate(pos, state.setValue(ACTIVE, true));
 		return true;
 	}
+
 	public boolean markAsInActive(BlockState state, Level level, BlockPos pos) {
 		if( !state.getValue(ACTIVE) ) {
 			return false;
@@ -149,84 +158,4 @@ public class MSCControllerBlock extends BaseEntityBlock {
 		level.setBlockAndUpdate(pos, state.setValue(ACTIVE, false));
 		return true;
 	}
-
-
-	/*
-	public AABB getDetectionSize(BlockState state, Level level, BlockPos pos) {
-		return (new AABB();
-	}
-	 */
-
-	/*
-
-	public static final VoxelShape SHAPE = Block.box( 0,0,0, 16,16,16);
-	protected final RegistryObject<SoundEvent> open;
-	protected final RegistryObject<SoundEvent> close;
-
-	public MSCControllerBlock(Properties properties) {
-		super(ChangedSounds.STASIS_CHAMBER_DOOR_OPEN, ChangedSounds.STASIS_CHAMBER_DOOR_CLOSE);
-		this.registerDefaultState( this.stateDefinition.any().setValue(SECTION, ThreeXThreeSection.CENTER ).setValue(ACTIVE, true).setValue(FACING, Direction.NORTH));
-		open = ChangedSounds.STASIS_CHAMBER_DOOR_OPEN;
-		close = ChangedSounds.STASIS_CHAMBER_DOOR_CLOSE;
-	}
-
-
-	@Override
-	public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos, Either<Boolean, Direction> allCheckOrDir) {
-		return true;
-	}
-
-/*
-	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		BlockPos blockpos = context.getClickedPos();
-		Level level = context.getLevel();
-		Direction direction = context.getHorizontalDirection();
-
-		return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
-	}
-
-	@Override
-	public BlockPos getBlockEntityPos(BlockState state, BlockPos pos) { return pos; }
-
-	@Override
-	public @NotNull BlockState updateShape(BlockState state, Direction direction, BlockState otherState, LevelAccessor level, BlockPos pos, BlockPos otherBlockPos) {
-		return state;
-	}
-
-	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack item) { }
-
-	public AABB getDetectionSize(BlockState state, Level level, BlockPos pos) {
-		return (new AABB(state.getValue(SECTION).getRelative(pos, state.getValue(FACING), ThreeXThreeSection.CENTER))).inflate(5.0, 5.0F, 5.0);
-	}
-
-	@Override
-	public boolean openDoor(BlockState state, Level level, BlockPos pos) {
-		if (state.getValue(OPEN)) {
-			return false;
-		} else {
-			boolean wantState = true;
-			BlockState nBlock = level.getBlockState(pos);
-			level.setBlockAndUpdate(pos, nBlock.setValue(OPEN, wantState));
-			level.gameEvent(GameEvent.BLOCK_OPEN, pos, GameEvent.Context.of(state));
-			level.playSound(null, pos, this.open.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
-			return true;
-		}
-	}
-	@Override
-	public boolean closeDoor(BlockState state, Level level, BlockPos pos) {
-		if (!state.getValue(OPEN)) {
-			return false;
-		} else {
-			boolean wantState = false;
-			BlockState nBlock = level.getBlockState(pos);
-			level.setBlockAndUpdate(pos, nBlock.setValue(OPEN, wantState));
-			level.gameEvent(GameEvent.BLOCK_CLOSE, pos, GameEvent.Context.of(state));
-			level.playSound(null, pos, this.close.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
-			return true;
-		}
-	}
-	 */
-
 }

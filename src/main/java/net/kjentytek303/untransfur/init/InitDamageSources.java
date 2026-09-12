@@ -8,4 +8,5 @@ import net.minecraft.resources.ResourceKey;
 
 public class InitDamageSources {
 	public static final ChangedDamageSources.DamageTypeHolder FLINSTON_SOLUTION = new ChangedDamageSources.DamageTypeHolder(ResourceKey.create(Registries.DAMAGE_TYPE, Untransfur.modResource("flinston_solution")));
+	public static final ChangedDamageSources.DamageTypeHolder MSC_DISCONNECT = new ChangedDamageSources.DamageTypeHolder(ResourceKey.create(Registries.DAMAGE_TYPE, Untransfur.modResource("msc_disconnect")));
 }
