@@ -2,6 +2,7 @@ package net.kjentytek303.untransfur.msc;
 
 import com.mojang.datafixers.util.Pair;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -12,17 +13,17 @@ import java.util.function.Predicate;
 
 
 public class MSCScheduledCommand {
-	private static final Map<String, Pair<Predicate<MSCControllerBlockEntity>, BiFunction<MSCControllerBlockEntity, Object, Boolean>>> COMMANDS = new HashMap<>();
+	private static final Map<String, Pair<Predicate<MSCControllerBlockEntity>, BiFunction<MSCControllerBlockEntity, ItemStack, Boolean>>> COMMANDS = new HashMap<>();
 
 	public static boolean contains(String s) {
 		return COMMANDS.containsKey(s);
 	}
 
-	public static void addOrOverwrite( @NotNull String id, @NotNull Predicate<MSCControllerBlockEntity> start_condition, @NotNull BiFunction<MSCControllerBlockEntity, Object, Boolean> tick_func) {
+	public static void addOrOverwrite( @NotNull String id, @NotNull Predicate<MSCControllerBlockEntity> start_condition, @NotNull BiFunction<MSCControllerBlockEntity, ItemStack, Boolean> tick_func) {
 		COMMANDS.put(id, new Pair<>( start_condition, tick_func));
 	}
 
-	public static boolean add(@NotNull String id, @NotNull Predicate<MSCControllerBlockEntity> start_condition, @NotNull BiFunction<MSCControllerBlockEntity, Object, Boolean> tick_func ) {
+	public static boolean add(@NotNull String id, @NotNull Predicate<MSCControllerBlockEntity> start_condition, @NotNull BiFunction<MSCControllerBlockEntity, ItemStack, Boolean> tick_func ) {
 		return COMMANDS.putIfAbsent(id, new Pair<>(start_condition, tick_func)) == null;
 	}
 
@@ -37,7 +38,7 @@ public class MSCScheduledCommand {
 		return COMMANDS.get(id).getFirst();
 	}
 
-	public static @Nullable BiFunction<MSCControllerBlockEntity, Object, Boolean> getFunction(@NotNull String id) {
+	public static @Nullable BiFunction<MSCControllerBlockEntity, ItemStack, Boolean> getFunction(@NotNull String id) {
 		if ( !COMMANDS.containsKey(id)) {
 			return null;
 		}

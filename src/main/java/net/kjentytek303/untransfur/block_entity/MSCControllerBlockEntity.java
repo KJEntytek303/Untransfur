@@ -4,7 +4,10 @@ import com.google.common.collect.ImmutableList;
 import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.block.MSCControllerBlock;
 import net.kjentytek303.untransfur.config.ServerCfg;
+import net.kjentytek303.untransfur.init.InitDamageSources;
+import net.kjentytek303.untransfur.init.InitItems;
 import net.kjentytek303.untransfur.msc.IMSCAugment;
+import net.kjentytek303.untransfur.msc.MSCCommandInstance;
 import net.kjentytek303.untransfur.msc.MSCScheduledCommand;
 import net.kjentytek303.untransfur.util.BlockUtilities;
 import net.kjentytek303.untransfur.util.List3Wrapper;
@@ -16,20 +19,20 @@ import net.ltxprogrammer.changed.entity.animation.StasisAnimationParameters;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedAnimationEvents;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
-import net.ltxprogrammer.changed.init.ChangedItems;
 import net.ltxprogrammer.changed.item.Syringe;
-import net.ltxprogrammer.changed.world.inventory.StasisChamberMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
-import net.minecraft.world.CompoundContainer;
+import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,6 +44,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.StackedContentsCompatible;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
 import net.minecraft.world.level.block.state.BlockState;
@@ -63,10 +67,10 @@ import static net.kjentytek303.untransfur.block.MSCControllerBlock.OPEN;
 import static net.kjentytek303.untransfur.init.InitBlockEntities.MSC_CONTROLLER_BLOCK_ENTITY;
 import static net.kjentytek303.untransfur.init.InitBlocks.MSC_CONTROLLER;
 import static net.kjentytek303.untransfur.init.InitBlocks.MSC_SMOOTH_WALL;
-import static net.kjentytek303.untransfur.init.InitItems.UNTRANSFUR_SYRINGE;
 import static net.kjentytek303.untransfur.util.BlockUtilities.TransformHorizontalDirection;
 import static net.kjentytek303.untransfur.util.BlockUtilities.fillWithBlock;
 import static net.kjentytek303.untransfur.util.BlockUtilities.isBlock;
+import static net.kjentytek303.untransfur.util.UntfTags.Blocks.MSC_AUGMENT_BLOCKS;
 import static net.ltxprogrammer.changed.init.ChangedItems.LATEX_SYRINGE;
 import static net.minecraft.world.level.block.Blocks.AIR;
 import static net.minecraft.world.level.block.Blocks.DISPENSER;
@@ -75,6 +79,7 @@ import static net.minecraft.world.level.block.Blocks.SMOOTH_STONE;
 import static net.minecraft.world.level.block.Blocks.SMOOTH_STONE_SLAB;
 import static net.minecraftforge.common.Tags.Blocks.GLASS;
 
+
 //Credit to LTXProgrammer for the original block and code.
 //TODO: Allow duplicates of commands, and allow commands to store data.
 public class MSCControllerBlockEntity extends BaseContainerBlockEntity implements SeatableBlockEntity, StackedContentsCompatible {
@@ -82,11 +87,13 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 
 	public float fluid_level = 0.0f;
 	public float fluid_level0 = 0.0f;
+	public int crashed_ticks=0;
 
-	public List<String> scheduled_commands = new ArrayList<>();
-	public @Nullable String current_command = null;
+	public List<MSCCommandInstance> scheduled_commands = new ArrayList<>();
+	public @Nullable MSCCommandInstance current_command = null;
 	public LivingEntity cached_entity;
 	public final Map<BlockPos, IMSCAugment> augments = new HashMap<>();
+	public Direction msc_direction;
 
 	public final ContainerOpenersCounter openers_counter = new ContainerOpenersCounter() {
 		@Override
@@ -97,20 +104,12 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		protected void openerCountChanged(Level pLevel, BlockPos pPos, BlockState pState, int pCount, int pOpenCount) { }
 		@Override
 		protected boolean isOwnContainer(Player player) {
-			if (!(player.containerMenu instanceof StasisChamberMenu)) {
-				return false;
-			}
-			/*
-			if (player.containerMenu instanceof MSCControllerMenu stasisMenu)
-				return stasisMenu.blockEntity == MSCControllerBlockEntity.this;
-			 */
-
-			if (((StasisChamberMenu)player.containerMenu).container instanceof CompoundContainer compoundContainer)
-				compoundContainer.contains(MSCControllerBlockEntity.this);
 			return false;
 		}
 	};
-	public final int DACCESS_FLUID_LEVEL = 0;
+	public static final int DACCESS_FLUID_LEVEL = 0;
+	public static final int DACCESS_FAILURE_CHANCE = 1;
+
 
 	public NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
 
@@ -119,13 +118,15 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 	public boolean skip_modify = false;
 	public boolean one_time_menu_open = true;
 	public boolean multiblock_valid = false;
-
+	public final BlockPos multiblock_root;
+	public double failure_chance = 0.0;
 
 	protected final ContainerData data_access = new ContainerData() {
 		@Override
 		public int get(int pIndex) {
 			return switch ( pIndex ) {
 				case DACCESS_FLUID_LEVEL -> (int)(MSCControllerBlockEntity.this.fluid_level * 1000);
+				case DACCESS_FAILURE_CHANCE -> (int)(MSCControllerBlockEntity.this.failure_chance * 1000);
 				default -> 0;
 			};
 		}
@@ -134,12 +135,13 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		public void set(int pIndex, int pValue) {
 			switch ( pIndex ) {
 				case DACCESS_FLUID_LEVEL -> MSCControllerBlockEntity.this.fluid_level = ((float)pValue) * 0.001f;
+				case DACCESS_FAILURE_CHANCE -> MSCControllerBlockEntity.this.failure_chance = ((float)pValue) * 0.001f;
 			}
 		}
 
 		@Override
 		public int getCount() {
-			return 1;
+			return 2;
 		}
 	};
 
@@ -148,18 +150,17 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 	}
 
 
-	protected @NotNull AbstractContainerMenu createMenu(int id, @NotNull Inventory inventory ) {
+	protected AbstractContainerMenu createMenu(int id, @NotNull Inventory inventory ) {
 		return null;
-		//return new MSCControllerMenu(id, inventory, this, this.data_access);
 	}
 
 	public MSCControllerBlockEntity(BlockPos pos, BlockState state) {
 		super( MSC_CONTROLLER_BLOCK_ENTITY.get(), pos, state);
-
+		msc_direction = state.getValue(FACING).getOpposite();
+		this.multiblock_root = BlockUtilities.TransformHorizontalDirection(pos, msc_direction, -2, 0, -5);
 		if( this.getLevel() != null )
 			multiblock_valid = checkMultiblock( this.getLevel(), pos, null);
 		else { multiblock_valid = false; }
-
 	}
 
 	public boolean isEmpty() {
@@ -215,9 +216,8 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 
 	public boolean canPlaceItem( int slot, ItemStack stack ) {
 		if (slot == 0) {
-			return stack.is(LATEX_SYRINGE.get()) || stack.is(UNTRANSFUR_SYRINGE.get());
+			return stack.is(UntfTags.Items.MSC_COMPATIBLE_ITEMS);
 		}
-		//TODO: CADDON LAETHIN COMPAT;
 		return false;
 	}
 
@@ -236,17 +236,20 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		ContainerHelper.saveAllItems(tag, this.items);
 		tag.putInt("wait_duration", wait_duration);
 		tag.putBoolean("stabilized", stabilized );
+		tag.putDouble("failure_chance", failure_chance);
 
 		if(entity_holder != null) {
 			tag.putInt("entity_holder_id", entity_holder.getId());
 		}
 
 		var command_tag = new ListTag();
-		scheduled_commands.forEach( command -> command_tag.add(StringTag.valueOf(command)) );
+		scheduled_commands.forEach( command ->
+			command_tag.add(command.getCompound())
+		);
 
 		tag.put("commands", command_tag);
 		if( current_command != null ) {
-			tag.putString("current_command", current_command);
+			tag.put("current_command", current_command.getCompound());
 		}
 
 		tag.putBoolean("multiblock_valid", multiblock_valid);
@@ -256,6 +259,7 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		super.load(tag);
 		fluid_level = tag.getFloat("fluid_level");
 		fluid_level0 = tag.getFloat("fluid_level0");
+		failure_chance = tag.getDouble("failure_chance");
 
 		this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
 		ContainerHelper.loadAllItems(tag, this.items);
@@ -271,13 +275,13 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		}
 
 		scheduled_commands.clear();
-		var command_tag = tag.getList("commands", 8 );
+		ListTag command_tag = tag.getList("commands", 10 );
 		for( int i=0; i<command_tag.size(); i++ ) {
-			scheduled_commands.add( command_tag.getString(i) );
+			scheduled_commands.add( new MSCCommandInstance( command_tag.getCompound(i) ));
 		}
 		current_command = null;
 		if (tag.contains("current_command")) {
-			current_command = tag.getString("current_command");
+			current_command = new MSCCommandInstance(tag.getCompound("current_command"));
 		}
 		multiblock_valid = tag.getBoolean("multiblock_valid");
 	}
@@ -304,8 +308,6 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 
 	public boolean chamberEntity( LivingEntity entity ) {
 
-		BlockState msc_controller = level.getBlockState(this.getBlockPos());
-		Direction msc_direction = msc_controller.getValue(FACING);
 		BlockPos entity_position = TransformHorizontalDirection(this.getBlockPos(), msc_direction, 0, 1, -2);
 
 		if( entity_holder == null || entity_holder.isRemoved() ) {
@@ -337,19 +339,45 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		return getChamberedEntity().map(IAbstractChangedEntity::forEither);
 	}
 
-	public @Nullable String getCurrentCommand() {
+	public @Nullable MSCCommandInstance getCurrentCommand() {
 		return current_command;
 	}
 
 	public @Nullable TransfurVariant<?> findVariantFromSlots() {
-		return getSyringe().is(ChangedItems.LATEX_SYRINGE.get()) ? Syringe.getVariant(getSyringe()) : null;
+		List<BlockPos> input_augments = findAugments( UntfTags.Blocks.MSC_INPUT );
+		for( var augment_pos : input_augments ) {
+			net.minecraft.world.level.block.entity.BlockEntity augment = level.getBlockEntity(augment_pos);
+			if (!(augment instanceof Container container)) {
+				continue;
+			}
+			for(int i=0; i<container.getContainerSize(); i++) {
+				ItemStack stack = container.getItem(i);
+				if (!stack.is(LATEX_SYRINGE.get())) {
+					continue;
+				}
+				return Syringe.getVariant(stack);
+			}
+		}
+		return null;
+	}
+
+	public List<BlockPos> findAugments(TagKey<Block> type) {
+		List<BlockPos> ret = new ArrayList<>();
+		BlockPos.MutableBlockPos iterator;
+		for( BlockPos pos : AUGMENT_POSITIONS) {
+			iterator = TransformHorizontalDirection(this.multiblock_root, level.getBlockState(this.getBlockPos()).getValue(FACING), pos);
+			if(level.getBlockState(iterator).getBlock().builtInRegistryHolder().containsTag(type) ) {
+				ret.add(iterator);
+			}
+		}
+		return ret;
 	}
 
 	private ItemStack getSyringe() {
 		return items.get(0);
 	}
 
-	public ImmutableList<String> getCommands() {
+	public ImmutableList<MSCCommandInstance> getCommands() {
 		return ImmutableList.copyOf(scheduled_commands);
 	}
 
@@ -362,31 +390,50 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 	}
 
 	public Optional<Fluid> getFluidType() {
-		return Optional.ofNullable( Fluids.WATER );
+		return Optional.of( Fluids.WATER );
 	}
 
 	public boolean shouldChamberIdle() {
 		return openers_counter.getOpenerCount() > 0;
 	}
 
+	public boolean checkForBlowUp() {
+		return ServerCfg.MSC_BLOWS_UP.get() && level.getRandom().nextDouble() < failure_chance;
+	}
+
 	public static void serverTick(Level level, BlockPos pos, BlockState bstate, MSCControllerBlockEntity bentity) {
-		if( level.getGameTime() % 20 == 0) {
-			bentity.multiblock_valid = bentity.checkMultiblock(level, pos, null);
-			if(!bentity.multiblock_valid) {
-				bentity.invalidateMultiblock();
-				return;
-			}
-		}
+
+		bentity.failure_chance = Math.max(0.0, bentity.failure_chance - ServerCfg.MSC_REGENERATION_AMOUNT.get() );
 		if (!bentity.multiblock_valid) {
 			return;
 		}
+
+		if( ServerCfg.MSC_EXPLOSION_CHECK_RATE.get() != 0 && level.getGameTime() % ServerCfg.MSC_EXPLOSION_CHECK_RATE.get() == 0) {
+			if ( bentity.checkForBlowUp() ) {
+				bentity.blowUp();
+				return;
+			}
+		}
+
+		if( level.getGameTime() % 20 == 0) {
+			if( bentity.multiblock_valid && bentity.checkMultiblock(level, pos, null)) {
+				bentity.invalidateMultiblock();
+				bentity.failure_chance += 0.03;
+				bentity.multiblock_valid = false;
+			}
+			if(!bentity.multiblock_valid) {
+				return;
+			}
+		}
+
+
 		bentity.openers_counter.recheckOpeners(level, pos, bstate);
 		var commands = bentity.scheduled_commands;
 
 		if(commands.isEmpty() && !bentity.getEntitiesWithin().isEmpty()) {
-			commands.add("drain");
-			commands.add("release");
-			commands.add("close_when_empty");
+			commands.add(new MSCCommandInstance ("drain"));
+			commands.add(new MSCCommandInstance("release"));
+			commands.add(new MSCCommandInstance ( "close_when_empty"));
 		}
 
 		while( bentity.current_command == null ) {
@@ -400,8 +447,8 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 				return;
 			}
 
-			var cmd_predicate = MSCScheduledCommand.getPredicate(bentity.current_command);
-			var tick_function = MSCScheduledCommand.getFunction(bentity.current_command);
+			var cmd_predicate = MSCScheduledCommand.getPredicate(bentity.current_command.func_str);
+			var tick_function = MSCScheduledCommand.getFunction(bentity.current_command.func_str);
 
 			if (cmd_predicate == null || tick_function == null) {
 				Untransfur.LOGGER.warn("Assertion failed, detected null predicate or function in MSCScheduledCommands, id {}", bentity.current_command);
@@ -414,7 +461,7 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 				return;
 			}
 
-			if( !tick_function.apply(bentity, new CompoundTag() ) ) { //Command finished
+			if( !tick_function.apply(bentity, ItemStack.EMPTY ) ) { //Command finished
 				bentity.markUpdated();
 				return;
 			}
@@ -514,11 +561,15 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		return stabilized;
 	}
 
-	public void inputProgram( String program, @Nullable ServerPlayer controller, Object arguments) {
+	public void inputProgram( String program, @Nullable ServerPlayer controller, ItemStack arguments) {
 		//TODO: crash feature.
-		if( MSCScheduledCommand.contains(program)) {
-			this.scheduled_commands.add(program);
+		if(this.scheduled_commands.size() >= ServerCfg.MSC_MAX_COMMAND_SCHEDULE.get()) {
+			//this.crash();
+			return;
 		}
+		//if( MSCScheduledCommand.contains(program)) {
+			this.scheduled_commands.add(new MSCCommandInstance( program, arguments ));
+		//}
 	}
 
 	public void openDoor() {
@@ -567,8 +618,6 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		if( !msc_controller.is(MSC_CONTROLLER.get()) ) {
 			return false;
 		}
-		Direction msc_direction = msc_controller.getValue(FACING);
-		BlockPos multiblock_root = BlockUtilities.TransformHorizontalDirection(msc_controller_pos, msc_direction, -2, 0, -5);
 		BlockPos.MutableBlockPos iterator = new BlockPos.MutableBlockPos( multiblock_root.getX(), multiblock_root.getY(), multiblock_root.getZ());
 
 		//Check Block-by-block
@@ -596,16 +645,11 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 	}
 
 	public void discoverAugments() {
-		Direction msc_direction = this.getBlockState().getValue(FACING);
-		BlockPos multiblock_root = BlockUtilities.TransformHorizontalDirection(this.getBlockPos(), msc_direction, -2, 0, -5);
-		BlockPos.MutableBlockPos iterator = multiblock_root.mutable();
-
-		for(int x=0; x<5; x++) {
-			for(int z=0; z<6; z++) {
-				if( !level.getBlockState(iterator).is(UntfTags.Blocks.MSC_AUGMENT_BLOCKS) ) {
-					continue;
-				}
-				if( level.getBlockEntity(iterator) != null && level.getBlockEntity(iterator) instanceof IMSCAugment msc_augment) {
+		BlockPos.MutableBlockPos iterator;
+		for(var position : AUGMENT_POSITIONS) {
+			iterator = TransformHorizontalDirection(multiblock_root, msc_direction, position);
+			if (level.getBlockState(iterator).is(MSC_AUGMENT_BLOCKS)) {
+				if (level.getBlockEntity(iterator) != null && level.getBlockEntity(iterator) instanceof IMSCAugment msc_augment) {
 					msc_augment.addController(this);
 				}
 			}
@@ -614,26 +658,51 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 
 	public void invalidateMultiblock() {
 		augments.forEach((pos, augment) -> augment.invalidateController() );
-		//Halt all programs.
-		//Release the player immediately
+		scheduled_commands.clear();
+		if(getEntityHolder() != null ) {
+			getEntityHolder().getPassengers().forEach( entity -> {
+				entity.stopRiding();
+				entity.hurt(InitDamageSources.MSC_DISCONNECT.source(entity.level().registryAccess()), 30);
+			});
+		}
 	}
 
 
-//	public void blowUp() {
-//		level.explode(this, this.getBlockPos().getX(), this.getBlockPos().getY(), this.getBlockPos().getZ(), 15, 1)
-//	}
+	public void blowUp() {
+		invalidateMultiblock();
+		BlockPos explosion_root = TransformHorizontalDirection(getBlockPos(), getBlockState().getValue(FACING), 0, 1, -2);
+		level.explode(null, explosion_root.getX(), explosion_root.getY(), explosion_root.getZ(), 50, true, Level.ExplosionInteraction.BLOCK);
+	}
 
+	public static final List<BlockPos> AUGMENT_POSITIONS = new ArrayList<>();
 	public static final List3Wrapper<Predicate<BlockState>> MSC_MULTIBLOCK_DEFINITION;
 	public static final List3Wrapper<Predicate<BlockState>> MSC_OPEN_MULTIBLOCK_DEFINITION;
 
 	static {
+		ImmutableList.Builder<BlockPos> augment_pos_builder = new ImmutableList.Builder<>();
+		//LeftRight
+		for(int x=0; x<6; x+=5) {
+			for( int z=1; z<5; z++) {
+				AUGMENT_POSITIONS.add(new BlockPos(x, 0, z));
+			}
+		}
+		//FrontBottom
+		for(int x=1; x<4; x+=2) {
+			AUGMENT_POSITIONS.add(new BlockPos(x, 0, 5));
+		}
+		for(int x=1; x<4; x++) {
+			for(int y=0; y<7; y+=6) {
+				AUGMENT_POSITIONS.add(new BlockPos(x, y, (y/6) * 5));
+			}
+		}
+
 		MSC_MULTIBLOCK_DEFINITION = new List3Wrapper<>(5, 10, 6);
 		for(int i=0; i<5*10*6; i++) {
 			MSC_MULTIBLOCK_DEFINITION.list.add(isBlock(MSC_SMOOTH_WALL.get()));
 		}
 
 		//Bottom layer
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 0, 1, 4, 0, 5, BlockUtilities.isOfTag(UntfTags.Blocks.MSC_AUGMENT_BLOCKS) );
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 0, 1, 4, 0, 5, BlockUtilities.isOfTag(MSC_AUGMENT_BLOCKS) );
 		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 0, 2, 3, 0, 4, BlockUtilities.isBlock(SMOOTH_STONE_SLAB) );
 		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 0, 0, 3, 0, 0, BlockUtilities.isBlock(SMOOTH_STONE));
 		MSC_MULTIBLOCK_DEFINITION.set( 2, 0, 3, BlockUtilities.isBlock(DISPENSER));
@@ -647,7 +716,7 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 
 		//Front Panel
 		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 1, 5, 3, 5, 5, BlockUtilities.isOfTag(GLASS));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 6, 5, 3, 6, 5, BlockUtilities.isOfTag(UntfTags.Blocks.MSC_AUGMENT_BLOCKS));
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 6, 5, 3, 6, 5, BlockUtilities.isOfTag(MSC_AUGMENT_BLOCKS));
 
 		//Corner pillars
 		  //back

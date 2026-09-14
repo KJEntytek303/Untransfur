@@ -44,6 +44,10 @@ public class BlockUtilities {
 		return new BlockPos.MutableBlockPos(pivot.getX() + backward_forward, pivot.getY() + bottom_top, pivot.getZ() + left_right);
 	}
 
+	public static BlockPos.MutableBlockPos TransformHorizontalDirection(BlockPos pivot, Direction direction, BlockPos offsets) {
+		return TransformHorizontalDirection(pivot, direction, offsets.getX(), offsets.getY(), offsets.getZ());
+	}
+
 	/**
 	 * Fills the array list with predicates.
 	 * Useful when performing checks against code-defined array list.

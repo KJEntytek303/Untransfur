@@ -130,6 +130,6 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 			return;
 		}
 		String program = rom.getTag().getString("program");
-		controller.inputProgram( program, null, null);
+		controller.inputProgram( program, null, ItemStack.EMPTY);
 	}
 }
