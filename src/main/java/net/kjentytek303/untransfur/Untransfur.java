@@ -6,6 +6,7 @@ import net.kjentytek303.untransfur.client.screen.MSCRedstoneLogicAdapterScreen;
 import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.init.InitMenus;
 import net.kjentytek303.untransfur.init.InitPackets;
+import net.kjentytek303.untransfur.msc.MSCScheduledCommand;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -33,6 +34,7 @@ import static net.kjentytek303.untransfur.init.CreativeTabs.CT_TABS_REGISTRY;
 import static net.kjentytek303.untransfur.init.InitBlockEntities.BLOCK_ENTITY_REGISTRY;
 import static net.kjentytek303.untransfur.init.InitBlocks.BLOCK_REGISTRY;
 import static net.kjentytek303.untransfur.init.InitItems.ITEM_REGISTRY;
+import static net.kjentytek303.untransfur.init.InitMSCCommands.MSC_COMMAND_REGISTRY;
 import static net.kjentytek303.untransfur.init.InitMenus.MENU_REGISTRY;
 import static net.kjentytek303.untransfur.init.InitMobEffects.EFFECT_REGISTRY;
 
@@ -58,6 +60,7 @@ public class Untransfur
         BLOCK_ENTITY_REGISTRY.register(modEventBus);
         MENU_REGISTRY.register(modEventBus);
         EFFECT_REGISTRY.register(modEventBus);
+        MSC_COMMAND_REGISTRY.register(modEventBus);
 
         context.registerConfig(ModConfig.Type.SERVER, ServerCfg.SPEC, "untransfur-server.toml");
         

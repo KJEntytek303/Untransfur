@@ -1,76 +1,36 @@
 package net.kjentytek303.untransfur.msc;
 
-import com.mojang.datafixers.util.Pair;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 
-public class MSCScheduledCommand {
-	private static final Map<String, Pair<Predicate<MSCControllerBlockEntity>, BiFunction<MSCControllerBlockEntity, ItemStack, Boolean>>> COMMANDS = new HashMap<>();
-
-	public static boolean contains(String s) {
-		return COMMANDS.containsKey(s);
+public abstract class MSCScheduledCommand implements BiFunction<MSCControllerBlockEntity, ItemStack, Boolean>, Predicate<MSCControllerBlockEntity> {
+	public MSCScheduledCommand(@NotNull ResourceLocation id ) {
+		this.command_id = id;
 	}
+	public final ResourceLocation command_id;
 
-	public static void addOrOverwrite( @NotNull String id, @NotNull Predicate<MSCControllerBlockEntity> start_condition, @NotNull BiFunction<MSCControllerBlockEntity, ItemStack, Boolean> tick_func) {
-		COMMANDS.put(id, new Pair<>( start_condition, tick_func));
-	}
+	/**
+	 * This function is ran by the MSC every tick.
+	 * @param bentity - Command executor.
+	 * @param argument - ItemStack argument provided by the Advanced Logic Adapter.
+	 *                 - Expect this to be ItemStack.EMPTY, as it is the default
+	 * @return - Returns true if the command didn't finish.
+	 * 		Returns false when command finished and next ScheduledCommand should be run.
+	 */
 
-	public static boolean add(@NotNull String id, @NotNull Predicate<MSCControllerBlockEntity> start_condition, @NotNull BiFunction<MSCControllerBlockEntity, ItemStack, Boolean> tick_func ) {
-		return COMMANDS.putIfAbsent(id, new Pair<>(start_condition, tick_func)) == null;
-	}
+	public abstract Boolean apply(MSCControllerBlockEntity bentity, ItemStack argument);
 
-	public static void remove(@NotNull String id) {
-		COMMANDS.remove( id );
-	}
-
-	public static @Nullable Predicate<MSCControllerBlockEntity> getPredicate(@NotNull String id) {
-		if ( !COMMANDS.containsKey(id)) {
-			return null;
-		}
-		return COMMANDS.get(id).getFirst();
-	}
-
-	public static @Nullable BiFunction<MSCControllerBlockEntity, ItemStack, Boolean> getFunction(@NotNull String id) {
-		if ( !COMMANDS.containsKey(id)) {
-			return null;
-		}
-		return COMMANDS.get(id).getSecond();
-	}
-
-	static {
-		add( "untransfur:open",
-			msc -> !msc.isOpen() && msc.isDrained(),
-			MSCDefaultCommands::openDoor
-		);
-		add( "untransfur:capture_entity",
-			msc -> msc.isDrained() && msc.isOpen(),
-			MSCDefaultCommands::captureEntity
-		);
-		add( "untransfur:close", MSCControllerBlockEntity::isOpen, MSCDefaultCommands::closeDoor);
-		add( "untransfur:fill",
-			msc -> !msc.isOpen() && msc.isFilled() && msc.getFluidType().isPresent(),
-			MSCDefaultCommands::fillChamber
-		);
-		add( "untransfur:stabilize_entity",
-			msc -> msc.isFilled() && msc.hasEntity(),
-			MSCDefaultCommands::stabilizeEntity
-		);
-		add( "untransfur:wake_entity",
-			msc -> msc.isFilled() && msc.hasEntity() && msc.isStabilized(),
-			MSCDefaultCommands::wakeEntity
-		);
-		add( "untransfur:modify_entity",
-			msc -> msc.isFilled() && msc.getChamberedLatex().isPresent(),
-			MSCDefaultCommands::modifyEntity
-		);
-
-	}
+	/**
+	 * This function is ran by the MSC before deciding whether it should run the ScheduledCommand,
+	 * or evict it from the queue and take damage from unfulfilled predicates.
+	 * @param bentity - Host of the command.
+	 * @return should MSC run the command? This is assumed to increase bentity failure chance.
+	 */
+	public abstract boolean test(MSCControllerBlockEntity bentity );
 }

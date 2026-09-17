@@ -1,5 +1,6 @@
 package net.kjentytek303.untransfur.init;
 
+import net.kjentytek303.untransfur.Untransfur;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -26,16 +27,27 @@ public class CreativeTabs
 					InitItems.ITEM_REGISTRY.getEntries().forEach(
 						itemRegistryObject -> item.accept(itemRegistryObject.get())
 					);
-					CompoundTag tag = new CompoundTag();
-					tag.putString("program", "untransfur.msc.program.untransfur:untransfur");
-					var item_stack = new ItemStack(InitItems.MSC_PROGRAM_ROM.get());
-					item_stack.setTag(tag);
-					item.accept(item_stack);
+					item.accept(mscProgrammedRom(Untransfur.modResource("open_door")));
+					item.accept(mscProgrammedRom(Untransfur.modResource("capture_entity")));
+
+					item.accept(mscProgrammedRom(Untransfur.modResource("close_door")));
+					item.accept(mscProgrammedRom(Untransfur.modResource("fill_chamber")));
+					item.accept(mscProgrammedRom(Untransfur.modResource("extend_stasis")));
+
+					item.accept(mscProgrammedRom(Untransfur.modResource("transfur")));
+					item.accept(mscProgrammedRom(Untransfur.modResource("untransfur")));
+					item.accept(mscProgrammedRom(Untransfur.modResource("modify")));
+
+					item.accept(mscProgrammedRom(Untransfur.modResource("drain_chamber")));
 				})
 				.build()
 	);
 
-	public static void itemStackWithTag(Item item, ResourceLocation loc, CompoundTag tag) {
-
+	public static ItemStack mscProgrammedRom(ResourceLocation loc) {
+		CompoundTag tag = new CompoundTag();
+		tag.putString("program", "untransfur.msc.program." + loc.toString() );
+		var ret = new ItemStack(InitItems.MSC_PROGRAM_ROM.get());
+		ret.setTag(tag);
+		return ret;
 	}
 }
