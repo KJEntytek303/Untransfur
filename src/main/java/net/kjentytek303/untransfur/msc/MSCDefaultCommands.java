@@ -50,22 +50,12 @@ public class MSCDefaultCommands {
 		return true;
 	}
 
-	public static boolean openDoor(@NotNull MSCControllerBlockEntity msc, ItemStack args) {
-		msc.openDoor();
-		return false;
-	}
-
 	public static boolean captureEntity(@NotNull MSCControllerBlockEntity msc, ItemStack args) {
 		var entities = msc.getEntitiesWithin();
 		if (entities.size() != 1) {
 			return true;
 		}
 		msc.cached_entity = entities.get(0);
-		msc.closeDoor();
-		return false;
-	}
-
-	public static boolean closeDoor(@NotNull MSCControllerBlockEntity msc, ItemStack args) {
 		msc.closeDoor();
 		return false;
 	}

@@ -5,7 +5,6 @@ import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.block.MSCControllerBlock;
 import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.init.InitDamageSources;
-import net.kjentytek303.untransfur.init.InitItems;
 import net.kjentytek303.untransfur.msc.IMSCAugment;
 import net.kjentytek303.untransfur.msc.MSCCommandInstance;
 import net.kjentytek303.untransfur.msc.MSCScheduledCommand;
@@ -25,10 +24,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -277,11 +275,11 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		scheduled_commands.clear();
 		ListTag command_tag = tag.getList("commands", 10 );
 		for( int i=0; i<command_tag.size(); i++ ) {
-			scheduled_commands.add( new MSCCommandInstance( command_tag.getCompound(i) ));
+			scheduled_commands.add( MSCCommandInstance.fromCompound( command_tag.getCompound(i) ));
 		}
 		current_command = null;
 		if (tag.contains("current_command")) {
-			current_command = new MSCCommandInstance(tag.getCompound("current_command"));
+			current_command = MSCCommandInstance.fromCompound(tag.getCompound("current_command"));
 		}
 		multiblock_valid = tag.getBoolean("multiblock_valid");
 	}
@@ -404,39 +402,41 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 	public static void serverTick(Level level, BlockPos pos, BlockState bstate, MSCControllerBlockEntity bentity) {
 
 		bentity.failure_chance = Math.max(0.0, bentity.failure_chance - ServerCfg.MSC_REGENERATION_AMOUNT.get() );
-		if (!bentity.multiblock_valid) {
-			return;
+		bentity.markUpdated();
+		if( level.getGameTime() % 20 == 0) {
+			if( bentity.multiblock_valid && !bentity.checkMultiblock(level, pos, null)) {
+				bentity.invalidateMultiblock();
+				bentity.failure_chance += 0.03;
+				bentity.multiblock_valid = false;
+				bentity.markUpdated();
+			}
+			if(!bentity.multiblock_valid) {
+				bentity.multiblock_valid = bentity.checkMultiblock(level, pos, null);
+				bentity.markUpdated();
+				return;
+			}
 		}
 
 		if( ServerCfg.MSC_EXPLOSION_CHECK_RATE.get() != 0 && level.getGameTime() % ServerCfg.MSC_EXPLOSION_CHECK_RATE.get() == 0) {
 			if ( bentity.checkForBlowUp() ) {
 				bentity.blowUp();
+				bentity.markUpdated();
 				return;
 			}
 		}
 
-		if( level.getGameTime() % 20 == 0) {
-			if( bentity.multiblock_valid && bentity.checkMultiblock(level, pos, null)) {
-				bentity.invalidateMultiblock();
-				bentity.failure_chance += 0.03;
-				bentity.multiblock_valid = false;
-			}
-			if(!bentity.multiblock_valid) {
-				return;
-			}
-		}
 
 
 		bentity.openers_counter.recheckOpeners(level, pos, bstate);
 		var commands = bentity.scheduled_commands;
 
 		if(commands.isEmpty() && !bentity.getEntitiesWithin().isEmpty()) {
-			commands.add(new MSCCommandInstance ("drain"));
-			commands.add(new MSCCommandInstance("release"));
-			commands.add(new MSCCommandInstance ( "close_when_empty"));
+			commands.add(new MSCCommandInstance (Untransfur.modResource("drain")));
+			commands.add(new MSCCommandInstance(Untransfur.modResource("release_entity")));
+			commands.add(new MSCCommandInstance (Untransfur.modResource("close_when_empty")));
 		}
 
-		while( bentity.current_command == null ) {
+		while( bentity.current_command == null && !commands.isEmpty()) {
 			bentity.current_command = commands.get(0);
 			commands.remove(0);
 			bentity.markUpdated();
@@ -447,26 +447,17 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 				return;
 			}
 
-			var cmd_predicate = MSCScheduledCommand.getPredicate(bentity.current_command.func_str);
-			var tick_function = MSCScheduledCommand.getFunction(bentity.current_command.func_str);
-
-			if (cmd_predicate == null || tick_function == null) {
-				Untransfur.LOGGER.warn("Assertion failed, detected null predicate or function in MSCScheduledCommands, id {}", bentity.current_command);
-				continue;
-			}
-
-			if (cmd_predicate.test(bentity)) {
+			if (!bentity.current_command.test(bentity)) {
 				bentity.current_command = null;
 				bentity.markUpdated();
 				return;
 			}
+			bentity.markUpdated();
 
-			if( !tick_function.apply(bentity, ItemStack.EMPTY ) ) { //Command finished
+			if( !bentity.current_command.apply(bentity) ) { //Command finished
+				bentity.current_command = null;
 				bentity.markUpdated();
-				return;
 			}
-			Untransfur.LOGGER.error("Assertion failed, reached unreachable section in MSCControllerBlockEntity");
-			return;
 		}
 	}
 
@@ -479,7 +470,7 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 	}
 
 	public boolean isDrained() {
-		return fluid_level <= 0.0f;
+		return fluid_level <= 0.01f;
 	}
 
 	public boolean hasEntity() {
@@ -561,25 +552,25 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		return stabilized;
 	}
 
-	public void inputProgram( String program, @Nullable ServerPlayer controller, ItemStack arguments) {
+	public void inputProgram(MSCCommandInstance program) {
 		//TODO: crash feature.
-		if(this.scheduled_commands.size() >= ServerCfg.MSC_MAX_COMMAND_SCHEDULE.get()) {
+		if(this.scheduled_commands.size() > ServerCfg.MSC_MAX_COMMAND_SCHEDULE.get()) {
 			//this.crash();
 			return;
 		}
 		//if( MSCScheduledCommand.contains(program)) {
-			this.scheduled_commands.add(new MSCCommandInstance( program, arguments ));
+			this.scheduled_commands.add( program );
 		//}
 	}
 
 	public void openDoor() {
 		//TODO: UPDATE MULTIBLOCK STRUCTURE IN WORLD.
-		this.getBlockState().setValue(OPEN, true);
+		this.level.setBlockAndUpdate( this.getBlockPos(), this.getBlockState().setValue(OPEN, true) );
 	}
 
 	public void closeDoor() {
 		//TODO: UPDATE MULTIBLOCK STRUCTURE IN WORLD.
-		this.getBlockState().setValue(OPEN, false);
+		this.level.setBlockAndUpdate( this.getBlockPos(), this.getBlockState().setValue(OPEN, false) );
 	}
 
 	public Optional<TransfurVariant<?>> useVariantSyringe() {
@@ -603,16 +594,6 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 
 
 
-
-
-
-
-
-
-
-
-
-
 	public boolean checkMultiblock(Level level, BlockPos msc_controller_pos, @Nullable Player player) {
 		BlockState msc_controller = level.getBlockState(msc_controller_pos);
 		if( !msc_controller.is(MSC_CONTROLLER.get()) ) {
@@ -627,7 +608,7 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 					if ( ! ( MSC_MULTIBLOCK_DEFINITION.get(x, y, z).test(level.getBlockState(iterator)))
 					) {
 						if (player != null ) { //TODO: Move this into component translatable
-							player.sendSystemMessage(Component.literal("Error: Invalid block " + level.getBlockState(iterator) + " at " + iterator));
+							player.sendSystemMessage(Component.literal("Error: Invalid block " + level.getBlockState(iterator).getBlock().getName() + " at " + iterator.getX() + ", " + iterator.getY() + ", " + iterator.getZ()));
 						}
 						return false;
 					}
@@ -651,8 +632,11 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 			if (level.getBlockState(iterator).is(MSC_AUGMENT_BLOCKS)) {
 				if (level.getBlockEntity(iterator) != null && level.getBlockEntity(iterator) instanceof IMSCAugment msc_augment) {
 					msc_augment.addController(this);
+					augments.put(iterator, msc_augment);
+					continue;
 				}
 			}
+			augments.remove(iterator);
 		}
 	}
 
@@ -665,6 +649,7 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 				entity.hurt(InitDamageSources.MSC_DISCONNECT.source(entity.level().registryAccess()), 30);
 			});
 		}
+		markUpdated();
 	}
 
 

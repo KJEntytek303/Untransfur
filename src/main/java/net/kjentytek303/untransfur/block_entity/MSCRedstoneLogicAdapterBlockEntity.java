@@ -1,8 +1,11 @@
 package net.kjentytek303.untransfur.block_entity;
 
+import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.client.menu.MSCRedstoneLogicAdapterMenu;
 import net.kjentytek303.untransfur.init.InitBlockEntities;
 import net.kjentytek303.untransfur.init.InitItems;
+import net.kjentytek303.untransfur.msc.IMSCAugment;
+import net.kjentytek303.untransfur.msc.MSCCommandInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -24,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.stream.IntStream;
 
-public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity implements MenuProvider, WorldlyContainer {
+public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity implements MenuProvider, WorldlyContainer, IMSCAugment {
 
 	public static final int AMOUNT_OF_SLOTS = 1;
 	public NonNullList<ItemStack> items = NonNullList.withSize(AMOUNT_OF_SLOTS, ItemStack.EMPTY);
@@ -124,12 +127,38 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 
 	public void tick(Level level, BlockPos pos, BlockState state) {}
 
+	@Override
+	public void addController(MSCControllerBlockEntity ctrl) {
+		this.controller = ctrl;
+	}
+
+	public void msc_tick(MSCControllerBlockEntity msc ) {
+		//Output signal to side according to MSC Controller current program.
+		ItemStack rom = this.items.get(0);
+		if( !rom.is(InitItems.MSC_PROGRAM_ROM.get()) || rom.getTag() == null || !rom.getTag().contains("program") ) {
+			return;
+		}
+		MSCCommandInstance current_cmd = msc.getCurrentCommand();
+		if( ( current_cmd == null && rom.equals(ItemStack.EMPTY ))) {
+			//update redstone
+			return;
+		}
+		if( current_cmd != null && rom.equals(current_cmd.argument, false) ) {
+			//update redstone
+		}
+		//disable redstone
+	}
+
+
 	public void addProgram() {
 		ItemStack rom = this.items.get(0);
 		if( !rom.is(InitItems.MSC_PROGRAM_ROM.get()) || rom.getTag() == null || !rom.getTag().contains("program") ) {
 			return;
 		}
-		String program = rom.getTag().getString("program");
-		controller.inputProgram( program, null, ItemStack.EMPTY);
+		if( this.controller == null ) {
+			Untransfur.LOGGER.debug("Null controller at {}", this.getBlockPos());
+			return;
+		}
+		controller.inputProgram( MSCCommandInstance.fromNBTString(rom.getTag().getString("program"), ItemStack.EMPTY));
 	}
 }

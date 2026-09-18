@@ -2,6 +2,7 @@ package net.kjentytek303.untransfur.block;
 
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
 import net.kjentytek303.untransfur.config.ServerCfg;
+import net.kjentytek303.untransfur.init.InitBlockEntities;
 import net.kjentytek303.untransfur.util.BlockUtilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -81,7 +82,10 @@ public class MSCControllerBlock extends BaseEntityBlock {
 
 	@Override
 	public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState, BlockEntityType<T> pBlockEntityType) {
-		return super.getTicker(pLevel, pState, pBlockEntityType);
+		if(pLevel.isClientSide()) {
+			return null;
+		}
+		return createTickerHelper(pBlockEntityType, InitBlockEntities.MSC_CONTROLLER_BLOCK_ENTITY.get(), MSCControllerBlockEntity::serverTick);
 	}
 	@Override
 	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pMovedByPiston) {

@@ -60,9 +60,10 @@ public class ServerCfg {
 		BUILDER.comment("Default: 16");
 		MSC_MAX_COMMAND_SCHEDULE = BUILDER.defineInRange( "msc.max_command_queue", 16, 3, Integer.MAX_VALUE);
 
-		BUILDER.comment("MSC Controller takes damage from failed operations and improper maintenance");
-		BUILDER.comment("0 damage - MSC will never blow up.");
-		BUILDER.comment("1 damage - MSC will always blow up.");
+		//BUILDER.comment("MSC Controller takes damage from failed operations and improper maintenance");
+		//BUILDER.comment("0 damage - MSC will never blow up.");
+		//BUILDER.comment("1 damage - MSC will always blow up.");
+
 		BUILDER.comment("Anything in between is a percent-based chance for the MSC to blow up on each check.");
 		BUILDER.comment("This config allows to disable MSC explosions entirely.");
 		BUILDER.comment("Should MSC blow up on failure?");
@@ -73,7 +74,7 @@ public class ServerCfg {
 		BUILDER.comment("0 means MSC will never regenerate any damage.");
 		BUILDER.comment("1 means the MSC will regenerate all it's damage in a single tick.");
 		BUILDER.comment("Default: 1e-4 (0.0001)");
-		MSC_REGENERATION_AMOUNT = BUILDER.defineInRange("msc.failures.regeneration_amount", 1e-4, 1.0, 0.0 );
+		MSC_REGENERATION_AMOUNT = BUILDER.defineInRange("msc.failures.regeneration_amount", 1e-4, 0.0, 1.0 );
 
 		BUILDER.comment("How often does the MSC check whether it should blow up? (In ticks)");
 		BUILDER.comment("0 disables periodic checks");
