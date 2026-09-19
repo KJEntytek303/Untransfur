@@ -31,7 +31,7 @@ public class InitBlocks {
 	public static final RegistryObject<Block> MSC_CONTROLLER = registerWithItem(
 		"msc_controller", //;! -I --bs=horizontal --txt=untransfur:block/msc_metal_block,untransfur:msc_metal_block
 		() -> new MSCControllerBlock (
-			BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+			BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).hasPostProcess((state, getter,pos ) -> true)
 		),
 		new Item.Properties()
 	);

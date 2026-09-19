@@ -1,18 +1,63 @@
 {
   "variants": {
-    "facing=north": {
-      "model": "untransfur:block/msc_controller"
+    "status=running,facing=north": {
+      "model": "untransfur:block/msc_controller_running"
     },
-    "facing=east": {
-      "model": "untransfur:block/msc_controller",
+    "status=running,facing=east": {
+      "model": "untransfur:block/msc_controller_running",
       "y": 90
     },
-    "facing=south": {
-      "model": "untransfur:block/msc_controller",
+    "status=running,facing=south": {
+      "model": "untransfur:block/msc_controller_running",
       "y": 180
     },
-    "facing=west": {
-      "model": "untransfur:block/msc_controller",
+    "status=running,facing=west": {
+      "model": "untransfur:block/msc_controller_running",
+      "y": 270
+    },
+    "status=disassembled,facing=north": {
+      "model": "untransfur:block/msc_controller_disassembled"
+    },
+    "status=disassembled,facing=east": {
+      "model": "untransfur:block/msc_controller_disassembled",
+      "y": 90
+    },
+    "status=disassembled,facing=south": {
+      "model": "untransfur:block/msc_controller_disassembled",
+      "y": 180
+    },
+    "status=disassembled,facing=west": {
+      "model": "untransfur:block/msc_controller_disassembled",
+      "y": 270
+    },
+    "status=errored,facing=north": {
+      "model": "untransfur:block/msc_controller_errored"
+    },
+    "status=errored,facing=east": {
+      "model": "untransfur:block/msc_controller_errored",
+      "y": 90
+    },
+    "status=errored,facing=south": {
+      "model": "untransfur:block/msc_controller_errored",
+      "y": 180
+    },
+    "status=errored,facing=west": {
+      "model": "untransfur:block/msc_controller_errored",
+      "y": 270
+    },
+    "status=inactive,facing=north": {
+      "model": "untransfur:block/msc_controller_inactive"
+    },
+    "status=inactive,facing=east": {
+      "model": "untransfur:block/msc_controller_inactive",
+      "y": 90
+    },
+    "status=inactive,facing=south": {
+      "model": "untransfur:block/msc_controller_inactive",
+      "y": 180
+    },
+    "status=inactive,facing=west": {
+      "model": "untransfur:block/msc_controller_inactive",
       "y": 270
     }
   }
