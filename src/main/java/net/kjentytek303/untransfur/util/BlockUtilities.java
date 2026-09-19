@@ -28,14 +28,14 @@ public class BlockUtilities {
 				left_right = -left_right;
 				break;
 			case NORTH:
-				int tmp = -backward_forward;
-				backward_forward = left_right;
-				left_right = tmp;
-				break;
-			case SOUTH:
 				int tmp1 = backward_forward;
 				backward_forward = -left_right;
 				left_right = tmp1;
+				break;
+			case SOUTH:
+				int tmp = -backward_forward;
+				backward_forward = left_right;
+				left_right = tmp;
 				break;
 
 			default:
