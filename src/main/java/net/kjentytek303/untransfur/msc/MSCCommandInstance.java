@@ -1,6 +1,5 @@
 package net.kjentytek303.untransfur.msc;
 
-import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
 import net.kjentytek303.untransfur.init.InitMSCCommands;
 import net.minecraft.nbt.CompoundTag;
@@ -18,22 +17,10 @@ public class MSCCommandInstance implements Function<MSCControllerBlockEntity, Bo
 	public final ItemStack argument;
 
 	public static MSCCommandInstance fromNBTString(String command, ItemStack argument ) {
-
-		if(!command.matches("^untransfur\\.msc\\.program\\.([a-z][a-z0-9_]{2,}):([a-z][a-z0-9_]*)$")) {
-			Untransfur.LOGGER.warn("Couldn't create MSCComandInstance: Malformed program id: {}", command);
-			return new MSCCommandInstance(InitMSCCommands.EMPTY.get(), ItemStack.EMPTY);
-		}
-
-		String[] str_arr = command.substring(23).split(":");
-
-		ResourceLocation command_id = ResourceLocation.fromNamespaceAndPath(str_arr[0], str_arr[1]);
-		if (InitMSCCommands.REGISTRY.get().getValue(command_id) == null) {
-			Untransfur.LOGGER.warn("Couldn't create MSCCommandInstance: No such entry in the registry: {}", command);
-			return new MSCCommandInstance(InitMSCCommands.EMPTY.get(), ItemStack.EMPTY);
-		}
-		return new MSCCommandInstance( InitMSCCommands.REGISTRY.get().getValue(command_id), argument);
+		return new MSCCommandInstance( InitMSCCommands.findByNBTStr(command), argument);
 	}
 
+	//For MSCController
 	public static MSCCommandInstance fromCompound(CompoundTag tag) {
 		String str = "";
 		ItemStack stack = ItemStack.EMPTY;
@@ -43,25 +30,11 @@ public class MSCCommandInstance implements Function<MSCControllerBlockEntity, Bo
 		if (tag.contains("program")) broken:{
 			str = tag.getString("program");
 		}
-		if(str.matches("^([a-z][a-z0-9_]{2,}):([a-z][a-z0-9_]*)$" ) ) {
-			String[] str_arr = str.split(":");
-			return new MSCCommandInstance(ResourceLocation.fromNamespaceAndPath(str_arr[0], str_arr[1]));
-		}
-		Untransfur.LOGGER.warn("Couldn't create MSCCommandInstace: {}, regex mismatch", str);
-		return new MSCCommandInstance(InitMSCCommands.EMPTY.get(), ItemStack.EMPTY);
-	}
-
-	public MSCCommandInstance(ResourceLocation name) {
-		this(name, ItemStack.EMPTY);
+		return new MSCCommandInstance(InitMSCCommands.findByStr(str), stack);
 	}
 
 	public MSCCommandInstance(ResourceLocation name, ItemStack stack) {
-		if (InitMSCCommands.REGISTRY.get().getValue(name) == null) {
-			Untransfur.LOGGER.warn("Couldn't create MSCCommandInstance from id {}:{}", name.getNamespace(), name.getPath());
-			this.command = InitMSCCommands.EMPTY.get();
-		} else {
-			this.command = InitMSCCommands.REGISTRY.get().getValue(name);
-		}
+		this.command = InitMSCCommands.findByResLoc(name);
 		this.argument = stack;
 	}
 

@@ -2,13 +2,14 @@ package net.kjentytek303.untransfur.msc;
 
 import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 public class OpenDoorProgram extends MSCScheduledCommand {
 
+	public static final ResourceLocation ID = Untransfur.modResource("open_door");
 	public OpenDoorProgram() {
-		super(Untransfur.modResource("open_door"));
+		super(ID);
 	}
 
 	@Override
@@ -19,7 +20,7 @@ public class OpenDoorProgram extends MSCScheduledCommand {
 
 	@Override
 	public boolean test(MSCControllerBlockEntity bentity) {
-		boolean ret = bentity.isDrained() && !bentity.isOpen();
+		boolean ret = bentity.isDrained() && bentity.is_opened;
 		if( !ret ) {
 			bentity.failure_chance += 0.015;
 			bentity.markUpdated();

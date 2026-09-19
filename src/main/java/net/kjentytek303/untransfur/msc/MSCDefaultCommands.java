@@ -1,6 +1,5 @@
 package net.kjentytek303.untransfur.msc;
 
-import net.kjentytek303.untransfur.block.MSCControllerBlock;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
 import net.ltxprogrammer.changed.entity.ModifiableEntity;
 import net.ltxprogrammer.changed.init.ChangedSounds;
@@ -50,34 +49,6 @@ public class MSCDefaultCommands {
 		return true;
 	}
 
-	public static boolean captureEntity(@NotNull MSCControllerBlockEntity msc, ItemStack args) {
-		var entities = msc.getEntitiesWithin();
-		if (entities.size() != 1) {
-			return true;
-		}
-		msc.cached_entity = entities.get(0);
-		msc.closeDoor();
-		return false;
-	}
-
-	public static boolean fillChamber(@NotNull MSCControllerBlockEntity msc, ItemStack args) {
-		if (msc.getBlockState().getBlock() instanceof MSCControllerBlock msc_bl) {
-			msc_bl.markAsActive(msc.getBlockState(), msc.getLevel(), msc.getBlockPos());
-		}
-
-		msc.fluid_level0 = msc.fluid_level;
-		msc.fluid_level += (0.05f / 15.0f); //15 seconds to fill
-
-		if (msc.fluid_level > 0.5f) {
-			msc.ensureCapturedIsStillInside();
-		}
-
-		if (msc.isFilled()) {
-			msc.fluid_level0 = msc.fluid_level = 1.0f;
-		}
-		msc.markUpdated();
-		return !msc.isFilled();
-	}
 
 	public static boolean stabilizeEntity( @NotNull MSCControllerBlockEntity msc, ItemStack args ) {
 		if( !msc.ensureCapturedIsStillInside()) {

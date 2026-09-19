@@ -3,6 +3,7 @@ package net.kjentytek303.untransfur.block;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
 import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.init.InitBlockEntities;
+import net.kjentytek303.untransfur.msc.ControllerStatus;
 import net.kjentytek303.untransfur.util.BlockUtilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,10 +25,8 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -37,18 +36,26 @@ import org.jetbrains.annotations.Nullable;
 public class MSCControllerBlock extends BaseEntityBlock {
 	public MSCControllerBlock ( Properties properties ) {
 		super(properties);
-		this.registerDefaultState( this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(OPEN, false).setValue(ACTIVE, false));
+		this.registerDefaultState( this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(STATUS, ControllerStatus.DISASSEMBLED));
 	}
+
+	public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+	public static final EnumProperty<ControllerStatus> STATUS = EnumProperty.create("status", ControllerStatus.class);
+
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, OPEN, ACTIVE);
+		builder.add(FACING);
+		builder.add(STATUS);
 	}
 
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+		return this.defaultBlockState()
+			.setValue(FACING, context.getHorizontalDirection().getOpposite())
+			.setValue(STATUS, ControllerStatus.DISASSEMBLED)
+			;
 	}
 
 	public BlockState rotate(BlockState state, Rotation rot) {
-		return (BlockState)state.setValue(FACING, rot.rotate(state.getValue(FACING)));
+		return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
 	}
 
 	public BlockState mirror(BlockState state, Mirror mirrorIn) {
@@ -61,15 +68,14 @@ public class MSCControllerBlock extends BaseEntityBlock {
 		}
 		BlockEntity be = pLevel.getBlockEntity(pPos);
 		if( be instanceof MSCControllerBlockEntity msc ) {
-			msc.checkMultiblock(pLevel, pPos, pPlayer);
+			if(msc.checkMultiblock(pLevel, pPos, pPlayer)){
+				setStatus(pState, pLevel, pPos, ControllerStatus.INACTIVE);
+			}
 		}
 
 		return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
 	}
 
-	public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
-	public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
-	public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
 	@Override
 	public RenderShape getRenderShape(BlockState pState) {
@@ -139,27 +145,13 @@ public class MSCControllerBlock extends BaseEntityBlock {
 		return new AABB( left_bottom_back, right_top_front);
 	}
 
-	public boolean markAsActive(BlockState state, Level level, BlockPos pos) {
-		if( state.getValue(ACTIVE) ) {
-			return false;
+	@Nullable
+	public ControllerStatus setStatus( BlockState state, Level level, BlockPos pos, ControllerStatus status ) {
+		if(state.is(this)) {
+			var ret = state.getValue(STATUS);
+			level.setBlockAndUpdate(pos, state.setValue(STATUS, status));
+			return ret;
 		}
-		if( level.getBlockState(pos).getBlock() != this ) {
-			return false;
-		}
-
-		level.setBlockAndUpdate(pos, state.setValue(ACTIVE, true));
-		return true;
-	}
-
-	public boolean markAsInActive(BlockState state, Level level, BlockPos pos) {
-		if( !state.getValue(ACTIVE) ) {
-			return false;
-		}
-		if( level.getBlockState(pos).getBlock() != this ) {
-			return false;
-		}
-
-		level.setBlockAndUpdate(pos, state.setValue(ACTIVE, false));
-		return true;
+		return null;
 	}
 }
