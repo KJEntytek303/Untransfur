@@ -4,8 +4,10 @@ import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.client.menu.MSCRedstoneLogicAdapterMenu;
 import net.kjentytek303.untransfur.init.InitBlockEntities;
 import net.kjentytek303.untransfur.init.InitItems;
+import net.kjentytek303.untransfur.init.InitMSCCommands;
 import net.kjentytek303.untransfur.msc.IMSCAugment;
 import net.kjentytek303.untransfur.msc.MSCCommandInstance;
+import net.kjentytek303.untransfur.msc.MSCScheduledCommand;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -147,6 +149,29 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 			//update redstone
 		}
 		//disable redstone
+	}
+
+	public int getSignal() {
+		//if no controller or controller not running - null
+		if( this.controller == null || this.controller.current_command == null ) {
+			return 0;
+		}
+		ItemStack rom = this.items.get(0);
+		MSCScheduledCommand rom_program = InitMSCCommands.EMPTY.get();
+
+		if( rom.equals(ItemStack.EMPTY)  ) { // no ROM? check if running at all.
+			return 15;
+		}
+
+		if( rom.getTag() != null && rom.getTag().contains("program")) { //get MSCCommand from ROM //TODO maybe move this to a function?? ~KJEntytek303
+			rom_program = InitMSCCommands.findByNBTStr(rom.getTag().getString("program"));
+		}
+
+		if( rom_program == this.controller.current_command.command) { //if programs match, 15
+			return 15;
+		}
+		//else null
+		return 0;
 	}
 
 

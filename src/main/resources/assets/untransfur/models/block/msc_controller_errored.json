@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:block/orientable",
   "textures": {
-    "front": "untransfur:block/msc_controller_front",
+    "front": "untransfur:block/msc_controller_front_errored",
     "side": "untransfur:block/msc_metal_block",
     "top": "untransfur:block/msc_metal_block"
   }

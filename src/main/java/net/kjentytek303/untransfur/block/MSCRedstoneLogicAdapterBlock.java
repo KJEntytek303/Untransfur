@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+	public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
 	public MSCRedstoneLogicAdapterBlock(Properties pProperties) {
 		super(pProperties);
@@ -41,13 +42,13 @@ public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext pContext) {
-		return this.defaultBlockState().setValue(FACING, pContext.getNearestLookingDirection().getOpposite()).setValue(POWERED, false);
+		return this.defaultBlockState().setValue(FACING, pContext.getNearestLookingDirection().getOpposite()).setValue(POWERED, false).setValue(ACTIVE, false);
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		super.createBlockStateDefinition(builder);
-		builder.add(POWERED);
+		builder.add(POWERED, ACTIVE);
 	}
 
 	@Override
@@ -57,8 +58,10 @@ public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 
 	@Override
 	public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
+		if( !state.getValue(ACTIVE)) {
+			return 0;
+		}
 		return this.isSignalSource(state) && side == state.getValue(FACING).getOpposite() ? 15 : 0;
-		//TODO: Make it return only when the MSC is running that program
 	}
 
 	@Override
@@ -108,23 +111,10 @@ public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 
 	public int getInputSignal(BlockState state, Level level, BlockPos pos) {
 		int ret = 0;
-		if( state.getValue(FACING) != Direction.UP ) {
-			ret = Math.max(ret, level.getSignal(pos, Direction.UP));
-		}
-		if( state.getValue(FACING) != Direction.DOWN) {
-			ret = Math.max(ret, level.getSignal(pos, Direction.DOWN));
-		}
-		if( state.getValue(FACING) != Direction.NORTH) {
-			ret = Math.max(ret, level.getSignal(pos, Direction.NORTH));
-		}
-		if( state.getValue(FACING) != Direction.SOUTH ) {
-			ret = Math.max(ret, level.getSignal(pos, Direction.SOUTH));
-		}
-		if( state.getValue(FACING) != Direction.WEST ) {
-			ret = Math.max(ret, level.getSignal(pos, Direction.WEST));
-		}
-		if( state.getValue(FACING) != Direction.EAST ) {
-			ret = Math.max(ret, level.getSignal(pos, Direction.EAST));
+		for( var direction : Direction.values()) {
+			if( direction != state.getValue(FACING)) {
+				ret = Math.max(ret, level.getSignal(pos, direction));
+			}
 		}
 
 		return ret;
@@ -134,14 +124,16 @@ public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos from_pos, boolean is_moving) {
 		int signal = getInputSignal(state, level, pos);
 		//Powered and receiving signal or unpowered and no signal
-		if( ( signal != 0 && state.getValue(POWERED)) || ( signal == 0 && !state.getValue(POWERED)) ) {
+		if( signal == 0 && state.getValue(POWERED)) {
+			level.setBlockAndUpdate( pos, state.setValue(POWERED, false));
 			return;
 		}
 
 		if( signal > 0 && !state.getValue(POWERED)) {
+			level.setBlockAndUpdate( pos, state.setValue(POWERED, true));
 			BlockEntity entity = level.getBlockEntity(pos);
 			if (entity instanceof MSCRedstoneLogicAdapterBlockEntity msc_adapter) {
-			msc_adapter.addProgram();
+				msc_adapter.addProgram();
 			}
 		}
 	}
