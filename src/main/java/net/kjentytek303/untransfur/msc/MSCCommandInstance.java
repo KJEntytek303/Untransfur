@@ -3,7 +3,6 @@ package net.kjentytek303.untransfur.msc;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
 import net.kjentytek303.untransfur.init.InitMSCCommands;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -15,10 +14,9 @@ import java.util.function.Predicate;
 public class MSCCommandInstance implements Function<MSCControllerBlockEntity, Boolean>, Predicate<MSCControllerBlockEntity> {
 	public final MSCScheduledCommand command;
 	public final ItemStack argument;
-
-	public static MSCCommandInstance fromNBTString(String command, ItemStack argument ) {
-		return new MSCCommandInstance( InitMSCCommands.findByNBTStr(command), argument);
-	}
+	public int ticks_elapsed = 0;
+	public boolean should_count_final = false;
+	public int additional_delay = 20;
 
 	//For MSCController
 	public static MSCCommandInstance fromCompound(CompoundTag tag) {
@@ -27,26 +25,31 @@ public class MSCCommandInstance implements Function<MSCControllerBlockEntity, Bo
 		if (tag.contains("argument")) {
 			stack.deserializeNBT(tag.getCompound("argument"));
 		}
-		if (tag.contains("program")) broken:{
+		if (tag.contains("program")) {
 			str = tag.getString("program");
 		}
-		return new MSCCommandInstance(InitMSCCommands.findByStr(str), stack);
+		return InitMSCCommands.findByStr(str).asInstance(stack);
 	}
 
-	public MSCCommandInstance(ResourceLocation name, ItemStack stack) {
-		this.command = InitMSCCommands.findByResLoc(name);
-		this.argument = stack;
-	}
-
-	public MSCCommandInstance(MSCScheduledCommand command, ItemStack argument) {
+	/**
+	 * Internal use only, use MSCScheduledCommand this.asInstance(ItemStack argument) to construct
+	 * Inheriting is fine.
+	 */
+	protected MSCCommandInstance(MSCScheduledCommand command, ItemStack argument) {
 		this.command = command;
 		this.argument = argument;
 	}
 
 	@Override
 	public Boolean apply(MSCControllerBlockEntity msc) {
-		return this.command.apply(msc, argument);
+		ticks_elapsed++;
+		if(!should_count_final && command.apply(msc, argument)) {
+			return true;
+		}
+		should_count_final = true;
+		return additional_delay-- == 0;
 	}
+
 
 	@Override
 	public boolean test(MSCControllerBlockEntity mscControllerBlockEntity) {

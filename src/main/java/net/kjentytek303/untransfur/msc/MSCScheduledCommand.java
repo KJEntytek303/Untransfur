@@ -3,6 +3,7 @@ package net.kjentytek303.untransfur.msc;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
@@ -33,4 +34,16 @@ public abstract class MSCScheduledCommand implements BiFunction<MSCControllerBlo
 	 * @return should MSC run the command? This is assumed to increase bentity failure chance.
 	 */
 	public abstract boolean test(MSCControllerBlockEntity bentity );
+
+	/**
+	 * Constructs the corresponding command instance.
+	 * Do not call MSCCommandInstance constructor directly.
+	 * If your command needs custom data, inherit from both this class and MSCCommandInstance.
+	 * @param argument command argument
+	 * @return command instance
+	 */
+	@Contract( pure = true )
+	public MSCCommandInstance asInstance(ItemStack argument) {
+		return new MSCCommandInstance(this, argument);
+	}
 }
