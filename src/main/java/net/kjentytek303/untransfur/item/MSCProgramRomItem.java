@@ -23,7 +23,7 @@ public class MSCProgramRomItem extends Item {
 		super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
 		CompoundTag program = pStack.getTag();
 		if(program != null && program.contains("program")) {
-			pTooltipComponents.add(Component.translatable("item.untransfur.msc_program_rom.tooltip", Component.translatable( program.get("program").getAsString())));
+			pTooltipComponents.add(Component.translatable("item.untransfur.msc_program_rom.tooltip", Component.translatable( "item.untransfur.msc_program_rom." + program.getString("program"))));
 		} else {
 			pTooltipComponents.add(Component.translatable("item.untransfur.msc_program_rom.tooltip", Component.translatable("item.untransfur.msc_program_rom.tooltip.empty" )));
 		}

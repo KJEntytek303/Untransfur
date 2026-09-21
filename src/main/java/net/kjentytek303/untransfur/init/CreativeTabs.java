@@ -23,29 +23,20 @@ public class CreativeTabs
 		 	() -> CreativeModeTab.builder()
 				.title( Component.translatable("untransfur.creative_tabs.untransfur") )
 				.icon(() -> InitItems.UNTRANSFUR_SYRINGE.get().getDefaultInstance())
-				.displayItems( (parameters, item) -> {
+				.displayItems( (parameters, tab_builder) -> {
 					InitItems.ITEM_REGISTRY.getEntries().forEach(
-						itemRegistryObject -> item.accept(itemRegistryObject.get())
+						itemRegistryObject -> tab_builder.accept(itemRegistryObject.get())
 					);
-					item.accept(mscProgrammedRom(Untransfur.modResource("open_door")));
-					item.accept(mscProgrammedRom(Untransfur.modResource("capture_entity")));
-
-					item.accept(mscProgrammedRom(Untransfur.modResource("close_door")));
-					item.accept(mscProgrammedRom(Untransfur.modResource("fill_chamber")));
-					item.accept(mscProgrammedRom(Untransfur.modResource("extend_stasis")));
-
-					item.accept(mscProgrammedRom(Untransfur.modResource("transfur")));
-					item.accept(mscProgrammedRom(Untransfur.modResource("untransfur")));
-					item.accept(mscProgrammedRom(Untransfur.modResource("modify")));
-
-					item.accept(mscProgrammedRom(Untransfur.modResource("drain_chamber")));
+					for( var program : InitMSCCommands.MSC_COMMAND_REGISTRY.getEntries() ) {
+						tab_builder.accept(mscProgrammedRom( program.get().command_id ));
+					}
 				})
 				.build()
 	);
 
 	public static ItemStack mscProgrammedRom(ResourceLocation loc) {
 		CompoundTag tag = new CompoundTag();
-		tag.putString("program", "untransfur.msc.program." + loc.toString() );
+		tag.putString("program", loc.toString() );
 		var ret = new ItemStack(InitItems.MSC_PROGRAM_ROM.get());
 		ret.setTag(tag);
 		return ret;
