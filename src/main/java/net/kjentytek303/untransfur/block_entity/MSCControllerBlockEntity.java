@@ -19,33 +19,30 @@ import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedAnimationEvents;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.ltxprogrammer.changed.item.Syringe;
+import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.StackedContentsCompatible;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
@@ -71,7 +68,6 @@ import static net.kjentytek303.untransfur.util.BlockUtilities.fillWithBlock;
 import static net.kjentytek303.untransfur.util.BlockUtilities.isBlock;
 import static net.kjentytek303.untransfur.util.UntfTags.Blocks.MSC_AUGMENT_BLOCKS;
 import static net.ltxprogrammer.changed.init.ChangedItems.LATEX_SYRINGE;
-import static net.minecraft.world.level.block.Block.dropResources;
 import static net.minecraft.world.level.block.Blocks.AIR;
 import static net.minecraft.world.level.block.Blocks.DISPENSER;
 import static net.minecraft.world.level.block.Blocks.REDSTONE_BLOCK;
@@ -81,19 +77,26 @@ import static net.minecraftforge.common.Tags.Blocks.GLASS;
 
 
 //Credit to LTXProgrammer for the original block and code.
-public class MSCControllerBlockEntity extends BaseContainerBlockEntity implements SeatableBlockEntity, StackedContentsCompatible {
+public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlockEntity {
 	public SeatEntity entity_holder;
 
 	public float fluid_level = 0.0f;
 	public float fluid_level0 = 0.0f;
-	public int crashed_ticks=0;
+	public int crashed_ticks = 0;
+	public int extension_attempts = 0;
 
 	public List<MSCCommandInstance> scheduled_commands = new ArrayList<>();
 	public @Nullable MSCCommandInstance current_command = null;
 	public LivingEntity cached_entity;
 	public final Map<BlockPos, IMSCAugment> augments = new HashMap<>();
 	public Direction msc_direction;
-	public boolean is_opened = false;
+	/**
+	 * access transform if you need to modify this.
+	*/
+	protected boolean is_opened = false;
+	public boolean isOpen() {
+		return this.is_opened;
+	}
 
 	public final ContainerOpenersCounter openers_counter = new ContainerOpenersCounter() {
 		@Override
@@ -109,9 +112,10 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 	};
 	public static final int DACCESS_FLUID_LEVEL = 0;
 	public static final int DACCESS_FAILURE_CHANCE = 1;
+	public static final int DACCESS_OPEN = 2;
 
 
-	public NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
+	//public NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
 
 	public int wait_duration = 0;
 	public boolean stabilized = false;
@@ -127,6 +131,7 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 			return switch ( pIndex ) {
 				case DACCESS_FLUID_LEVEL -> (int)(MSCControllerBlockEntity.this.fluid_level * 1000);
 				case DACCESS_FAILURE_CHANCE -> (int)(MSCControllerBlockEntity.this.failure_chance * 1000);
+				case DACCESS_OPEN -> MSCControllerBlockEntity.this.isOpen() ? 1 : 0;
 				default -> 0;
 			};
 		}
@@ -136,12 +141,13 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 			switch ( pIndex ) {
 				case DACCESS_FLUID_LEVEL -> MSCControllerBlockEntity.this.fluid_level = ((float)pValue) * 0.001f;
 				case DACCESS_FAILURE_CHANCE -> MSCControllerBlockEntity.this.failure_chance = ((float)pValue) * 0.001f;
+				case DACCESS_OPEN -> { if(pValue == 0) closeDoor(); else openDoor(); }
 			}
 		}
 
 		@Override
 		public int getCount() {
-			return 2;
+			return 3;
 		}
 	};
 
@@ -166,78 +172,10 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		else { multiblock_valid = false; }
 	}
 
-	public boolean isEmpty() {
-		return this.items.get(0).isEmpty();
-	}
-
-	public void startOpen(Player player) {
-		if ( !this.remove && !player.isSpectator() ) {
-			this.openers_counter.incrementOpeners(player, this.getLevel(), this.getBlockPos(), this.getBlockState() );
-		}
-	}
-
-	public void stopOpen(Player player) {
-		if (!this.remove && !player.isSpectator()) {
-			this.openers_counter.decrementOpeners(player, this.getLevel(), this.getBlockPos(), this.getBlockState());
-		}
-	}
-
-	public ItemStack getItem( int slot) {
-		return this.items.get(slot);
-	}
-
-	public @NotNull ItemStack removeItem(int slot, int amount) {
-		return ContainerHelper.removeItem(this.items, slot, amount);
-	}
-
-	public @NotNull ItemStack removeItemNoUpdate(int slot) {
-		return ContainerHelper.takeItem(this.items, slot);
-	}
-
-	public void setItem( int slot, ItemStack stack ) {
-		boolean non_empty_and_same_stack = !stack.isEmpty() && ItemStack.isSameItemSameTags(stack, this.items.get(0));
-		this.items.set(slot, stack);
-
-		if (stack.getCount() > this.getMaxStackSize()) {
-			stack.setCount(this.getMaxStackSize());
-		}
-		if ( slot == 0 && !non_empty_and_same_stack ) {
-			this.setChanged();
-		}
-	}
-
-	public int getContainerSize() {
-		return 1;
-	}
-
-	public boolean stillValid(Player player) {
-		if (this.level.getBlockEntity(this.worldPosition ) != this ) {
-			return false;
-		}
-		return player.distanceToSqr( this.worldPosition.getX(), this.worldPosition.getY(), this.worldPosition.getY() ) <= 64.0;
-	}
-
-	public boolean canPlaceItem( int slot, ItemStack stack ) {
-		if (slot == 0) {
-			return stack.is(UntfTags.Items.MSC_COMPATIBLE_ITEMS);
-		}
-		return false;
-	}
-
-	public void clearContent() {
-		this.items.clear();
-	}
-
-	public void fillStackedContents( StackedContents contents ) {
-		contents.accountStack(items.get(0));
-	}
-
 	protected void saveAdditional( CompoundTag tag ) {
 		super.saveAdditional(tag);
 		tag.putFloat("fluid_level", fluid_level);
 		tag.putFloat("fluid_level0", fluid_level0);
-		ContainerHelper.saveAllItems(tag, this.items);
-		tag.putInt("wait_duration", wait_duration);
 		tag.putBoolean("stabilized", stabilized );
 		tag.putDouble("failure_chance", failure_chance);
 
@@ -263,9 +201,6 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		fluid_level = tag.getFloat("fluid_level");
 		fluid_level0 = tag.getFloat("fluid_level0");
 		failure_chance = tag.getDouble("failure_chance");
-
-		this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-		ContainerHelper.loadAllItems(tag, this.items);
 
 		wait_duration = tag.getInt("wait_duration");
 		stabilized = tag.getBoolean("stabilized");
@@ -330,7 +265,7 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 	}
 
 	public Optional<LivingEntity> getChamberedEntity() {
-		if (entity_holder == null || this.is_opened) {
+		if (entity_holder == null || this.isOpen()) {
 			return Optional.empty();
 		}
 		return Optional.ofNullable(
@@ -374,10 +309,6 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 			}
 		}
 		return ret;
-	}
-
-	private ItemStack getSyringe() {
-		return items.get(0);
 	}
 
 	public ImmutableList<MSCCommandInstance> getCommands() {
@@ -435,9 +366,9 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		var commands = bentity.scheduled_commands;
 
 		if(commands.isEmpty() && !bentity.getEntitiesWithin().isEmpty()) {
-			commands.add(new MSCCommandInstance (InitMSCCommands.DRAIN_CHAMBER.get(), ItemStack.EMPTY));
-			commands.add(new MSCCommandInstance (InitMSCCommands.RELEASE_ENTITY.get(), ItemStack.EMPTY));
-			commands.add(new MSCCommandInstance (InitMSCCommands.CLOSE_DOOR.get(), ItemStack.EMPTY));
+			commands.add(InitMSCCommands.DRAIN_CHAMBER.get().asInstance(ItemStack.EMPTY));
+			commands.add(InitMSCCommands.RELEASE_ENTITY.get().asInstance(ItemStack.EMPTY));
+			commands.add(InitMSCCommands.CLOSE_DOOR.get().asInstance(ItemStack.EMPTY));
 		}
 
 		while( bentity.current_command == null && !commands.isEmpty()) {
@@ -522,45 +453,34 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 			return false;
 		}
 		chamberEntity(cached_entity);
-		return true;
-	}
-
-	public boolean isPlayerAllowedToConfigure(@Nullable Player controller) {
-		if( controller == null ) {
-			return true;
-		}
-		var players = getPlayersWithin();
-		return players.isEmpty() || players.contains(controller);
-	}
-
-	public boolean isRedstoneAllowedToConfigure() {
-		//TODO: Add a redstone circuitry crash feature if the entity is held too long.
-		return true;
-	}
-
-	public void setWaitDuration(int wait_duration, @Nullable ServerPlayer controller) {
-		wait_duration = Mth.clamp(wait_duration, 0, ServerCfg.MSC_MAX_STASIS_DURATION.get());
-
-		if( wait_duration > this.wait_duration && !this.isPlayerAllowedToConfigure(controller)) {
-			return;
-		}
-		this.wait_duration = wait_duration;
 		markUpdated();
+		return true;
 	}
 
-	public boolean isStabilized() {
-		return stabilized;
+	public boolean isCrashed() {
+		return this.crashed_ticks > 0;
 	}
 
 	public void inputProgram(MSCCommandInstance program) {
-		//TODO: crash feature.
-		if(this.scheduled_commands.size() > ServerCfg.MSC_MAX_COMMAND_SCHEDULE.get()) {
-			//this.crash();
+		if(this.isCrashed()) {
 			return;
 		}
-		//if( MSCScheduledCommand.contains(program)) {
-			this.scheduled_commands.add( program );
-		//}
+
+		if(this.scheduled_commands.size() > ServerCfg.MSC_MAX_COMMAND_SCHEDULE.get()) {
+			this.crash();
+			return;
+		}
+		this.scheduled_commands.add( program );
+	}
+
+	public void crash() {
+		this.scheduled_commands.clear();
+
+		this.scheduled_commands.add( InitMSCCommands.WAKE_ENTITY.get().asInstance(ItemStack.EMPTY));
+		this.scheduled_commands.add( InitMSCCommands.DRAIN_CHAMBER.get().asInstance(ItemStack.EMPTY));
+		this.scheduled_commands.add( InitMSCCommands.RELEASE_ENTITY.get().asInstance(ItemStack.EMPTY));
+		crashed_ticks = ServerCfg.MSC_CRASH_DURATION.get();
+		setBlockStatus(ControllerStatus.ERRORED);
 	}
 
 	public void openDoor() {
@@ -585,11 +505,33 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 		return Optional.of(null);
 	}
 
-	/*
-	public boolean isRedstoneAllowedToConfigure() {
+	public boolean stabilizeEntity() {
+		if( !ensureCapturedIsStillInside() || stabilized ) {
+			return false;
+		}
 
+		stabilized = true;
+		getChamberedEntity().map(EntityUtil::playerOrNull).map(Entity::level).ifPresent( level1 -> {
+			if (level instanceof ServerLevel srv_level) {
+				srv_level.updateSleepingPlayerList();
+			}
+		});
+		return true;
 	}
-	*/
+
+	public boolean wakeEntity() {
+		if(!ensureCapturedIsStillInside() || !stabilized) {
+			return false;
+		}
+
+		stabilized = false;
+		getChamberedEntity().map(EntityUtil::playerOrNull).map(Entity::level).ifPresent( level1 -> {
+			if (level instanceof ServerLevel srv_level) {
+				srv_level.updateSleepingPlayerList();
+			}
+		});
+		return true;
+	}
 
 
 
@@ -608,7 +550,7 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 					if ( ! ( MSC_MULTIBLOCK_DEFINITION.get(x, y, z).test(level.getBlockState(iterator)))
 					) {
 						if (player != null ) { //TODO: Move this into component translatable
-							player.sendSystemMessage(Component.literal("Error: Invalid block " + level.getBlockState(iterator).getBlock().getName() + " at " + iterator.getX() + ", " + iterator.getY() + ", " + iterator.getZ()));
+							player.sendSystemMessage(Component.literal("Error: Invalid block " + Component.translatable(level.getBlockState(iterator).getBlock().getName().toString()) + " at " + iterator.getX() + ", " + iterator.getY() + ", " + iterator.getZ()));
 						}
 						return false;
 					}
@@ -652,7 +594,7 @@ public class MSCControllerBlockEntity extends BaseContainerBlockEntity implement
 				entity.hurt(InitDamageSources.MSC_DISCONNECT.source(entity.level().registryAccess()), 30);
 			});
 		}
-		if(is_opened) {
+		if(isOpen()) {
 			Containers.dropItemStack(level, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), new ItemStack(BlockItem.byBlock(Blocks.GLASS), 15) );
 		}
 		markUpdated();

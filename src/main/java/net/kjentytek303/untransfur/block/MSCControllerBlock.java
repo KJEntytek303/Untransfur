@@ -68,7 +68,7 @@ public class MSCControllerBlock extends BaseEntityBlock {
 		}
 		BlockEntity be = pLevel.getBlockEntity(pPos);
 		if( be instanceof MSCControllerBlockEntity msc ) {
-			if(msc.checkMultiblock(pLevel, pPos, pPlayer)){
+			if(msc.checkMultiblock(pLevel, pPos, pPlayer) && !msc.isCrashed()) {
 				setStatus(pState, pLevel, pPos, ControllerStatus.INACTIVE);
 			}
 		}

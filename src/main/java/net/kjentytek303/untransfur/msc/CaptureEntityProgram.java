@@ -49,7 +49,7 @@ public class CaptureEntityProgram extends MSCScheduledCommand {
 
 	@Override
 	public boolean test(MSCControllerBlockEntity bentity) {
-		boolean ret = bentity.is_opened && bentity.isDrained();
+		boolean ret = bentity.isOpen() && bentity.isDrained();
 		if(!ret) {
 			bentity.failure_chance += 0.0015;
 			bentity.markUpdated();

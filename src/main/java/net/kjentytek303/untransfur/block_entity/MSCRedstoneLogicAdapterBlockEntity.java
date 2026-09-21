@@ -134,22 +134,7 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 		this.controller = ctrl;
 	}
 
-	public void msc_tick(MSCControllerBlockEntity msc ) {
-		//Output signal to side according to MSC Controller current program.
-		ItemStack rom = this.items.get(0);
-		if( !rom.is(InitItems.MSC_PROGRAM_ROM.get()) || rom.getTag() == null || !rom.getTag().contains("program") ) {
-			return;
-		}
-		MSCCommandInstance current_cmd = msc.getCurrentCommand();
-		if( ( current_cmd == null && rom.equals(ItemStack.EMPTY ))) {
-			//update redstone
-			return;
-		}
-		if( current_cmd != null && rom.equals(current_cmd.argument, false) ) {
-			//update redstone
-		}
-		//disable redstone
-	}
+	public void msc_tick(MSCControllerBlockEntity msc ) { }
 
 	public int getSignal() {
 		//if no controller or controller not running - null
@@ -164,7 +149,7 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 		}
 
 		if( rom.getTag() != null && rom.getTag().contains("program")) { //get MSCCommand from ROM //TODO maybe move this to a function?? ~KJEntytek303
-			rom_program = InitMSCCommands.findByNBTStr(rom.getTag().getString("program"));
+			rom_program = InitMSCCommands.findByStr(rom.getTag().getString("program"));
 		}
 
 		if( rom_program == this.controller.current_command.command) { //if programs match, 15
@@ -184,6 +169,6 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 			Untransfur.LOGGER.debug("Null controller at {}", this.getBlockPos());
 			return;
 		}
-		controller.inputProgram( MSCCommandInstance.fromNBTString(rom.getTag().getString("program"), ItemStack.EMPTY));
+		controller.inputProgram( InitMSCCommands.findByStr(rom.getTag().getString("program")).asInstance( ItemStack.EMPTY));
 	}
 }

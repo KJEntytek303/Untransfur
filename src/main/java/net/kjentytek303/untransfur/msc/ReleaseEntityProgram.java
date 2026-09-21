@@ -15,11 +15,16 @@ public class ReleaseEntityProgram extends MSCScheduledCommand {
 
 	@Override
 	public Boolean apply(MSCControllerBlockEntity bentity, ItemStack argument) {
-		return false;
+		return !bentity.getEntitiesWithin().isEmpty();
 	}
 
 	@Override
 	public boolean test(MSCControllerBlockEntity bentity) {
-		return false;
+		boolean ret = bentity.isOpen() && bentity.isDrained();
+		if(!ret) {
+			bentity.failure_chance += 0.015;
+			bentity.markUpdated();
+		}
+		return ret;
 	}
 }
