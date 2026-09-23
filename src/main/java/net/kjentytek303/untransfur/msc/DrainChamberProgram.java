@@ -37,13 +37,13 @@ public class DrainChamberProgram extends MSCScheduledCommand {
 			bentity.fluid_level0 = 0.0f;
 			bentity.extension_attempts = 0;
 		}
-		bentity.markUpdated();
+		bentity.setChanged();
 		return !bentity.isDrained();
 	}
 
 	@Override
 	public boolean test(MSCControllerBlockEntity bentity) {
-		boolean ret = bentity.isFilled() && !bentity.isOpen();
+		boolean ret = !bentity.isDrained() && !bentity.isOpen();
 		if(!ret) {
 			bentity.failure_chance += 0.015;
 			bentity.markUpdated();

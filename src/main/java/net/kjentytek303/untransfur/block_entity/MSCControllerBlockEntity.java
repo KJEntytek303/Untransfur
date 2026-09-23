@@ -1,7 +1,5 @@
 package net.kjentytek303.untransfur.block_entity;
 
-import com.google.common.collect.ImmutableList;
-import com.ibm.icu.impl.Pair;
 import net.kjentytek303.untransfur.block.MSCControllerBlock;
 import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.init.InitDamageSources;
@@ -14,6 +12,7 @@ import net.kjentytek303.untransfur.util.BlockUtilities;
 import net.kjentytek303.untransfur.util.ContainerWithIndex;
 import net.kjentytek303.untransfur.util.ItemPredicate;
 import net.kjentytek303.untransfur.util.List3Wrapper;
+import net.kjentytek303.untransfur.util.NullablePair;
 import net.kjentytek303.untransfur.util.UntfTags;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
 import net.ltxprogrammer.changed.block.entity.SeatableBlockEntity;
@@ -27,7 +26,6 @@ import net.ltxprogrammer.changed.item.Syringe;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -287,10 +285,6 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		return getChamberedEntity().map(IAbstractChangedEntity::forEither);
 	}
 
-	public @Nullable MSCCommandInstance getCurrentCommand() {
-		return current_command;
-	}
-
 	public List<ContainerWithIndex> findItems(ItemPredicate pred, boolean respectTags) {
 		List<BlockPos> input_augments = findAugments( UntfTags.Blocks.MSC_INPUT);
 		List<ContainerWithIndex> ret = new ArrayList<>();
@@ -320,7 +314,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	 * @param pop_stack - should this method also pop the first latex syringe ItemStack it finds. Aborts if it cannot put a syringe into MSC Output Bus
 	 * @return a pair of variant - is_safe boolean. return.first might be null
 	 */
-	public @NotNull Pair<TransfurVariant<?>, Boolean> findTransfurVariant(boolean pop_stack) {
+	public @NotNull NullablePair<TransfurVariant<?>, Boolean> findTransfurVariant(boolean pop_stack) {
 		List<ContainerWithIndex> containers_with_items = findItems(new ItemPredicate(new ItemStack(LATEX_SYRINGE.get())), false);
 		for( var container : containers_with_items ) {
 			for( int slot : container.slots ) {
@@ -334,18 +328,18 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 					ret2 = stack.getTag().getBoolean("safe");
 				}
 				if(!pop_stack) {
-					return Pair.of(ret, ret2);
+					return new NullablePair<>(ret, ret2);
 				}
 
 				boolean success = setIntoOutput(new ItemStack(ChangedItems.SYRINGE.get()));
 				if(success) {
 					container.item_handler.extractItem(slot, 1, false);
-					return Pair.of(ret, ret2);
+					return new NullablePair<>(ret, ret2);
 				}
-				return Pair.of((TransfurVariant<?>)null, false);
+				return new NullablePair<>(null, false);
 			}
 		}
-		return Pair.of((TransfurVariant<?>)null, false);
+		return new NullablePair<>(null, false);
 	}
 
 	public boolean setIntoOutput(ItemStack stack) {
@@ -420,10 +414,6 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		return ret;
 	}
 
-	public ImmutableList<MSCCommandInstance> getCommands() {
-		return ImmutableList.copyOf(scheduled_commands);
-	}
-
 	public float getFluidYHeight() {	//TODO: might require additional renderer patches.
 		return ( fluid_level * 7 );
 	}
@@ -445,10 +435,11 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	}
 
 	public static void serverTick(Level level, BlockPos pos, BlockState bstate, MSCControllerBlockEntity bentity) {
-
+		if(level.isClientSide) {
+			return;
+		}
 		bentity.failure_chance = Math.max(0.0, bentity.failure_chance - ServerCfg.MSC_REGENERATION_AMOUNT.get() );
-		bentity.markUpdated();
-		if( level.getGameTime() % 20 == 0 && !level.isClientSide) {
+		if( level.getGameTime() % 20 == 0) {
 			if( bentity.multiblock_valid && !bentity.checkMultiblock(level, pos, null)) {
 				bentity.invalidateMultiblock();
 				bentity.failure_chance += 0.03;
@@ -462,6 +453,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 				bentity.markUpdated();
 			}
 		}
+		bentity.setChanged();
 
 		if( ServerCfg.MSC_EXPLOSION_CHECK_RATE.get() != 0 && level.getGameTime() % ServerCfg.MSC_EXPLOSION_CHECK_RATE.get() == 0) {
 			if ( bentity.checkForBlowUp() ) {
@@ -471,9 +463,14 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 			}
 		}
 
-		bentity.openers_counter.recheckOpeners(level, pos, bstate);
 		var commands = bentity.scheduled_commands;
 		var entities_within = bentity.getEntitiesWithin();
+
+		for( var augment_pos : AUGMENT_POSITIONS ) {
+			if( level.getBlockEntity(TransformHorizontalDirection(bentity.multiblock_root, bentity.msc_direction, augment_pos)) instanceof IMSCAugment mscaug) {
+				mscaug.msc_tick();
+			}
+		}
 
 		if(commands.isEmpty() && !entities_within.isEmpty()) {
 			if(!bentity.isDrained()) {
@@ -728,6 +725,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		level.explode(null, explosion_root.getX(), explosion_root.getY(), explosion_root.getZ(), 50, true, Level.ExplosionInteraction.BLOCK);
 	}
 
+	//According to multiblock root
 	public static final List<BlockPos> AUGMENT_POSITIONS = new ArrayList<>();
 	public static final List3Wrapper<BlockPredicate> MSC_MULTIBLOCK_DEFINITION;
 	public static final List3Wrapper<BlockPredicate> MSC_OPEN_MULTIBLOCK_DEFINITION;

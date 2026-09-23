@@ -71,7 +71,7 @@ public class MSCCommandInstance implements Function<MSCControllerBlockEntity, Bo
 		tag.putString("program", this.command.command_id.toString());
 		tag.put("argument", argument.serializeNBT());
 		tag.putInt("ticks_elapsed", this.ticks_elapsed);
-		tag.putInt("additional_delay", this.ticks_elapsed);
+		tag.putInt("additional_delay", this.additional_delay);
 		tag.putBoolean("should_count_final", this.should_count_final);
 		return tag;
 	}

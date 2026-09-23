@@ -32,7 +32,7 @@ public class FillChamberProgram extends MSCScheduledCommand {
 
 	@Override
 	public boolean test(MSCControllerBlockEntity bentity) {
-		boolean ret = !bentity.isOpen() && bentity.isDrained();
+		boolean ret = !bentity.isOpen() && !bentity.isFilled();
 		if(!ret ) {
 			bentity.failure_chance += 0.015;
 			bentity.markUpdated();

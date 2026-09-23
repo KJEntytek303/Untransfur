@@ -1,9 +1,9 @@
 package net.kjentytek303.untransfur.msc;
 
-import com.ibm.icu.impl.Pair;
 import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
 import net.kjentytek303.untransfur.init.InitDamageSources;
+import net.kjentytek303.untransfur.util.NullablePair;
 import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.ai.ImmediateTransfurDecision;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
@@ -26,7 +26,7 @@ public class TransfurEntityProgram extends MSCScheduledCommand {
 			bentity.failure_chance += 0.025;
 			return false;
 		}
-		Pair<TransfurVariant<?>, Boolean> got = bentity.findTransfurVariant(true);
+		NullablePair<TransfurVariant<?>, Boolean> got = bentity.findTransfurVariant(true);
 
 		TransfurVariant<?> variant = got.first;
 		boolean is_safe = got.second;
@@ -55,7 +55,7 @@ public class TransfurEntityProgram extends MSCScheduledCommand {
 
 	@Override
 	public boolean test(MSCControllerBlockEntity bentity) {
-		Pair<TransfurVariant<?>, Boolean> got = bentity.findTransfurVariant(false);
+		NullablePair<TransfurVariant<?>, Boolean> got = bentity.findTransfurVariant(false);
 		boolean ret = got.first != null &&
 			!bentity.isOpen() &&
 			bentity.isFilled() &&
