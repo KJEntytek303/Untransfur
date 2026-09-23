@@ -1,6 +1,7 @@
 package net.kjentytek303.untransfur.block_entity;
 
 import com.google.common.collect.ImmutableList;
+import com.ibm.icu.impl.Pair;
 import net.kjentytek303.untransfur.block.MSCControllerBlock;
 import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.init.InitDamageSources;
@@ -8,7 +9,10 @@ import net.kjentytek303.untransfur.init.InitMSCCommands;
 import net.kjentytek303.untransfur.msc.ControllerStatus;
 import net.kjentytek303.untransfur.msc.IMSCAugment;
 import net.kjentytek303.untransfur.msc.MSCCommandInstance;
+import net.kjentytek303.untransfur.util.BlockPredicate;
 import net.kjentytek303.untransfur.util.BlockUtilities;
+import net.kjentytek303.untransfur.util.ContainerWithIndex;
+import net.kjentytek303.untransfur.util.ItemPredicate;
 import net.kjentytek303.untransfur.util.List3Wrapper;
 import net.kjentytek303.untransfur.util.UntfTags;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
@@ -18,10 +22,12 @@ import net.ltxprogrammer.changed.entity.animation.StasisAnimationParameters;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedAnimationEvents;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
+import net.ltxprogrammer.changed.init.ChangedItems;
 import net.ltxprogrammer.changed.item.Syringe;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -29,7 +35,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
-import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -49,6 +54,8 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.WaterFluid;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -57,7 +64,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import static net.kjentytek303.untransfur.block.MSCControllerBlock.FACING;
 import static net.kjentytek303.untransfur.init.InitBlockEntities.MSC_CONTROLLER_BLOCK_ENTITY;
@@ -65,6 +71,7 @@ import static net.kjentytek303.untransfur.init.InitBlocks.MSC_CONTROLLER;
 import static net.kjentytek303.untransfur.init.InitBlocks.MSC_SMOOTH_WALL;
 import static net.kjentytek303.untransfur.util.BlockUtilities.TransformHorizontalDirection;
 import static net.kjentytek303.untransfur.util.BlockUtilities.fillWithBlock;
+import static net.kjentytek303.untransfur.util.BlockUtilities.fillWithTag;
 import static net.kjentytek303.untransfur.util.BlockUtilities.isBlock;
 import static net.kjentytek303.untransfur.util.UntfTags.Blocks.MSC_AUGMENT_BLOCKS;
 import static net.ltxprogrammer.changed.init.ChangedItems.LATEX_SYRINGE;
@@ -164,11 +171,12 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		super( MSC_CONTROLLER_BLOCK_ENTITY.get(), pos, state);
 		msc_direction = state.getValue(FACING).getOpposite();
 		this.multiblock_root = BlockUtilities.TransformHorizontalDirection(pos, msc_direction, -2, 0, -5);
-		if( this.getLevel() != null )
-			multiblock_valid = checkMultiblock( this.getLevel(), pos, null);
-			if(multiblock_valid) {
+		if( this.getLevel() != null ) {
+			multiblock_valid = checkMultiblock(this.getLevel(), pos, null);
+			if (multiblock_valid) {
 				setBlockStatus(ControllerStatus.INACTIVE);
 			}
+		}
 		else { multiblock_valid = false; }
 	}
 
@@ -177,6 +185,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		tag.putFloat("fluid_level", fluid_level);
 		tag.putFloat("fluid_level0", fluid_level0);
 		tag.putBoolean("stabilized", stabilized );
+		tag.putBoolean("open", is_opened);
 		tag.putDouble("failure_chance", failure_chance);
 
 		if(entity_holder != null) {
@@ -204,6 +213,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 
 		wait_duration = tag.getInt("wait_duration");
 		stabilized = tag.getBoolean("stabilized");
+		is_opened = tag.getBoolean("open");
 
 		if (tag.contains("entity_holder_id") && level != null && level.isClientSide ) {
 			Entity entity = level.getEntity(tag.getInt("entity_holder_id"));
@@ -281,22 +291,121 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		return current_command;
 	}
 
-	public @Nullable TransfurVariant<?> findVariantFromSlots() {
-		List<BlockPos> input_augments = findAugments( UntfTags.Blocks.MSC_INPUT );
+	public List<ContainerWithIndex> findItems(ItemPredicate pred, boolean respectTags) {
+		List<BlockPos> input_augments = findAugments( UntfTags.Blocks.MSC_INPUT);
+		List<ContainerWithIndex> ret = new ArrayList<>();
 		for( var augment_pos : input_augments ) {
 			net.minecraft.world.level.block.entity.BlockEntity augment = level.getBlockEntity(augment_pos);
-			if (!(augment instanceof Container container)) {
+			if (augment == null) {
 				continue;
 			}
-			for(int i=0; i<container.getContainerSize(); i++) {
-				ItemStack stack = container.getItem(i);
-				if (!stack.is(LATEX_SYRINGE.get())) {
+			augment.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(container -> {
+				ContainerWithIndex ret_container = new ContainerWithIndex(container);
+				for (int i = 0; i < container.getSlots(); i++) {
+					ItemStack found = container.getStackInSlot(i);
+					if( pred.test(found, respectTags)) {
+						ret_container.slots.add(i);
+					}
+				}
+				if(!ret_container.slots.isEmpty()) {
+					ret.add(ret_container);
+				}
+			});
+		}
+		return ret;
+	}
+
+	/**
+	 *
+	 * @param pop_stack - should this method also pop the first latex syringe ItemStack it finds. Aborts if it cannot put a syringe into MSC Output Bus
+	 * @return a pair of variant - is_safe boolean. return.first might be null
+	 */
+	public @NotNull Pair<TransfurVariant<?>, Boolean> findTransfurVariant(boolean pop_stack) {
+		List<ContainerWithIndex> containers_with_items = findItems(new ItemPredicate(new ItemStack(LATEX_SYRINGE.get())), false);
+		for( var container : containers_with_items ) {
+			for( int slot : container.slots ) {
+				ItemStack stack = container.item_handler.getStackInSlot(slot);
+				if(!stack.is(LATEX_SYRINGE.get())) {
 					continue;
 				}
-				return Syringe.getVariant(stack);
+				TransfurVariant<?> ret = Syringe.getVariant(stack);
+				boolean ret2 = false;
+				if(stack.getTag() != null && stack.getTag().contains("safe")) {
+					ret2 = stack.getTag().getBoolean("safe");
+				}
+				if(!pop_stack) {
+					return Pair.of(ret, ret2);
+				}
+
+				boolean success = setIntoOutput(new ItemStack(ChangedItems.SYRINGE.get()));
+				if(success) {
+					container.item_handler.extractItem(slot, 1, false);
+					return Pair.of(ret, ret2);
+				}
+				return Pair.of((TransfurVariant<?>)null, false);
 			}
 		}
-		return null;
+		return Pair.of((TransfurVariant<?>)null, false);
+	}
+
+	public boolean setIntoOutput(ItemStack stack) {
+		List<BlockPos> output_augments = findAugments(UntfTags.Blocks.MSC_OUTPUT);
+		boolean success = false;
+		int count = stack.getCount();
+
+		//first, check if we have enough space for the new stack.
+		List<ContainerWithIndex> slotBuffer = new ArrayList<>();
+
+		//Iterate over all augments;
+		for( var augment_pos : output_augments ) finished: {
+			BlockEntity bentity = level.getBlockEntity(augment_pos);
+			if( bentity == null ) {
+				continue;
+			}
+			IItemHandler container = bentity.getCapability(ForgeCapabilities.ITEM_HANDLER).orElse(null);
+			if( container == null) { //IntelliJ is wrong, we just might've assigned null to it.
+				continue;
+			}
+			ContainerWithIndex buffered_container = new ContainerWithIndex(container);
+
+			//Once a suitable output container is found, iterate over it's inv.
+			for( int i=0; i<container.getSlots(); i++) {
+				if(!container.isItemValid(i, stack)) {
+					continue;
+				}
+				ItemStack current_stack = container.getStackInSlot(i);
+				int slot_limit = Math.min(container.getSlotLimit(i), current_stack.getMaxStackSize());
+				slot_limit -= current_stack.getCount();
+
+				//Cannot insert due to stack limit overflow
+				if(slot_limit == 0) {
+					continue;
+				}
+
+				//can insert
+				buffered_container.slots.add(i);
+				count -= slot_limit;
+
+				//can insert and ran out of items to insert
+				if(count <= 0 ){
+					success = true;
+					break finished;
+				}
+			}
+			if(!buffered_container.slots.isEmpty()) {
+				slotBuffer.add(buffered_container);
+			}
+		}
+		if(!success) {
+			return false;
+		}
+
+		for(var container : slotBuffer ) {
+			for(var slot : container.slots) {
+				stack = container.item_handler.insertItem(slot, stack, false);
+			}
+		}
+		return true;
 	}
 
 	public List<BlockPos> findAugments(TagKey<Block> type) {
@@ -364,35 +473,38 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 
 		bentity.openers_counter.recheckOpeners(level, pos, bstate);
 		var commands = bentity.scheduled_commands;
+		var entities_within = bentity.getEntitiesWithin();
 
-		if(commands.isEmpty() && !bentity.getEntitiesWithin().isEmpty()) {
-			commands.add(InitMSCCommands.DRAIN_CHAMBER.get().asInstance(ItemStack.EMPTY));
+		if(commands.isEmpty() && !entities_within.isEmpty()) {
+			if(!bentity.isDrained()) {
+				commands.add(InitMSCCommands.DRAIN_CHAMBER.get().asInstance(ItemStack.EMPTY));
+			}
+			if(!bentity.isOpen()) {
+				commands.add(InitMSCCommands.OPEN_DOOR.get().asInstance(ItemStack.EMPTY));
+			}
 			commands.add(InitMSCCommands.RELEASE_ENTITY.get().asInstance(ItemStack.EMPTY));
 			commands.add(InitMSCCommands.CLOSE_DOOR.get().asInstance(ItemStack.EMPTY));
+			bentity.setChanged();
 		}
 
-		while( bentity.current_command == null && !commands.isEmpty()) {
+		if (commands.isEmpty()) {
+			return;
+		}
+
+		if(bentity.current_command == null) {
 			bentity.current_command = commands.get(0);
 			commands.remove(0);
-			bentity.markUpdated();
-			if (bentity.current_command == null && !commands.isEmpty()) {
-				continue;
-			}
-			if (bentity.current_command == null) {
-				return;
-			}
+		}
 
-			if (!bentity.current_command.test(bentity)) {
-				bentity.current_command = null;
-				bentity.markUpdated();
-				return;
-			}
-			bentity.markUpdated();
+		if (!bentity.current_command.test(bentity)) {
+			bentity.current_command = null;
+			bentity.setChanged();
+			return;
+		}
 
-			if( !bentity.current_command.apply(bentity) ) { //Command finished
-				bentity.current_command = null;
-				bentity.markUpdated();
-			}
+		if (!bentity.current_command.apply(bentity)) { //Command finished
+			bentity.current_command = null;
+			bentity.setChanged();
 		}
 	}
 
@@ -421,7 +533,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 			var entity = iterator.next();
 			AABB entity_box = entity.getBoundingBox();
 
-			if (! (	detection_box.contains(entity_box.minX, entity_box.minY, entity_box.minZ) &&
+			if (! (	detection_box.contains(entity_box.minX, entity_box.minY, entity_box.minZ) ||
 				detection_box.contains(entity_box.maxX, entity_box.maxY, entity_box.maxZ) )
 			) { iterator.remove(); }
 		}
@@ -435,7 +547,6 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	public List<Player> getPlayersWithin() {
 		return getEntitiesWithin(Player.class).stream()
 			.filter(entity -> entity instanceof Player)
-			.map(entity -> (Player)entity)
 			.toList();
 	}
 
@@ -461,7 +572,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		return this.crashed_ticks > 0;
 	}
 
-	public void inputProgram(MSCCommandInstance program) {
+	public void inputProgram(@NotNull MSCCommandInstance program) {
 		if(this.isCrashed()) {
 			return;
 		}
@@ -486,11 +597,13 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	public void openDoor() {
 		//TODO: UPDATE MULTIBLOCK STRUCTURE IN WORLD.
 		this.is_opened = true;
+		this.setChanged();
 	}
 
 	public void closeDoor() {
 		//TODO: UPDATE MULTIBLOCK STRUCTURE IN WORLD.
 		this.is_opened = false;
+		this.setChanged();
 	}
 
 	public Optional<TransfurVariant<?>> useVariantSyringe() {
@@ -616,11 +729,10 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	}
 
 	public static final List<BlockPos> AUGMENT_POSITIONS = new ArrayList<>();
-	public static final List3Wrapper<Predicate<BlockState>> MSC_MULTIBLOCK_DEFINITION;
-	public static final List3Wrapper<Predicate<BlockState>> MSC_OPEN_MULTIBLOCK_DEFINITION;
+	public static final List3Wrapper<BlockPredicate> MSC_MULTIBLOCK_DEFINITION;
+	public static final List3Wrapper<BlockPredicate> MSC_OPEN_MULTIBLOCK_DEFINITION;
 
 	static {
-		ImmutableList.Builder<BlockPos> augment_pos_builder = new ImmutableList.Builder<>();
 		//LeftRight
 		for(int x=0; x<6; x+=5) {
 			for( int z=1; z<5; z++) {
@@ -643,58 +755,58 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		}
 
 		//Bottom layer
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 0, 1, 4, 0, 5, BlockUtilities.isOfTag(MSC_AUGMENT_BLOCKS) );
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 0, 2, 3, 0, 4, BlockUtilities.isBlock(SMOOTH_STONE_SLAB) );
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 0, 0, 3, 0, 0, BlockUtilities.isBlock(SMOOTH_STONE));
+		fillWithTag(MSC_MULTIBLOCK_DEFINITION, 0, 0, 1, 4, 0, 5, MSC_AUGMENT_BLOCKS );
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 0, 2, 3, 0, 4, SMOOTH_STONE_SLAB);
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 0, 0, 3, 0, 0, SMOOTH_STONE);
 		MSC_MULTIBLOCK_DEFINITION.set( 2, 0, 3, BlockUtilities.isBlock(DISPENSER));
 		MSC_MULTIBLOCK_DEFINITION.set( 2, 0, 5, BlockUtilities.isBlock(MSC_CONTROLLER.get()));
 
 		//Backplate
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 1, 0, 3, 2, 0, BlockUtilities.isBlock(ChangedBlocks.OXYGENATED_WATER_CANISTER.get()));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 3, 0, 3, 3, 0, BlockUtilities.isBlock(SMOOTH_STONE));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 4, 0, 3, 4,0, BlockUtilities.isBlock(MSC_SMOOTH_WALL.get()));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 5, 0, 4, 9, 0, BlockUtilities.any);
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 1, 0, 3, 2, 0, ChangedBlocks.OXYGENATED_WATER_CANISTER.get());
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 3, 0, 3, 3, 0, SMOOTH_STONE);
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 4, 0, 3, 4,0, MSC_SMOOTH_WALL.get());
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 5, 0, 4, 9, 0, null);
 
 		//Front Panel
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 1, 5, 3, 5, 5, BlockUtilities.isOfTag(GLASS));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 6, 5, 3, 6, 5, BlockUtilities.isOfTag(MSC_AUGMENT_BLOCKS));
+		fillWithTag(MSC_MULTIBLOCK_DEFINITION, 1, 1, 5, 3, 5, 5, GLASS);
+		fillWithTag(MSC_MULTIBLOCK_DEFINITION, 1, 6, 5, 3, 6, 5, MSC_AUGMENT_BLOCKS);
 
 		//Corner pillars
 		  //back
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 0, 0, 0, 4, 0, BlockUtilities.isBlock(ChangedBlocks.WALL_VENT.get()));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 4, 0, 0, 4, 4, 0, BlockUtilities.isBlock(ChangedBlocks.WALL_VENT.get()));
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 0, 0, 0, 4, 0, ChangedBlocks.WALL_VENT.get());
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 4, 0, 0, 4, 4, 0, ChangedBlocks.WALL_VENT.get());
 		  //back-up
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 5, 1, 0, 8, 1, BlockUtilities.isBlock(ChangedBlocks.WALL_VENT.get()));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 4, 5, 1, 4, 8, 1, BlockUtilities.isBlock(ChangedBlocks.WALL_VENT.get()));
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 5, 1, 0, 8, 1, ChangedBlocks.WALL_VENT.get());
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 4, 5, 1, 4, 8, 1, ChangedBlocks.WALL_VENT.get());
 		  //front
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 0, 5, 0, 8, 5, BlockUtilities.isBlock(ChangedBlocks.WALL_VENT.get()));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 4, 0, 5, 4, 8, 5, BlockUtilities.isBlock(ChangedBlocks.WALL_VENT.get()));
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 0, 5, 0, 8, 5, ChangedBlocks.WALL_VENT.get());
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 4, 0, 5, 4, 8, 5, ChangedBlocks.WALL_VENT.get());
 
 		//Middle Air
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 1, 2, 3, 6, 4, BlockUtilities.isBlock(AIR));
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 1, 2, 3, 6, 4, AIR);
 
 		//topLayers
 		  //air & stone_slabs
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 2, 6,2, 2, 6, 4, BlockUtilities.isBlock(SMOOTH_STONE_SLAB));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 6,3, 3, 6, 3, BlockUtilities.isBlock(SMOOTH_STONE_SLAB));
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 2, 6,2, 2, 6, 4, SMOOTH_STONE_SLAB);
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 6,3, 3, 6, 3, SMOOTH_STONE_SLAB);
 		MSC_MULTIBLOCK_DEFINITION.set(2, 6, 3, BlockUtilities.isBlock(AIR));
 		  //Stone & fans
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 7, 2, 3, 7, 4, BlockUtilities.isBlock(ChangedBlocks.VENT_FAN.get()));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 2, 7,2, 2, 8, 4, BlockUtilities.isBlock(SMOOTH_STONE));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 7,3, 3, 7, 3, BlockUtilities.isBlock(SMOOTH_STONE));
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 7, 2, 3, 7, 4, ChangedBlocks.VENT_FAN.get());
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 2, 7,2, 2, 8, 4, SMOOTH_STONE);
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 7,3, 3, 7, 3, SMOOTH_STONE);
 		MSC_MULTIBLOCK_DEFINITION.set(2, 7, 3, BlockUtilities.isBlock(DISPENSER));
 		  //Stone * redstone
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 8, 2, 1, 8, 4, BlockUtilities.isBlock(REDSTONE_BLOCK) );
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 3, 8, 2, 3, 8, 4, BlockUtilities.isBlock(REDSTONE_BLOCK) );
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 8, 3, 3, 8, 3, BlockUtilities.isBlock(SMOOTH_STONE) );
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 8, 2, 1, 8, 4, REDSTONE_BLOCK);
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 3, 8, 2, 3, 8, 4, REDSTONE_BLOCK);
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 8, 3, 3, 8, 3, SMOOTH_STONE);
 
 		//Top
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 9, 1, 4, 9, 5, BlockUtilities.isBlock(ChangedBlocks.TILES_GRAY_STAIRS.get()));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 9, 2, 4, 9, 4, BlockUtilities.isBlock(ChangedBlocks.WALL_GRAY_STAIRS.get()));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 9, 1, 3, 9, 5, BlockUtilities.isBlock(ChangedBlocks.WALL_GRAY_STAIRS.get()));
-		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 9, 2, 3, 9, 4, BlockUtilities.isBlock(ChangedBlocks.WALL_GRAY.get()));
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 9, 1, 4, 9, 5, ChangedBlocks.TILES_GRAY_STAIRS.get());
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 0, 9, 2, 4, 9, 4, ChangedBlocks.WALL_GRAY_STAIRS.get());
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 9, 1, 3, 9, 5, ChangedBlocks.WALL_GRAY_STAIRS.get());
+		fillWithBlock(MSC_MULTIBLOCK_DEFINITION, 1, 9, 2, 3, 9, 4, ChangedBlocks.WALL_GRAY.get());
 
 		MSC_OPEN_MULTIBLOCK_DEFINITION = MSC_MULTIBLOCK_DEFINITION.clone();
-		fillWithBlock(MSC_OPEN_MULTIBLOCK_DEFINITION, 1, 1, 5, 3, 5, 5, BlockUtilities.isBlock(AIR));
+		fillWithBlock(MSC_OPEN_MULTIBLOCK_DEFINITION, 1, 1, 5, 3, 5, 5, AIR);
 	}
 }

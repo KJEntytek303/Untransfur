@@ -50,33 +50,6 @@ public class MSCDefaultCommands {
 	}
 
 
-	public static boolean stabilizeEntity( @NotNull MSCControllerBlockEntity msc, ItemStack args ) {
-		if( !msc.ensureCapturedIsStillInside()) {
-			return false;
-		}
-
-		msc.stabilized = true;
-		msc.getChamberedEntity().map(EntityUtil::playerOrNull).map(Player::level).ifPresent( level -> {
-			if( level instanceof ServerLevel server_level) {
-				server_level.updateSleepingPlayerList();
-			}
-		});
-		return false;
-	}
-
-	public static boolean wakeEntity(@NotNull MSCControllerBlockEntity msc, ItemStack args ) {
-		if( !msc.ensureCapturedIsStillInside() ) {
-			return false;
-		}
-		msc.stabilized = false;
-		msc.getChamberedEntity().map(EntityUtil::playerOrNull).map(Player::level).ifPresent( level -> {
-			if( level instanceof ServerLevel server_level) {
-				server_level.updateSleepingPlayerList();
-			}
-		});
-		return false;
-	}
-
 	public static boolean modifyEntity( @NotNull MSCControllerBlockEntity msc, ItemStack args ) {
 		if( !msc.ensureCapturedIsStillInside() ) {
 			return false;
@@ -122,18 +95,6 @@ public class MSCDefaultCommands {
 		msc.one_time_menu_open = true;
 		return false;
 	}
-
-	/*
-	public static boolean TransfurEntity(@NotNull MSCControllerBlockEntity msc, Object args ) {
-		if ( ! msc.ensureCapturedIsStillInside()) {
-			return false;
-		}
-
-		msc.getChamberedEntity().ifPresent( entity -> {
-			if ( TransfurVariant.getEntityVariant(entity) != null ) return;
-			if ( !entity.getType)
-		})
-	}*/
 
 	public static boolean UntransfurEntity(@NotNull MSCControllerBlockEntity msc, Object args ) {
 		//Check if we have a flinston syringe.

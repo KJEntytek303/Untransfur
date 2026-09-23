@@ -9,7 +9,11 @@ import net.kjentytek303.untransfur.msc.FillChamberProgram;
 import net.kjentytek303.untransfur.msc.MSCScheduledCommand;
 import net.kjentytek303.untransfur.msc.OpenDoorProgram;
 import net.kjentytek303.untransfur.msc.ReleaseEntityProgram;
+import net.kjentytek303.untransfur.msc.StabilizeEntityProgram;
+import net.kjentytek303.untransfur.msc.TransfurEntityProgram;
+import net.kjentytek303.untransfur.msc.UntransfurEntityProgram;
 import net.kjentytek303.untransfur.msc.WaitProgram;
+import net.kjentytek303.untransfur.msc.WakeEntityProgram;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -45,7 +49,7 @@ public class InitMSCCommands {
 	public static final RegistryObject<MSCScheduledCommand> CAPTURE_ENTITY = MSC_COMMAND_REGISTRY.register(CaptureEntityProgram.ID.getPath(), CaptureEntityProgram::new);
 	public static final RegistryObject<MSCScheduledCommand> FILL_CHAMBER = MSC_COMMAND_REGISTRY.register(FillChamberProgram.ID.getPath(), FillChamberProgram::new);
 
-	public static final RegistryObject<MSCScheduledCommand> STABILIZE_ENTITY = MSC_COMMAND_REGISTRY.register(StabilizeEntityProgram.ID.getPath(), WakeEntityProgram::new);
+	public static final RegistryObject<MSCScheduledCommand> STABILIZE_ENTITY = MSC_COMMAND_REGISTRY.register(StabilizeEntityProgram.ID.getPath(), StabilizeEntityProgram::new);
 	public static final RegistryObject<MSCScheduledCommand> WAIT = MSC_COMMAND_REGISTRY.register(WaitProgram.ID.getPath(), WaitProgram::new);
 	public static final RegistryObject<MSCScheduledCommand> TRANSFUR_ENTITY = MSC_COMMAND_REGISTRY.register(TransfurEntityProgram.ID.getPath(), TransfurEntityProgram::new);
 

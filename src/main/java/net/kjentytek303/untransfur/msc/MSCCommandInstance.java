@@ -28,7 +28,17 @@ public class MSCCommandInstance implements Function<MSCControllerBlockEntity, Bo
 		if (tag.contains("program")) {
 			str = tag.getString("program");
 		}
-		return InitMSCCommands.findByStr(str).asInstance(stack);
+		MSCCommandInstance ret = InitMSCCommands.findByStr(str).asInstance(stack);
+		if( tag.contains("ticks_elapsed")) {
+			ret.ticks_elapsed = tag.getInt("ticks_elapsed");
+		}
+		if (tag.contains("additional_delay")) {
+			ret.additional_delay = tag.getInt("additional_delay");
+		}
+		if (tag.contains("should_count_final") ) {
+			ret.should_count_final = tag.getBoolean("should_count_final");
+		}
+		return ret;
 	}
 
 	/**
@@ -60,6 +70,9 @@ public class MSCCommandInstance implements Function<MSCControllerBlockEntity, Bo
 		CompoundTag tag = new CompoundTag();
 		tag.putString("program", this.command.command_id.toString());
 		tag.put("argument", argument.serializeNBT());
+		tag.putInt("ticks_elapsed", this.ticks_elapsed);
+		tag.putInt("additional_delay", this.ticks_elapsed);
+		tag.putBoolean("should_count_final", this.should_count_final);
 		return tag;
 	}
 }

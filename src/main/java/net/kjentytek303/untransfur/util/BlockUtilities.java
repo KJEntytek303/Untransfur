@@ -54,22 +54,32 @@ public class BlockUtilities {
 	 * beg is the starting coordinate, from left-botton-back corner.
 	 * Warning: Loop iterates as long as the end positions are greater or equal.
 	 */
-	public static void fillWithBlock(List3Wrapper<Predicate<BlockState>> list_to_fill, int beg_x, int beg_y, int beg_z, int end_x, int end_y, int end_z, Predicate<BlockState> tester ) {
+	public static <T> void fillWithBlock(List3Wrapper<BlockPredicate> list_to_fill, int beg_x, int beg_y, int beg_z, int end_x, int end_y, int end_z, Block item ) {
 		for (int x = beg_x; x <= end_x; x++) {
 			for (int y = beg_y; y <= end_y; y++) {
 				for (int z = beg_z; z <= end_z; z++) {
-					list_to_fill.set( x, y, z, tester);
+					list_to_fill.set( x, y, z, isBlock(item));
 				}
 			}
 		}
 	}
 
-	public static Predicate<BlockState> isOfTag(TagKey<Block> tag) {
-		return block_state -> block_state.is(tag);
+	public static <T> void fillWithTag(List3Wrapper<BlockPredicate> list_to_fill, int beg_x, int beg_y, int beg_z, int end_x, int end_y, int end_z, TagKey<Block> item ) {
+		for (int x = beg_x; x <= end_x; x++) {
+			for (int y = beg_y; y <= end_y; y++) {
+				for (int z = beg_z; z <= end_z; z++) {
+					list_to_fill.set( x, y, z, isOfTag(item));
+				}
+			}
+		}
 	}
 
-	public static Predicate<BlockState> isBlock(Block block) {
-		return block_state -> block_state.getBlock().equals(block);
+	public static BlockPredicate isOfTag(TagKey<Block> tag) {
+		return new BlockPredicate(tag);
+	}
+
+	public static BlockPredicate isBlock(Block block) {
+		return new BlockPredicate(block);
 	}
 
 	public static final Predicate<BlockState> any = bs -> true;

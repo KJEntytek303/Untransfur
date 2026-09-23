@@ -21,8 +21,9 @@ public abstract class MSCScheduledCommand implements BiFunction<MSCControllerBlo
 	 * @param bentity - Command executor.
 	 * @param argument - ItemStack argument provided by the Advanced Logic Adapter.
 	 *                 - Expect this to be ItemStack.EMPTY, as it is the default
-	 * @return - Returns true if the command didn't finish.
+	 * @return -    Returns true if the command didn't finish.
 	 * 		Returns false when command finished and next ScheduledCommand should be run.
+	 * 	        If you want to add delay at the end, just override asInstance and set instance.additional_delay to a higher value.
 	 */
 
 	public abstract Boolean apply(MSCControllerBlockEntity bentity, ItemStack argument);
