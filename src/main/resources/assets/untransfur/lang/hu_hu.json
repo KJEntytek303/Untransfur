@@ -17,5 +17,17 @@
 	"item.untransfur.untransfur_syringe": "Visszatranszfuráló fecskendő",
 
 	"untransfur.creative_tabs.untransfur": "Untransfur Mod",
-	"untransfur.msc.program.untransfur:untransfur": "§a§oVisszatranszfur§r"
+	
+	"untransfur.msc.program.untransfur:capture_entity": "§a§oEntitás elfogása§r",
+	"untransfur.msc.program.untransfur:close_door": "§a§oAjtó bezárása§r",
+	"untransfur.msc.program.untransfur:drain_chamber": "§a§oKamra kiürítése§r",
+	"untransfur.msc.program.untransfur:empty": "§c§oÜres§r",
+	"untransfur.msc.program.untransfur:fill_chamber": "§a§oKamra kitöltése§r",
+	"untransfur.msc.program.untransfur:open_door": "§a§oAjtó megnyitása§r",
+	"untransfur.msc.program.untransfur:release_entity": "§a§oEntitás elengedése§r",
+	"untransfur.msc.program.untransfur:stabilize_entity": "§a§oEntitás stabilizálása§r",
+	"untransfur.msc.program.untransfur:transfur_entity": "§a§oEntitás transzfurálása§r",
+	"untransfur.msc.program.untransfur:untransfur_entity": "§a§oEntitás visszatranszfurálása§r",
+	"untransfur.msc.program.untransfur:wait": "§a§oVárjon§r",
+	"untransfur.msc.program.untransfur:wake_entity": "§a§oEntitás felébresztése§r"
 }
