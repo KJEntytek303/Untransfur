@@ -11,14 +11,14 @@ public class ServerCfg {
 	public static final ForgeConfigSpec.ConfigValue<UntransfurHandleMode> UNTRANSFUR_HANDLE_MODE;
 
 	//MSC
-	public static final ForgeConfigSpec.ConfigValue<Integer> MSC_MAX_STASIS_DURATION;
-	public static final ForgeConfigSpec.ConfigValue<Boolean> MSC_PLAYER_GRIEF_FAILSAFE;
-	public static final ForgeConfigSpec.ConfigValue<Integer> MSC_CRASHES_AFTER_STASIS_EXTENSIONS;
+	//public static final ForgeConfigSpec.ConfigValue<Integer> MSC_MAX_STASIS_DURATION;
 	public static final ForgeConfigSpec.ConfigValue<Integer> MSC_MAX_COMMAND_SCHEDULE;
 	public static final ForgeConfigSpec.ConfigValue<Boolean> MSC_BLOWS_UP;
-	public static final ForgeConfigSpec.ConfigValue<Double> MSC_REGENERATION_AMOUNT;
-	public static final ForgeConfigSpec.ConfigValue<Integer> MSC_EXPLOSION_CHECK_RATE;
 	public static final ForgeConfigSpec.ConfigValue<Boolean> MSC_CHECK_FAILURE_ON_DESTROY;
+	public static final ForgeConfigSpec.ConfigValue<Integer> MSC_CRASH_DURATION;
+	public static final ForgeConfigSpec.ConfigValue<Integer> MSC_CRASHES_AFTER_STASIS_EXTENSIONS;
+	public static final ForgeConfigSpec.ConfigValue<Integer> MSC_EXPLOSION_CHECK_RATE;
+	public static final ForgeConfigSpec.ConfigValue<Double> MSC_REGENERATION_AMOUNT;
 
 	//Untf syringes
 	public static final ForgeConfigSpec.ConfigValue<Boolean> DROPPED_SYRINGE_SHATTERS_ON_PLAYERS_ONLY;
@@ -39,21 +39,11 @@ public class ServerCfg {
 		UNTRANSFUR_HANDLE_MODE = BUILDER.defineEnum("untf_handle_mode", UntransfurHandleMode.SIMPLE);
 
 		//MSC
-		BUILDER.comment("Max stasis duration for the MSC in seconds.");
-		BUILDER.comment("Default duration for the Stasis Chamber is 120s");
-		BUILDER.comment("Due to player requests, MSC's default is 300s (5 min)");
-		MSC_MAX_STASIS_DURATION = BUILDER.defineInRange("msc.max_stasis_duration", 300, 0, Integer.MAX_VALUE);
+		//BUILDER.comment("Max stasis duration for the MSC in seconds.");
+		//BUILDER.comment("Default duration for the Stasis Chamber is 120s");
+		//BUILDER.comment("Due to player requests, MSC's default is 300s (5 min)");
+		//MSC_MAX_STASIS_DURATION = BUILDER.defineInRange("msc.max_stasis_duration", 300, 0, Integer.MAX_VALUE);
 
-		BUILDER.comment("Stasis Chamber has a build-in griefing prevention mechanism, to prevent other players");
-		BUILDER.comment("from constantly extending stasis. We allow server owners to disable this with MSC.");
-		BUILDER.comment("Default: true");
-		MSC_PLAYER_GRIEF_FAILSAFE = BUILDER.define("msc.player_griefing_prevention", true);
-
-		BUILDER.comment("How many stasis extension attempts can be made with redstone, before MSC controller crashes?");
-		BUILDER.comment("0 disables redstone stasis extensions");
-		BUILDER.comment("-1 means unlimited extensions");
-		BUILDER.comment("Default: 3");
-		MSC_CRASHES_AFTER_STASIS_EXTENSIONS = BUILDER.defineInRange("msc.redstone_crashes_after_stasis_extensions", 3, -1, Integer.MAX_VALUE);
 
 		BUILDER.comment("How many commands can the MSC queue keep at the same time.");
 		BUILDER.comment("Exceeding this value will trigger a failsafe MSC crash.");
@@ -70,20 +60,30 @@ public class ServerCfg {
 		BUILDER.comment("Default: true");
 		MSC_BLOWS_UP = BUILDER.define("msc.failures.blow_up_on_failure", true);
 
-		BUILDER.comment("How much damage should the MSC regenerate per tick?");
-		BUILDER.comment("0 means MSC will never regenerate any damage.");
-		BUILDER.comment("1 means the MSC will regenerate all it's damage in a single tick.");
-		BUILDER.comment("Default: 1e-4 (0.0001)");
-		MSC_REGENERATION_AMOUNT = BUILDER.defineInRange("msc.failures.regeneration_amount", 1e-4, 0.0, 1.0 );
+		BUILDER.comment("Should the MSC check whether it should blow up when the controller is destroyed?");
+		BUILDER.comment("Default: true");
+		MSC_CHECK_FAILURE_ON_DESTROY = BUILDER.define("msc_failures.check_failure_on_destroy", true);
+
+		BUILDER.comment("How long should it take for the MSC to recover from a crash, in ticks?");
+		BUILDER.comment("Default: 1200 (60s)");
+		MSC_CRASH_DURATION = BUILDER.defineInRange("msc.failures.crash_duration", 60*20, 0, Integer.MAX_VALUE);
+
+		BUILDER.comment("How many stasis extension attempts can be made with redstone, before MSC controller crashes?");
+		BUILDER.comment("0 disables redstone stasis extensions");
+		BUILDER.comment("-1 means unlimited extensions");
+		BUILDER.comment("Default: 3");
+		MSC_CRASHES_AFTER_STASIS_EXTENSIONS = BUILDER.defineInRange("msc.failures.redstone_crashes_after_stasis_extensions", 3, -1, Integer.MAX_VALUE);
 
 		BUILDER.comment("How often does the MSC check whether it should blow up? (In ticks)");
 		BUILDER.comment("0 disables periodic checks");
 		BUILDER.comment("Default: 200 (10s)");
 		MSC_EXPLOSION_CHECK_RATE = BUILDER.defineInRange("msc.failures.explosion_check_rate", 200, 0, Integer.MAX_VALUE);
 
-		BUILDER.comment("Should the MSC check whether it should blow up when the controller is destroyed?");
-		BUILDER.comment("Default: true");
-		MSC_CHECK_FAILURE_ON_DESTROY = BUILDER.define("msc_failures.check_failure_on_destroy", true);
+		BUILDER.comment("How much damage should the MSC regenerate per tick?");
+		BUILDER.comment("0 means MSC will never regenerate any damage.");
+		BUILDER.comment("1 means the MSC will regenerate all it's damage in a single tick.");
+		BUILDER.comment("Default: 1e-4 (0.0001)");
+		MSC_REGENERATION_AMOUNT = BUILDER.defineInRange("msc.failures.regeneration_amount", 1e-4, 0.0, 1.0 );
 
 		//Dropped syringe
 		BUILDER.comment("Makes untransfur syringes lying on the ground shatter only when a player steps on them");

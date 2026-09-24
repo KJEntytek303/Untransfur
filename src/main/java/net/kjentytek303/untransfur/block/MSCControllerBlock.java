@@ -68,7 +68,7 @@ public class MSCControllerBlock extends BaseEntityBlock {
 		}
 		BlockEntity be = pLevel.getBlockEntity(pPos);
 		if( be instanceof MSCControllerBlockEntity msc ) {
-			if(msc.checkMultiblock(pLevel, pPos, pPlayer)){
+			if(msc.checkMultiblock(pLevel, pPos, pPlayer) && !msc.isCrashed()) {
 				setStatus(pState, pLevel, pPos, ControllerStatus.INACTIVE);
 			}
 		}
@@ -140,8 +140,15 @@ public class MSCControllerBlock extends BaseEntityBlock {
 	}
 
 	public AABB getDetectionSize(BlockState msc_controller, BlockPos pos ) {
-		BlockPos left_bottom_back = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING), -1, 0, -3);
-		BlockPos right_top_front = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING), 1, 7, -1);
+		BlockPos left_bottom_back = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), -1, 0, -3);
+		BlockPos right_top_front = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), 2, 7, 0);
+		return new AABB( left_bottom_back, right_top_front);
+	}
+
+	public AABB getDetectionSizeForExit(BlockState msc_controller, BlockPos pos) {
+		BlockPos left_bottom_back = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), -1, 0, -3);
+		BlockPos right_top_front = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), 1, 7, 0);
+
 		return new AABB( left_bottom_back, right_top_front);
 	}
 

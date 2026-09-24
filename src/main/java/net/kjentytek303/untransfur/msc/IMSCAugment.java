@@ -8,5 +8,5 @@ public interface IMSCAugment {
 	default void invalidateController() {
 		addController(null);
 	}
-	void msc_tick(MSCControllerBlockEntity msc);
+	void msc_tick();
 }

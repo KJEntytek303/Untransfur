@@ -20,10 +20,10 @@ public class OpenDoorProgram extends MSCScheduledCommand {
 
 	@Override
 	public boolean test(MSCControllerBlockEntity bentity) {
-		boolean ret = bentity.isDrained() && bentity.is_opened;
+		boolean ret = bentity.isDrained() && !bentity.isOpen();
 		if( !ret ) {
 			bentity.failure_chance += 0.015;
-			bentity.markUpdated();
+			bentity.setChanged();
 		}
 		return ret;
 	}

@@ -23,35 +23,14 @@ public class CaptureEntityProgram extends MSCScheduledCommand {
 
 	@Override
 	public Boolean apply(MSCControllerBlockEntity bentity, ItemStack argument) {
-		if( !(bentity.getBlockState().getBlock() instanceof MSCControllerBlock msc) || bentity.getLevel() == null ) {
-			return false;
-		}
-
-		BlockState msc_controller = bentity.getBlockState();
-		BlockPos pos = bentity.getBlockPos();
-
-		BlockPos left_bottom_back = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING), -1, 0, -3);
-		BlockPos right_top_front = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING), 1, 7, -2);
-		AABB detection_box = new AABB( left_bottom_back, right_top_front);
-
-		var entities = bentity.getLevel().getEntitiesOfClass(LivingEntity.class, detection_box);
-		var iterator = entities.iterator();
-		while (iterator.hasNext()) {
-			var entity = iterator.next();
-			AABB entity_box = entity.getBoundingBox();
-
-			if (! (	detection_box.contains(entity_box.minX, entity_box.minY, entity_box.minZ) &&
-				detection_box.contains(entity_box.maxX, entity_box.maxY, entity_box.maxZ) )
-			) { iterator.remove(); }
-		}
-		return entities.isEmpty(); // if empty - continue, else return;
+		return bentity.getEntitiesWithin().isEmpty(); // if empty - continue, else return;
 	}
 
 	@Override
 	public boolean test(MSCControllerBlockEntity bentity) {
-		boolean ret = bentity.is_opened && bentity.isDrained();
+		boolean ret = bentity.isOpen() && bentity.isDrained();
 		if(!ret) {
-			bentity.failure_chance += 0.0015;
+			bentity.failure_chance += 0.015;
 			bentity.markUpdated();
 		}
 		return ret;

@@ -6,25 +6,29 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 
-public class ReleaseEntityProgram extends MSCScheduledCommand {
-
-	public static final ResourceLocation ID = Untransfur.modResource("release_entity");
-	public ReleaseEntityProgram() {
+public class WakeEntityProgram extends MSCScheduledCommand {
+	public static final ResourceLocation ID = Untransfur.modResource("wake_entity");
+	public WakeEntityProgram() {
 		super(ID);
 	}
 
 	@Override
 	public Boolean apply(MSCControllerBlockEntity bentity, ItemStack argument) {
-		return !bentity.getEntitiesWithin().isEmpty();
+		if(bentity.wakeEntity()) {
+			return false;
+		}
+		bentity.failure_chance += 0.025;
+		bentity.setChanged();
+		return false;
 	}
 
 	@Override
 	public boolean test(MSCControllerBlockEntity bentity) {
-		boolean ret = bentity.isOpen() && bentity.isDrained();
+		boolean ret = !bentity.isOpen() && bentity.isFilled() && bentity.stabilized;
 		if(!ret) {
 			bentity.failure_chance += 0.015;
-			bentity.markUpdated();
+			bentity.setChanged();
 		}
-		return ret;
+		return false;
 	}
 }

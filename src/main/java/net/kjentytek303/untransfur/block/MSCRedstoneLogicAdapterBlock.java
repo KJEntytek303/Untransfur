@@ -61,7 +61,10 @@ public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 		if( !state.getValue(ACTIVE)) {
 			return 0;
 		}
-		return this.isSignalSource(state) && side == state.getValue(FACING).getOpposite() ? 15 : 0;
+		if( level.getBlockEntity(pos) instanceof MSCRedstoneLogicAdapterBlockEntity bentity) {
+			return side == state.getValue(FACING).getOpposite() ? bentity.getSignal() : 0;
+		}
+		return 0;
 	}
 
 	@Override

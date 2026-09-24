@@ -1,12 +1,12 @@
 package net.kjentytek303.untransfur.block_entity;
 
 import net.kjentytek303.untransfur.Untransfur;
+import net.kjentytek303.untransfur.block.MSCRedstoneLogicAdapterBlock;
 import net.kjentytek303.untransfur.client.menu.MSCRedstoneLogicAdapterMenu;
 import net.kjentytek303.untransfur.init.InitBlockEntities;
 import net.kjentytek303.untransfur.init.InitItems;
 import net.kjentytek303.untransfur.init.InitMSCCommands;
 import net.kjentytek303.untransfur.msc.IMSCAugment;
-import net.kjentytek303.untransfur.msc.MSCCommandInstance;
 import net.kjentytek303.untransfur.msc.MSCScheduledCommand;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,6 +28,9 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.stream.IntStream;
+
+import static net.kjentytek303.untransfur.block.MSCRedstoneLogicAdapterBlock.ACTIVE;
+
 
 public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity implements MenuProvider, WorldlyContainer, IMSCAugment {
 
@@ -134,21 +137,24 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 		this.controller = ctrl;
 	}
 
-	public void msc_tick(MSCControllerBlockEntity msc ) {
-		//Output signal to side according to MSC Controller current program.
-		ItemStack rom = this.items.get(0);
-		if( !rom.is(InitItems.MSC_PROGRAM_ROM.get()) || rom.getTag() == null || !rom.getTag().contains("program") ) {
+	@Override
+	public void invalidateController() {
+		this.controller = null;
+		if( getBlockState().getBlock() instanceof MSCRedstoneLogicAdapterBlock) {
+			level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(ACTIVE, false));
+		}
+	}
+
+	@Override
+	public void msc_tick() {
+		if( ! ( getBlockState().getBlock() instanceof MSCRedstoneLogicAdapterBlock rla )) {
 			return;
 		}
-		MSCCommandInstance current_cmd = msc.getCurrentCommand();
-		if( ( current_cmd == null && rom.equals(ItemStack.EMPTY ))) {
-			//update redstone
-			return;
+		if(     (getSignal() == 15 && !getBlockState().getValue(ACTIVE)) ||
+			(getSignal() == 0 && getBlockState().getValue(ACTIVE))
+		) {
+			level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(ACTIVE, getSignal() == 15));
 		}
-		if( current_cmd != null && rom.equals(current_cmd.argument, false) ) {
-			//update redstone
-		}
-		//disable redstone
 	}
 
 	public int getSignal() {
@@ -157,14 +163,10 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 			return 0;
 		}
 		ItemStack rom = this.items.get(0);
-		MSCScheduledCommand rom_program = InitMSCCommands.EMPTY.get();
+		MSCScheduledCommand rom_program = getOwnCommand();
 
 		if( rom.equals(ItemStack.EMPTY)  ) { // no ROM? check if running at all.
 			return 15;
-		}
-
-		if( rom.getTag() != null && rom.getTag().contains("program")) { //get MSCCommand from ROM //TODO maybe move this to a function?? ~KJEntytek303
-			rom_program = InitMSCCommands.findByNBTStr(rom.getTag().getString("program"));
 		}
 
 		if( rom_program == this.controller.current_command.command) { //if programs match, 15
@@ -172,6 +174,16 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 		}
 		//else null
 		return 0;
+	}
+
+	public MSCScheduledCommand getOwnCommand() {
+		ItemStack rom = this.items.get(0);
+
+		if( rom.is(InitItems.MSC_PROGRAM_ROM.get()) && rom.getTag() != null && rom.getTag().contains("program")) { //get MSCCommand from ROM
+			return InitMSCCommands.findByStr(rom.getTag().getString("program"));
+		}
+
+		return InitMSCCommands.EMPTY.get();
 	}
 
 
@@ -184,6 +196,6 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 			Untransfur.LOGGER.debug("Null controller at {}", this.getBlockPos());
 			return;
 		}
-		controller.inputProgram( MSCCommandInstance.fromNBTString(rom.getTag().getString("program"), ItemStack.EMPTY));
+		controller.inputProgram( InitMSCCommands.findByStr(rom.getTag().getString("program")).asInstance( ItemStack.EMPTY));
 	}
 }

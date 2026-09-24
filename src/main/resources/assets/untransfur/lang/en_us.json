@@ -13,9 +13,21 @@
 	"item.untransfur.msc_program_rom": "MSC Program ROM",
 	"item.untransfur.msc_program_rom.tooltip": "Program: %s",
 	"item.untransfur.msc_program_rom.tooltip.empty": "§c§oEmpty§r",
-	"item.untransfur.untransfur_syringe.desc": "Maybe i shouldn't stab myself with this...",
 	"item.untransfur.untransfur_syringe": "Untransfur Syringe",
+	"item.untransfur.untransfur_syringe.desc": "Maybe i shouldn't stab myself with this...",
 
 	"untransfur.creative_tabs.untransfur": "Untransfur Mod",
-	"untransfur.msc.program.untransfur:untransfur": "§a§oUntransfur§r"
+
+	"untransfur.msc.program.untransfur:capture_entity": "§a§oCapture Entity§r",
+	"untransfur.msc.program.untransfur:close_door": "§a§oClose Door§r",
+	"untransfur.msc.program.untransfur:drain_chamber": "§a§oDrain Chamber§r",
+	"untransfur.msc.program.untransfur:empty": "§c§oEmpty§r",
+	"untransfur.msc.program.untransfur:fill_chamber": "§a§oFill Chamber§r",
+	"untransfur.msc.program.untransfur:open_door": "§a§oOpen Door§r",
+	"untransfur.msc.program.untransfur:release_entity": "§a§oRelease Entity§r",
+	"untransfur.msc.program.untransfur:stabilize_entity": "§a§oStabilize Entity§r",
+	"untransfur.msc.program.untransfur:transfur_entity": "§a§oTransfur Entity§r",
+	"untransfur.msc.program.untransfur:untransfur_entity": "§a§oUntransfur Entity§r",
+	"untransfur.msc.program.untransfur:wait": "§a§oWait§r",
+	"untransfur.msc.program.untransfur:wake_entity": "§a§oWake Entity§r"
 }
