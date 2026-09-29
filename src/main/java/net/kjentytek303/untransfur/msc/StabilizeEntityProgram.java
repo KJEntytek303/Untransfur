@@ -25,7 +25,10 @@ public class StabilizeEntityProgram extends MSCScheduledCommand {
 
 	@Override
 	public boolean test(MSCControllerBlockEntity bentity) {
-		boolean ret = !bentity.stabilized && !bentity.isOpen() && bentity.isFilled() && bentity.hasEntity();
+		boolean ret = !bentity.stabilized
+			&& !bentity.isOpen()
+			&& bentity.isFilled()
+			&& bentity.hasEntity();
 		if(!ret) {
 			bentity.failure_chance += 0.015;
 			bentity.setChanged();

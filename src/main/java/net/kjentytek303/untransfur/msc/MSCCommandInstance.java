@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 public class MSCCommandInstance implements Function<MSCControllerBlockEntity, Boolean>, Predicate<MSCControllerBlockEntity> {
 	public final MSCScheduledCommand command;
 	public final ItemStack argument;
+	public boolean started = false;
 	public int ticks_elapsed = 0;
 	public boolean should_count_final = false;
 	public int additional_delay = 20;
@@ -38,6 +39,9 @@ public class MSCCommandInstance implements Function<MSCControllerBlockEntity, Bo
 		if (tag.contains("should_count_final") ) {
 			ret.should_count_final = tag.getBoolean("should_count_final");
 		}
+		if( tag.contains("started")) {
+			ret.started = tag.getBoolean("started");
+		}
 		return ret;
 	}
 
@@ -52,18 +56,28 @@ public class MSCCommandInstance implements Function<MSCControllerBlockEntity, Bo
 
 	@Override
 	public Boolean apply(MSCControllerBlockEntity msc) {
+		this.started = true;
+		if(msc.getLevel().isClientSide) {
+			return false;
+		}
 		ticks_elapsed++;
 		if(!should_count_final && command.apply(msc, argument)) {
+			msc.setChanged();
 			return true;
 		}
 		should_count_final = true;
-		return additional_delay-- == 0;
+		additional_delay--;
+		msc.setChanged();
+		return additional_delay > 0;
 	}
 
 
 	@Override
-	public boolean test(MSCControllerBlockEntity mscControllerBlockEntity) {
-		return this.command.test(mscControllerBlockEntity);
+	public boolean test(MSCControllerBlockEntity msc) {
+		if(msc.getLevel().isClientSide) {
+			return false;
+		}
+		return started || this.command.test(msc);
 	}
 
 	public CompoundTag getCompound() {
@@ -73,6 +87,7 @@ public class MSCCommandInstance implements Function<MSCControllerBlockEntity, Bo
 		tag.putInt("ticks_elapsed", this.ticks_elapsed);
 		tag.putInt("additional_delay", this.additional_delay);
 		tag.putBoolean("should_count_final", this.should_count_final);
+		tag.putBoolean("started", started);
 		return tag;
 	}
 }

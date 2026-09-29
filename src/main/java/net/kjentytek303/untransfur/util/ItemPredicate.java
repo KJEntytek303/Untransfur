@@ -23,10 +23,10 @@ public class ItemPredicate {
 		required_item = null;
 	}
 
-	public boolean test(ItemStack stack, boolean respectTags) {
+	public boolean test(ItemStack stack, boolean limitTags) {
 		return  ( required_item == null && accepted_tag == null ) ||
 			( accepted_tag != null && stack.is(accepted_tag) ) ||
-			( required_item != null && stack.equals(required_item, respectTags))
+			( required_item != null && stack.is(required_item.getItem()))
 			;
 	}
 }

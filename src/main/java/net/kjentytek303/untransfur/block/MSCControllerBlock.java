@@ -68,7 +68,7 @@ public class MSCControllerBlock extends BaseEntityBlock {
 		}
 		BlockEntity be = pLevel.getBlockEntity(pPos);
 		if( be instanceof MSCControllerBlockEntity msc ) {
-			if(msc.checkMultiblock(pLevel, pPos, pPlayer) && !msc.isCrashed()) {
+			if(msc.checkMultiblock(pLevel, pPos, pPlayer) && !msc.isCrashed() && msc.current_command == null) {
 				setStatus(pState, pLevel, pPos, ControllerStatus.INACTIVE);
 			}
 		}
@@ -95,11 +95,19 @@ public class MSCControllerBlock extends BaseEntityBlock {
 	}
 	@Override
 	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pMovedByPiston) {
-		if( !pState.is(pNewState.getBlock()) &&
-		     ServerCfg.MSC_CHECK_FAILURE_ON_DESTROY.get() &&
-		     pLevel.getBlockEntity(pPos) instanceof MSCControllerBlockEntity msc &&
-		     msc.checkForBlowUp()
-		) { msc.blowUp(); }
+		//TODO: Refactor
+		if( pState.is(pNewState.getBlock()) || !(pLevel.getBlockEntity(pPos) instanceof MSCControllerBlockEntity msc) ) {
+			super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston);
+			return;
+		}
+
+		if( msc.multiblock_valid ) {
+			msc.invalidateMultiblock();
+		}
+
+		if( msc.checkForBlowUp() ) {
+			msc.blowUp();
+		}
 
 		super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston);
 	}
@@ -108,46 +116,28 @@ public class MSCControllerBlock extends BaseEntityBlock {
 	public BlockState rotate(BlockState state, LevelAccessor level, BlockPos pos, Rotation direction) {
 		return super.rotate(state, level, pos, direction);
 	}
-	/**
-	 * Called when a tile entity on a side of this block changes is created or is destroyed.
-	 *
-	 * @param state
-	 * @param level    The level
-	 * @param pos      Block position in level
-	 * @param neighbor Block position of neighbor
-	 */
-	@Override
-	public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
-		super.onNeighborChange(state, level, pos, neighbor);
-	}
-	/**
-	 * Returns the reaction of the block when pushed or pulled by a piston. This method should be not called directly, instead via {@link BlockState#getPistonPushReaction()}.
-	 * <ul>
-	 *     <li>NORMAL: is pushable and pullable by sticky pistons</li>
-	 *     <li>DESTROY: is being destroyed on pushing and pulling</li>
-	 *     <li>BLOCK: is not being able to be moved</li>
-	 *     <li>IGNORE: only usable by entities</li>
-	 *     <li>PUSH_ONLY: can only be pushed, blocks on trying to be pulled</li>
-	 *     <li>{@code null}: use the PistonPushReaction from the BlockBehaviour.Properties passed into the Block Constructor</li>
-	 * </ul>
-	 *
-	 * @param state The state of this block
-	 * @return the PushReaction of this state or {@code null} if the one passed into the block properties should be used
-	 */
+
 	@Override
 	public @Nullable PushReaction getPistonPushReaction(BlockState state) {
-		return super.getPistonPushReaction(state);
+		return PushReaction.BLOCK;
 	}
 
-	public AABB getDetectionSize(BlockState msc_controller, BlockPos pos ) {
+	public static AABB getDetectionSize(BlockState msc_controller, BlockPos pos ) {
 		BlockPos left_bottom_back = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), -1, 0, -3);
 		BlockPos right_top_front = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), 2, 7, 0);
 		return new AABB( left_bottom_back, right_top_front);
 	}
 
-	public AABB getDetectionSizeForExit(BlockState msc_controller, BlockPos pos) {
+	public static AABB getDetectionSizeForExit(BlockState msc_controller, BlockPos pos) {
 		BlockPos left_bottom_back = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), -1, 0, -3);
-		BlockPos right_top_front = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), 1, 7, 0);
+		BlockPos right_top_front = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), 2, 7, 1);
+
+		return new AABB( left_bottom_back, right_top_front);
+	}
+
+	public static AABB getDetectionSizeForEntrance( BlockState msc_controller, BlockPos pos ) {
+		BlockPos left_bottom_back = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), -1, 0, -3);
+		BlockPos right_top_front = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), 2, 7, -1);
 
 		return new AABB( left_bottom_back, right_top_front);
 	}

@@ -24,10 +24,13 @@ public class FillChamberProgram extends MSCScheduledCommand {
 		}
 
 		if (bentity.isFilled()) {
-			bentity.fluid_level0 = bentity.fluid_level = 1.0f;
+			bentity.fluid_level0 = 1.0f;
+			bentity.fluid_level = 1.0f;
+			bentity.setChanged();
+			return false;
 		}
-		bentity.markUpdated();
-		return !bentity.isFilled();
+		bentity.setChanged();
+		return true;
 	}
 
 	@Override
