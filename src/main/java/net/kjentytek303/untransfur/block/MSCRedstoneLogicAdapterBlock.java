@@ -81,7 +81,7 @@ public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 	}
 
 	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pMovedByPiston) {
-		if( pState.getBlock() == pNewState.getBlock()) {
+		if( pState.is(pNewState.getBlock())) {
 			super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston);
 			return;
 		}

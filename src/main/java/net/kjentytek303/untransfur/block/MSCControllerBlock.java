@@ -5,12 +5,14 @@ import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.init.InitBlockEntities;
 import net.kjentytek303.untransfur.msc.ControllerStatus;
 import net.kjentytek303.untransfur.util.BlockUtilities;
+import net.ltxprogrammer.changed.block.SeatableBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -30,10 +32,12 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 
-public class MSCControllerBlock extends BaseEntityBlock {
+public class MSCControllerBlock extends BaseEntityBlock implements SeatableBlock {
+	public static final Vec3 SIT_OFFSET = new Vec3( -2, 2, 0);
 	public MSCControllerBlock ( Properties properties ) {
 		super(properties);
 		this.registerDefaultState( this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(STATUS, ControllerStatus.DISASSEMBLED));
@@ -102,12 +106,13 @@ public class MSCControllerBlock extends BaseEntityBlock {
 		}
 
 		if( msc.multiblock_valid ) {
-			msc.invalidateMultiblock();
+			msc.invalidateMultiblock(true);
 		}
 
 		if( msc.checkForBlowUp() ) {
 			msc.blowUp();
 		}
+		pLevel.removeBlockEntity(pPos);
 
 		super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston);
 	}
@@ -150,5 +155,9 @@ public class MSCControllerBlock extends BaseEntityBlock {
 			return ret;
 		}
 		return null;
+	}
+	@Override
+	public Vec3 getSitOffset(BlockGetter blockGetter, BlockState blockState, BlockPos blockPos) {
+		return SIT_OFFSET;
 	}
 }

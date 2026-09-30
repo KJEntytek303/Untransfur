@@ -21,11 +21,11 @@ public class DrainChamberProgram extends MSCScheduledCommand {
 
 		if (bentity.fluid_level > 0.5f) {
 			bentity.ensureCapturedIsStillInside();
-		} else if( bentity.entity_holder != null ) {
-			bentity.entity_holder.getPassengers().forEach(Entity::stopRiding);
+		} else if( bentity.getEntityHolder() != null ) {
+			bentity.getEntityHolder().getPassengers().forEach(Entity::stopRiding);
 		}
 
-		if( bentity.stabilized ) {
+		if( bentity.isStabilized() ) {
 			bentity.getChamberedEntity().ifPresent( entity -> {
 				entity.hurt(InitDamageSources.MSC_DISCONNECT.source(entity.level().registryAccess()), 30);
 				bentity.wakeEntity();
