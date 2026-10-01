@@ -17,6 +17,11 @@
 	"item.untransfur.untransfur_syringe": "Visszatranszfuráló fecskendő",
 
 	"untransfur.creative_tabs.untransfur": "Untransfur Mod",
+
+	"untransfur.msc.error.assembly_failed": "Hiba: Érvénytelen blokk: „%s”, itt: %d, %d, %d",
+	"untransfur.msc.error.broken_multiblock_definition": "Hibás többblokkos definíció, jelentsd hibaként.",
+	"untransfur.msc.error.expected_block": "Várt blokk: %s",
+	"untransfur.msc.error.expected_tag": "A(z) %s címke várható blokkja",
 	
 	"untransfur.msc.program.untransfur:capture_entity": "§a§oEntitás elfogása§r",
 	"untransfur.msc.program.untransfur:close_door": "§a§oAjtó bezárása§r",
