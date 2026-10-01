@@ -1,8 +1,10 @@
 package net.kjentytek303.untransfur.msc;
 
 import net.kjentytek303.untransfur.Untransfur;
+import net.kjentytek303.untransfur.block.MSCControllerBlock;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 
@@ -15,7 +17,7 @@ public class ReleaseEntityProgram extends MSCScheduledCommand {
 
 	@Override
 	public Boolean apply(MSCControllerBlockEntity bentity, ItemStack argument) {
-		return !bentity.getEntitiesWithin().isEmpty();
+		return !bentity.getEntitiesWithin(LivingEntity.class, MSCControllerBlock.getDetectionSizeForExit(bentity.getBlockState(), bentity.getBlockPos())).isEmpty();
 	}
 
 	@Override

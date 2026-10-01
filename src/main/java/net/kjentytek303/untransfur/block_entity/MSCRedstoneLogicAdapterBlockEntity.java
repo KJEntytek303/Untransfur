@@ -1,6 +1,7 @@
 package net.kjentytek303.untransfur.block_entity;
 
 import net.kjentytek303.untransfur.Untransfur;
+import net.kjentytek303.untransfur.block.MSCControllerBlock;
 import net.kjentytek303.untransfur.block.MSCRedstoneLogicAdapterBlock;
 import net.kjentytek303.untransfur.client.menu.MSCRedstoneLogicAdapterMenu;
 import net.kjentytek303.untransfur.init.InitBlockEntities;
@@ -140,13 +141,16 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 	@Override
 	public void invalidateController() {
 		this.controller = null;
-		if( getBlockState().getBlock() instanceof MSCRedstoneLogicAdapterBlock) {
-			level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(ACTIVE, false));
-		}
 	}
 
 	@Override
 	public void msc_tick() {
+		if(this.controller == null && getBlockState().getBlock() instanceof MSCRedstoneLogicAdapterBlock rla) {
+			level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(ACTIVE, false));
+		}
+		if(this.controller == null) {
+			return;
+		}
 		if( ! ( getBlockState().getBlock() instanceof MSCRedstoneLogicAdapterBlock rla )) {
 			return;
 		}

@@ -17,6 +17,7 @@ import net.kjentytek303.untransfur.util.UntfTags;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
 import net.ltxprogrammer.changed.block.entity.SeatableBlockEntity;
 import net.ltxprogrammer.changed.entity.SeatEntity;
+import net.ltxprogrammer.changed.entity.animation.AnimationEvent;
 import net.ltxprogrammer.changed.entity.animation.StasisAnimationParameters;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.ChangedAnimationEvents;
@@ -46,12 +47,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.WaterFluid;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
@@ -83,7 +84,7 @@ import static net.minecraftforge.common.Tags.Blocks.GLASS;
 
 //Credit to LTXProgrammer for the original block and code.
 public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlockEntity {
-	public SeatEntity entity_holder;
+	protected SeatEntity entity_holder;
 
 	public float fluid_level = 0.0f;
 	public float fluid_level0 = 0.0f;
@@ -95,26 +96,11 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	public LivingEntity cached_entity;
 	public final Map<BlockPos, IMSCAugment> augments = new HashMap<>();
 	public Direction msc_direction;
-	/**
-	 * access transform if you need to modify this.
-	*/
 	protected boolean is_opened = false;
 	public boolean isOpen() {
 		return this.is_opened;
 	}
 
-	public final ContainerOpenersCounter openers_counter = new ContainerOpenersCounter() {
-		@Override
-		protected void onOpen(Level pLevel, BlockPos pPos, BlockState pState) { }
-		@Override
-		protected void onClose(Level pLevel, BlockPos pPos, BlockState pState) { }
-		@Override
-		protected void openerCountChanged(Level pLevel, BlockPos pPos, BlockState pState, int pCount, int pOpenCount) { }
-		@Override
-		protected boolean isOwnContainer(Player player) {
-			return false;
-		}
-	};
 	public static final int DACCESS_FLUID_LEVEL = 0;
 	public static final int DACCESS_FAILURE_CHANCE = 1;
 	public static final int DACCESS_OPEN = 2;
@@ -122,10 +108,8 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 
 	//public NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
 
-	public int wait_duration = 0;
-	public boolean stabilized = false;
+	protected boolean stabilized = false;
 	public boolean skip_modify = false;
-	public boolean one_time_menu_open = true;
 	public boolean multiblock_valid = false;
 	public final BlockPos multiblock_root;
 	public double failure_chance = 0.0;
@@ -209,7 +193,6 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		fluid_level0 = tag.getFloat("fluid_level0");
 		failure_chance = tag.getDouble("failure_chance");
 
-		wait_duration = tag.getInt("wait_duration");
 		stabilized = tag.getBoolean("stabilized");
 		is_opened = tag.getBoolean("open");
 
@@ -254,30 +237,39 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 
 	public boolean chamberEntity( LivingEntity entity ) {
 
-		BlockPos entity_position = TransformHorizontalDirection(this.getBlockPos(), msc_direction, 0, 1, -2);
+		//BlockPos entity_position = TransformHorizontalDirection(this.getBlockPos(), msc_direction, 0, 2, -2);
 
-		if( entity_holder == null || entity_holder.isRemoved() ) {
-			entity_holder = SeatEntity.createFor(entity.level(), this.getBlockState(), entity_position, false, false, false);
+		if (this.getEntityHolder() == null || this.getEntityHolder().isRemoved()) {
+			setEntityHolder(SeatEntity.createFor(entity.level(), this.getBlockState(), getBlockPos(), false, false, false));
 			this.markUpdated();
 		}
 
-		if( this.getSeatedEntity() != null || entity_holder == null ) {
+		if (this.getSeatedEntity() != null) {
+			return false;
+		} else if (this.getEntityHolder() != null) {
+			if (!this.level.isClientSide && this.getFluidType().orElse(null) instanceof WaterFluid) {
+				entity.startRiding(this.getEntityHolder());
+				ChangedAnimationEvents.broadcastEntityAnimation(entity, ChangedAnimationEvents.STASIS_IDLE.get(), StasisAnimationParameters.INSTANCE);
+			}
+
+			return true;
+		} else {
 			return false;
 		}
-
-		if( !level.isClientSide && getFluidType().orElse(null) instanceof WaterFluid) {
-			entity.startRiding(entity_holder);
-			ChangedAnimationEvents.broadcastEntityAnimation(entity, ChangedAnimationEvents.STASIS_IDLE.get(), StasisAnimationParameters.INSTANCE );
-		}
-		return true;
 	}
+
 
 	public Optional<LivingEntity> getChamberedEntity() {
 		if (entity_holder == null || this.isOpen()) {
 			return Optional.empty();
 		}
 		return Optional.ofNullable(
-			entity_holder.getFirstPassenger() instanceof LivingEntity livingEntity ? livingEntity : null
+			entity_holder.getFirstPassenger()).map(entity -> {
+				if( entity instanceof LivingEntity livingEntity ) {
+					return livingEntity;
+				}
+				return null;
+			}
 		);
 	}
 
@@ -285,7 +277,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		return getChamberedEntity().map(IAbstractChangedEntity::forEither);
 	}
 
-	public List<ContainerWithIndex> findItems(ItemPredicate pred, boolean respectTags) {
+	public List<ContainerWithIndex> findItems(ItemPredicate pred, boolean limitTags) {
 		List<BlockPos> input_augments = findAugments( UntfTags.Blocks.MSC_INPUT);
 		List<ContainerWithIndex> ret = new ArrayList<>();
 		for( var augment_pos : input_augments ) {
@@ -297,7 +289,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 				ContainerWithIndex ret_container = new ContainerWithIndex(container);
 				for (int i = 0; i < container.getSlots(); i++) {
 					ItemStack found = container.getStackInSlot(i);
-					if( pred.test(found, respectTags)) {
+					if( pred.test(found, limitTags)) {
 						ret_container.slots.add(i);
 					}
 				}
@@ -315,7 +307,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	 * @return a pair of variant - is_safe boolean. return.first might be null
 	 */
 	public @NotNull NullablePair<TransfurVariant<?>, Boolean> findTransfurVariant(boolean pop_stack) {
-		List<ContainerWithIndex> containers_with_items = findItems(new ItemPredicate(new ItemStack(LATEX_SYRINGE.get())), false);
+		List<ContainerWithIndex> containers_with_items = findItems(new ItemPredicate(new ItemStack(LATEX_SYRINGE.get())), true);
 		for( var container : containers_with_items ) {
 			for( int slot : container.slots ) {
 				ItemStack stack = container.item_handler.getStackInSlot(slot);
@@ -406,8 +398,8 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		List<BlockPos> ret = new ArrayList<>();
 		BlockPos.MutableBlockPos iterator;
 		for( BlockPos pos : AUGMENT_POSITIONS) {
-			iterator = TransformHorizontalDirection(this.multiblock_root, level.getBlockState(this.getBlockPos()).getValue(FACING), pos);
-			if(level.getBlockState(iterator).getBlock().builtInRegistryHolder().containsTag(type) ) {
+			iterator = TransformHorizontalDirection(this.multiblock_root, msc_direction, pos);
+			if(level.getBlockState(iterator).is(type) ) {
 				ret.add(iterator);
 			}
 		}
@@ -415,7 +407,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	}
 
 	public float getFluidYHeight() {	//TODO: might require additional renderer patches.
-		return ( fluid_level * 7 );
+		return ( this.data_access.get(DACCESS_FLUID_LEVEL) * 0.007f );
 	}
 
 	public float getFluidLevel(float partialTick) {
@@ -424,10 +416,6 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 
 	public Optional<Fluid> getFluidType() {
 		return Optional.of( Fluids.WATER );
-	}
-
-	public boolean shouldChamberIdle() {
-		return openers_counter.getOpenerCount() > 0;
 	}
 
 	public boolean checkForBlowUp() {
@@ -441,7 +429,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		bentity.failure_chance = Math.max(0.0, bentity.failure_chance - ServerCfg.MSC_REGENERATION_AMOUNT.get() );
 		if( level.getGameTime() % 20 == 0) {
 			if( bentity.multiblock_valid && !bentity.checkMultiblock(level, pos, null)) {
-				bentity.invalidateMultiblock();
+				bentity.invalidateMultiblock(false);
 				bentity.failure_chance += 0.03;
 				bentity.multiblock_valid = false;
 				bentity.markUpdated();
@@ -464,7 +452,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		}
 
 		var commands = bentity.scheduled_commands;
-		var entities_within = bentity.getEntitiesWithin();
+		var entities_within = bentity.getLivingEntitiesWithin();
 
 		for( var augment_pos : AUGMENT_POSITIONS ) {
 			if( level.getBlockEntity(TransformHorizontalDirection(bentity.multiblock_root, bentity.msc_direction, augment_pos)) instanceof IMSCAugment mscaug) {
@@ -472,7 +460,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 			}
 		}
 
-		if(commands.isEmpty() && !entities_within.isEmpty()) {
+		if(bentity.current_command == null && commands.isEmpty() && !entities_within.isEmpty()) {
 			if(!bentity.isDrained()) {
 				commands.add(InitMSCCommands.DRAIN_CHAMBER.get().asInstance(ItemStack.EMPTY));
 			}
@@ -484,7 +472,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 			bentity.setChanged();
 		}
 
-		if (commands.isEmpty()) {
+		if (commands.isEmpty() && bentity.current_command == null) {
 			return;
 		}
 
@@ -501,12 +489,12 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 
 		if (!bentity.current_command.apply(bentity)) { //Command finished
 			bentity.current_command = null;
-			bentity.setChanged();
 		}
+		bentity.setChanged();
 	}
 
 	public boolean isFilled() {
-		return fluid_level >= 1.0f;
+		return fluid_level >= 0.99f;
 	}
 
 	public boolean isDrained() {
@@ -517,12 +505,10 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		return getChamberedEntity().isPresent();
 	}
 
-	public <T extends Entity> List<T> getEntitiesWithin(Class<T> clazz) {
-		if( !(this.getBlockState().getBlock() instanceof MSCControllerBlock msc) || getLevel() == null ) {
+	public <T extends Entity> List<T> getEntitiesWithin(Class<T> clazz, AABB detection_box) {
+		if( getLevel() == null ) {
 			return List.of();
 		}
-
-		AABB detection_box = msc.getDetectionSize(this.getBlockState(), this.getBlockPos());
 
 		var entities = getLevel().getEntitiesOfClass(clazz, detection_box);
 		var iterator = entities.iterator();
@@ -537,18 +523,17 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		return entities;
 	}
 
-	public List<LivingEntity> getEntitiesWithin() {
-		return getEntitiesWithin(LivingEntity.class);
+	public List<LivingEntity> getLivingEntitiesWithin() {
+		return getEntitiesWithin(LivingEntity.class, MSCControllerBlock.getDetectionSize(getBlockState(), getBlockPos()));
 	}
 
 	public List<Player> getPlayersWithin() {
-		return getEntitiesWithin(Player.class).stream()
-			.filter(entity -> entity instanceof Player)
+		return getEntitiesWithin(Player.class, MSCControllerBlock.getDetectionSize(getBlockState(), getBlockPos())).stream()
 			.toList();
 	}
 
 	public boolean ensureCapturedIsStillInside() {
-		var entities = getEntitiesWithin();
+		var entities = getLivingEntitiesWithin();
 		if ( entities.isEmpty() ) {
 			return false;
 		}
@@ -570,7 +555,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	}
 
 	public void inputProgram(@NotNull MSCCommandInstance program) {
-		if(this.isCrashed()) {
+	if(this.isCrashed()) {
 			return;
 		}
 
@@ -592,31 +577,40 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	}
 
 	public void openDoor() {
-		//TODO: UPDATE MULTIBLOCK STRUCTURE IN WORLD.
+		if(!checkMultiblock(level, getBlockPos(), null)) {
+			invalidateMultiblock(false);
+			return;
+		}
+		for(int x=1; x<=3; x++) {
+			for(int y=1; y<6; y++) {
+				level.setBlockAndUpdate(TransformHorizontalDirection(this.multiblock_root, msc_direction, x, y, 5 ), Blocks.AIR.defaultBlockState());
+			}
+		}
+
 		this.is_opened = true;
 		this.setChanged();
 	}
 
 	public void closeDoor() {
-		//TODO: UPDATE MULTIBLOCK STRUCTURE IN WORLD.
+		if(!checkMultiblock(level, getBlockPos(), null)) {
+			invalidateMultiblock(false);
+			return;
+		}
+		for(int x=1; x<=3; x++) {
+			for(int y=1; y<6; y++) {
+				level.setBlockAndUpdate(TransformHorizontalDirection(this.multiblock_root, msc_direction, x, y, 5 ), Blocks.GLASS.defaultBlockState());
+			}
+		}
 		this.is_opened = false;
 		this.setChanged();
 	}
 
-	public Optional<TransfurVariant<?>> useVariantSyringe() {
-		//Check if internal inventory has a syringe.
-		//If so, use it.
-		//Else, check for input buses.
-		//If any input bus has a valid syringe, check if the syringe can be put in the output slot.
-			//Of any output buses
-			//In internal controller slot
-			//if not, return null.
-		//Store tf variant, pop syringe stack and put away the syringe.
-		return Optional.of(null);
+	public boolean isStabilized() {
+		return stabilized;
 	}
 
 	public boolean stabilizeEntity() {
-		if( !ensureCapturedIsStillInside() || stabilized ) {
+		if( !ensureCapturedIsStillInside() ) {
 			return false;
 		}
 
@@ -630,7 +624,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	}
 
 	public boolean wakeEntity() {
-		if(!ensureCapturedIsStillInside() || !stabilized) {
+		if(!ensureCapturedIsStillInside()) {
 			return false;
 		}
 
@@ -657,10 +651,28 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		for( int x=0; x<5; x++) {
 			for ( int y=0; y<10; y++) {
 				for (int z=0; z<6; z++) {
-					if ( ! ( MSC_MULTIBLOCK_DEFINITION.get(x, y, z).test(level.getBlockState(iterator)))
+					if ( ! ( this.isOpen() ? MSC_OPEN_MULTIBLOCK_DEFINITION.get(x,y,z).test(level.getBlockState(iterator)) : MSC_MULTIBLOCK_DEFINITION.get(x, y, z).test(level.getBlockState(iterator)))
 					) {
 						if (player != null ) { //TODO: Move this into component translatable
-							player.sendSystemMessage(Component.literal("Error: Invalid block " + Component.translatable(level.getBlockState(iterator).getBlock().getName().toString()) + " at " + iterator.getX() + ", " + iterator.getY() + ", " + iterator.getZ()));
+							player.sendSystemMessage(Component.translatable("untransfur.msc.error.assembly_failed", level.getBlockState(iterator).getBlock().getName(), iterator.getX(), iterator.getY(), iterator.getZ() ));
+							player.sendSystemMessage(
+								this.isOpen() ?
+									MSC_OPEN_MULTIBLOCK_DEFINITION.get(x,y,z).accepted_tag != null ? Component.translatable("untransfur.msc.error.expected_tag", MSC_OPEN_MULTIBLOCK_DEFINITION.get(x,y,z).accepted_tag ) :
+										MSC_OPEN_MULTIBLOCK_DEFINITION.get(x,y,z).required_block != null ? Component.translatable("untransfur.msc.error.expected_block", MSC_OPEN_MULTIBLOCK_DEFINITION.get(x,y,z).required_block.getName()) : Component.translatable("untransfur.msc.error.broken_multiblock_definition")
+								:
+									MSC_MULTIBLOCK_DEFINITION.get(x,y,z).accepted_tag != null ? Component.translatable("untransfur.msc.error.expected_tag", MSC_MULTIBLOCK_DEFINITION.get(x,y,z).accepted_tag ) :
+										MSC_MULTIBLOCK_DEFINITION.get(x,y,z).required_block != null ? Component.translatable("untransfur.msc.error.expected_block", MSC_MULTIBLOCK_DEFINITION.get(x,y,z).required_block.getName()) : Component.translatable("untransfur.msc.error.broken_multiblock_definition")
+
+							);
+							player.sendSystemMessage(Component.literal("Expected: " + Component.translatable(
+								this.isOpen() ?
+									MSC_OPEN_MULTIBLOCK_DEFINITION.get(x,y,z).accepted_tag != null ? MSC_OPEN_MULTIBLOCK_DEFINITION.get(x,y,z).accepted_tag.toString() :
+										MSC_OPEN_MULTIBLOCK_DEFINITION.get(x,y,z).required_block != null ? MSC_OPEN_MULTIBLOCK_DEFINITION.get(x,y,z).required_block.getName().toString() : "Error in multiblock definition. Report as a bug."
+									:
+									MSC_MULTIBLOCK_DEFINITION.get(x,y,z).accepted_tag != null ? MSC_MULTIBLOCK_DEFINITION.get(x,y,z).accepted_tag.toString() :
+										MSC_MULTIBLOCK_DEFINITION.get(x,y,z).required_block != null ? MSC_MULTIBLOCK_DEFINITION.get(x,y,z).required_block.getName().toString() : "Error in multiblock definition. Report as a bug."
+								))
+							);
 						}
 						return false;
 					}
@@ -692,10 +704,10 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		}
 	}
 
-	public void invalidateMultiblock() {
+	public void invalidateMultiblock(boolean destroy) {
 		augments.forEach((pos, augment) -> augment.invalidateController() );
 		scheduled_commands.clear();
-		if( getBlockState().is(MSC_CONTROLLER.get()) ) {
+		if( getBlockState().is(MSC_CONTROLLER.get()) && !destroy ) {
 			setBlockStatus(ControllerStatus.DISASSEMBLED);
 		}
 		if(getEntityHolder() != null ) {
@@ -706,6 +718,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		}
 		if(isOpen()) {
 			Containers.dropItemStack(level, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), new ItemStack(BlockItem.byBlock(Blocks.GLASS), 15) );
+			is_opened = false;
 		}
 		markUpdated();
 	}
@@ -720,7 +733,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 
 
 	public void blowUp() {
-		invalidateMultiblock();
+		invalidateMultiblock(true);
 		BlockPos explosion_root = TransformHorizontalDirection(getBlockPos(), getBlockState().getValue(FACING), 0, 1, -2);
 		level.explode(null, explosion_root.getX(), explosion_root.getY(), explosion_root.getZ(), 50, true, Level.ExplosionInteraction.BLOCK);
 	}
@@ -732,7 +745,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 
 	static {
 		//LeftRight
-		for(int x=0; x<6; x+=5) {
+		for(int x=0; x<6; x+=4) {
 			for( int z=1; z<5; z++) {
 				AUGMENT_POSITIONS.add(new BlockPos(x, 0, z));
 			}

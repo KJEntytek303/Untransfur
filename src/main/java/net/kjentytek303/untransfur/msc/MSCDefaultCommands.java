@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
-public class MSCDefaultCommands {
+public class MSCDefaultCommands { /*
 	public static boolean applyModifications(@NotNull MSCControllerBlockEntity msc, @NotNull CompoundTag modifications) {
 		msc.getChamberedLatex().ifPresent(entity -> {
 			msc.skip_modify = true;
@@ -94,7 +94,7 @@ public class MSCDefaultCommands {
 
 		msc.one_time_menu_open = true;
 		return false;
-	}
+	}*/
 
 	public static boolean UntransfurEntity(@NotNull MSCControllerBlockEntity msc, Object args ) {
 		//Check if we have a flinston syringe.
