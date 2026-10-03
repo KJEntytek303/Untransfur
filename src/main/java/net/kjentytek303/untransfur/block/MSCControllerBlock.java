@@ -1,7 +1,6 @@
 package net.kjentytek303.untransfur.block;
 
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
-import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.init.InitBlockEntities;
 import net.kjentytek303.untransfur.msc.ControllerStatus;
 import net.kjentytek303.untransfur.util.BlockUtilities;
@@ -15,7 +14,6 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -37,7 +35,6 @@ import org.jetbrains.annotations.Nullable;
 
 
 public class MSCControllerBlock extends BaseEntityBlock implements SeatableBlock {
-	public static final Vec3 SIT_OFFSET = new Vec3( -2, 2, 0);
 	public MSCControllerBlock ( Properties properties ) {
 		super(properties);
 		this.registerDefaultState( this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(STATUS, ControllerStatus.DISASSEMBLED));
@@ -128,23 +125,29 @@ public class MSCControllerBlock extends BaseEntityBlock implements SeatableBlock
 	}
 
 	public static AABB getDetectionSize(BlockState msc_controller, BlockPos pos ) {
-		BlockPos left_bottom_back = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), -1, 0, -3);
-		BlockPos right_top_front = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), 2, 7, 0);
-		return new AABB( left_bottom_back, right_top_front);
+		Vec3 controller_center = pos.getCenter();
+		Vec3 right_bottom_front = BlockUtilities.TransformHorizontalDirectionVec3(controller_center, msc_controller.getValue(FACING).getOpposite(), 1.5, 0, -0.5);
+		Vec3 left_top_back = BlockUtilities.TransformHorizontalDirectionVec3(controller_center, msc_controller.getValue(FACING).getOpposite(), -1.5, 6.5, -3.5);
+
+		return new AABB( left_top_back, right_bottom_front).inflate(0.125);
 	}
 
 	public static AABB getDetectionSizeForExit(BlockState msc_controller, BlockPos pos) {
-		BlockPos left_bottom_back = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), -1, 0, -3);
-		BlockPos right_top_front = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), 2, 7, 1);
+		Vec3 controller_center = pos.getCenter();
+		Vec3 right_bottom_front = BlockUtilities.TransformHorizontalDirectionVec3(controller_center, msc_controller.getValue(FACING).getOpposite(), 1.5, 0, 1.0);
+		Vec3 left_top_back = BlockUtilities.TransformHorizontalDirectionVec3(controller_center, msc_controller.getValue(FACING).getOpposite(), -1.5, 6.5, -3.5);
 
-		return new AABB( left_bottom_back, right_top_front);
+		return new AABB( left_top_back, right_bottom_front).inflate(0.125);
 	}
 
 	public static AABB getDetectionSizeForEntrance( BlockState msc_controller, BlockPos pos ) {
-		BlockPos left_bottom_back = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), -1, 0, -3);
-		BlockPos right_top_front = BlockUtilities.TransformHorizontalDirection(pos, msc_controller.getValue(FACING).getOpposite(), 2, 7, -1);
 
-		return new AABB( left_bottom_back, right_top_front);
+
+		Vec3 controller_center = pos.getCenter();
+		Vec3 right_bottom_front = BlockUtilities.TransformHorizontalDirectionVec3(controller_center, msc_controller.getValue(FACING).getOpposite(), 1.5, 0, -1.0);
+		Vec3 left_top_back = BlockUtilities.TransformHorizontalDirectionVec3(controller_center, msc_controller.getValue(FACING).getOpposite(), -1.5, 6.5, -3.5);
+
+		return new AABB( left_top_back, right_bottom_front).inflate(0.125);
 	}
 
 	@Nullable
@@ -157,7 +160,8 @@ public class MSCControllerBlock extends BaseEntityBlock implements SeatableBlock
 		return null;
 	}
 	@Override
-	public Vec3 getSitOffset(BlockGetter blockGetter, BlockState blockState, BlockPos blockPos) {
-		return SIT_OFFSET;
+	public Vec3 getSitOffset(BlockGetter block_getter, BlockState block_state, BlockPos block_pos) {
+		BlockPos ret = BlockUtilities.TransformHorizontalDirectionInt(new BlockPos(0, 0, 0), block_state.getValue(FACING).getOpposite(), 0, 1, -2);
+		return new Vec3( ret.getX(), ret.getY(), ret.getZ());
 	}
 }
