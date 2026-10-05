@@ -85,6 +85,14 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	protected SeatEntity entity_holder;
 
 	public float fluid_level = 0.0f;
+	public float getFluidLevel() {
+		return data_access.get(DACCESS_FLUID_LEVEL) * 0.001f;
+	}
+	public void setFluidLevel(float new_fluid_level) {
+		data_access.set(DACCESS_FLUID_LEVEL, (int)(new_fluid_level * 1000));
+		this.getUpdatePacket();
+	}
+
 	public float fluid_level0 = 0.0f;
 	public int crashed_ticks = 0;
 	public int extension_attempts = 0;

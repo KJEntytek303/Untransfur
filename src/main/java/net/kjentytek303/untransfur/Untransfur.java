@@ -1,9 +1,11 @@
 package net.kjentytek303.untransfur;
 
 import com.mojang.logging.LogUtils;
+import net.kjentytek303.untransfur.client.renderer.block_entity.MSCControllerRenderer;
 import net.kjentytek303.untransfur.client.screen.MSCBusScreen;
 import net.kjentytek303.untransfur.client.screen.MSCRedstoneLogicAdapterScreen;
 import net.kjentytek303.untransfur.config.ServerCfg;
+import net.kjentytek303.untransfur.init.InitBlockEntities;
 import net.kjentytek303.untransfur.init.InitMenus;
 import net.kjentytek303.untransfur.init.InitPackets;
 import net.kjentytek303.untransfur.msc.MSCScheduledCommand;
@@ -11,6 +13,7 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -93,6 +96,11 @@ public class Untransfur
         public static void onClientSetup(FMLClientSetupEvent event) {
             MenuScreens.register(InitMenus.MSC_BUS_MENU.get(), MSCBusScreen::new);
             MenuScreens.register(InitMenus.MSC_REDSTONE_LOGIC_ADAPTER_MENU.get(), MSCRedstoneLogicAdapterScreen::new);
+        }
+
+        @SubscribeEvent
+        public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerBlockEntityRenderer(InitBlockEntities.MSC_CONTROLLER_BLOCK_ENTITY.get(), MSCControllerRenderer::new);
         }
     }
 
