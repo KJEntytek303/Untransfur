@@ -73,7 +73,7 @@ public class TransfurEntityProgram extends MSCScheduledCommand {
 	@Override
 	public MSCCommandInstance asInstance(ItemStack argument) {
 		MSCCommandInstance ret = super.asInstance(argument);
-		ret.additional_delay += 19 * 20;
+		ret.additional_delay += 30 * 20;
 		return ret;
 	}
 }

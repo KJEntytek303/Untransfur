@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.function.Predicate;
 
@@ -19,7 +20,7 @@ public class BlockUtilities {
 	 * In case of multiblock controllers:
 	 * To make it work from the PLAYER's perspective, always call this with a mirrored direction.
 	 */
-	public static BlockPos.MutableBlockPos TransformHorizontalDirection(BlockPos pivot, Direction direction, int left_right, int bottom_top, int backward_forward) {
+	public static BlockPos.MutableBlockPos TransformHorizontalDirectionInt(BlockPos pivot, Direction direction, int left_right, int bottom_top, int backward_forward) {
 		switch (direction) {
 			case WEST:
 				break;
@@ -44,8 +45,33 @@ public class BlockUtilities {
 		return new BlockPos.MutableBlockPos(pivot.getX() + backward_forward, pivot.getY() + bottom_top, pivot.getZ() + left_right);
 	}
 
-	public static BlockPos.MutableBlockPos TransformHorizontalDirection(BlockPos pivot, Direction direction, BlockPos offsets) {
-		return TransformHorizontalDirection(pivot, direction, offsets.getX(), offsets.getY(), offsets.getZ());
+	public static BlockPos.MutableBlockPos TransformHorizontalDirectionBlockPos(BlockPos pivot, Direction direction, BlockPos offsets) {
+		return TransformHorizontalDirectionInt(pivot, direction, offsets.getX(), offsets.getY(), offsets.getZ());
+	}
+
+	public static Vec3 TransformHorizontalDirectionVec3( Vec3 origin, Direction direction, double  left_right, double botton_top, double backward_forward) {
+		switch (direction) {
+			case WEST:
+				break;
+			case EAST:
+				backward_forward = -backward_forward;
+				left_right = -left_right;
+				break;
+			case NORTH:
+				double tmp1 = backward_forward;
+				backward_forward = -left_right;
+				left_right = tmp1;
+				break;
+			case SOUTH:
+				double tmp = -backward_forward;
+				backward_forward = left_right;
+				left_right = tmp;
+				break;
+
+			default:
+				throw new IllegalArgumentException("Attempted to vertically transform coordinates");
+		}
+		return new Vec3( origin.x() + backward_forward, origin.y() + botton_top, origin.z() + left_right);
 	}
 
 	/**

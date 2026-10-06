@@ -24,11 +24,11 @@ public class WakeEntityProgram extends MSCScheduledCommand {
 
 	@Override
 	public boolean test(MSCControllerBlockEntity bentity) {
-		boolean ret = !bentity.isOpen() && bentity.isFilled() && bentity.isStabilized();
+		boolean ret = !bentity.isOpen() && bentity.isStabilized() && bentity.isFilled();
 		if(!ret) {
 			bentity.failure_chance += 0.015;
 			bentity.setChanged();
 		}
-		return false;
+		return ret;
 	}
 }

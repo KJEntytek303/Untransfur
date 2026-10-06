@@ -62,7 +62,7 @@ public class ServerCfg {
 
 		BUILDER.comment("Should the MSC check whether it should blow up when the controller is destroyed?");
 		BUILDER.comment("Default: true");
-		MSC_CHECK_FAILURE_ON_DESTROY = BUILDER.define("msc_failures.check_failure_on_destroy", true);
+		MSC_CHECK_FAILURE_ON_DESTROY = BUILDER.define("msc.failures.check_failure_on_destroy", true);
 
 		BUILDER.comment("How long should it take for the MSC to recover from a crash, in ticks?");
 		BUILDER.comment("Default: 1200 (60s)");
