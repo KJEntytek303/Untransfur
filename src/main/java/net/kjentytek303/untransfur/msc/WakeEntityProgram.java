@@ -18,7 +18,7 @@ public class WakeEntityProgram extends MSCScheduledCommand {
 			return false;
 		}
 		bentity.failure_chance += 0.025;
-		bentity.setChanged();
+		bentity.markUpdated();
 		return false;
 	}
 
@@ -27,7 +27,7 @@ public class WakeEntityProgram extends MSCScheduledCommand {
 		boolean ret = !bentity.isOpen() && bentity.isStabilized() && bentity.isFilled();
 		if(!ret) {
 			bentity.failure_chance += 0.015;
-			bentity.setChanged();
+			bentity.markUpdated();
 		}
 		return ret;
 	}

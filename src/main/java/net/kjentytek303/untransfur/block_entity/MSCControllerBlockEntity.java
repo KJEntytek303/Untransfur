@@ -32,7 +32,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -84,7 +83,7 @@ import static net.minecraftforge.common.Tags.Blocks.GLASS;
 public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlockEntity {
 	protected SeatEntity entity_holder;
 
-	public float fluid_level = 0.0f;
+	protected float fluid_level = 0.0f;
 	public float getFluidLevel() {
 		return data_access.get(DACCESS_FLUID_LEVEL) * 0.001f;
 	}
@@ -93,7 +92,6 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		this.getUpdatePacket();
 	}
 
-	public float fluid_level0 = 0.0f;
 	public int crashed_ticks = 0;
 	public int extension_attempts = 0;
 
@@ -115,7 +113,6 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	//public NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
 
 	protected boolean stabilized = false;
-	public boolean skip_modify = false;
 	public boolean multiblock_valid = false;
 	public final BlockPos multiblock_root;
 	public double failure_chance = 0.0;
@@ -138,6 +135,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 				case DACCESS_FAILURE_CHANCE -> MSCControllerBlockEntity.this.failure_chance = ((float)pValue) * 0.001f;
 				case DACCESS_OPEN -> { if(pValue == 0) closeDoor(); else openDoor(); }
 			}
+			markUpdated();
 		}
 
 		@Override
@@ -171,7 +169,6 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	protected void saveAdditional( CompoundTag tag ) {
 		super.saveAdditional(tag);
 		tag.putFloat("fluid_level", fluid_level);
-		tag.putFloat("fluid_level0", fluid_level0);
 		tag.putBoolean("stabilized", stabilized );
 		tag.putBoolean("open", is_opened);
 		tag.putDouble("failure_chance", failure_chance);
@@ -197,7 +194,6 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	public void load(CompoundTag tag) {
 		super.load(tag);
 		fluid_level = tag.getFloat("fluid_level");
-		fluid_level0 = tag.getFloat("fluid_level0");
 		failure_chance = tag.getDouble("failure_chance");
 
 		stabilized = tag.getBoolean("stabilized");
@@ -224,15 +220,23 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	}
 	public void markUpdated() {
 		this.setChanged();
-		this.getLevel().sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
+		this.getLevel().sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
 	}
 
 	public ClientboundBlockEntityDataPacket getUpdatePacket() {
 		return ClientboundBlockEntityDataPacket.create(this);
 	}
 
+	@Override
 	public CompoundTag getUpdateTag() {
-		return this.saveWithoutMetadata();
+		var ret = super.getUpdateTag();
+		saveAdditional(ret);
+		return ret;
+	}
+
+	@Override
+	public void handleUpdateTag(CompoundTag nbt) {
+		load(nbt);
 	}
 
 	public SeatEntity getEntityHolder() {
@@ -414,14 +418,6 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		return ret;
 	}
 
-	public float getFluidYHeight() {	//TODO: might require additional renderer patches.
-		return ( this.data_access.get(DACCESS_FLUID_LEVEL) * 0.007f );
-	}
-
-	public float getFluidLevel(float partialTick) {
-		return Mth.lerp(partialTick, fluid_level0, fluid_level);
-	}
-
 	public Optional<Fluid> getFluidType() {
 		return Optional.of( Fluids.WATER );
 	}
@@ -476,7 +472,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 			}
 			commands.add(InitMSCCommands.RELEASE_ENTITY.get().asInstance(ItemStack.EMPTY));
 			commands.add(InitMSCCommands.CLOSE_DOOR.get().asInstance(ItemStack.EMPTY));
-			bentity.setChanged();
+			bentity.markUpdated();
 		}
 
 		if( bentity.tickCrash() != null ) {
@@ -494,7 +490,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 
 		if (!bentity.current_command.test(bentity)) {
 			bentity.current_command = null;
-			bentity.setChanged();
+			bentity.markUpdated();
 			return;
 		}
 
@@ -502,13 +498,13 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 			bentity.current_command = null;
 		}
 
-		bentity.setChanged();
+		bentity.markUpdated();
 	}
 
 	public @Nullable ControllerStatus tickCrash() {
 		if(this.isCrashed()) {
 			this.crashed_ticks--;
-			this.setChanged();
+			this.markUpdated();
 			return null;
 		} else if (this.getBlockState().getBlock() instanceof MSCControllerBlock && this.getBlockState().getValue(MSCControllerBlock.STATUS) == ControllerStatus.ERRORED) {
 			return this.setBlockStatus(ControllerStatus.INACTIVE);
@@ -518,11 +514,11 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	}
 
 	public boolean isFilled() {
-		return fluid_level >= 0.99f;
+		return getFluidLevel() >= 0.99f;
 	}
 
 	public boolean isDrained() {
-		return fluid_level <= 0.01f;
+		return getFluidLevel() <= 0.01f;
 	}
 
 	public boolean hasEntity() {
@@ -614,7 +610,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		}
 
 		this.is_opened = true;
-		this.setChanged();
+		this.markUpdated();
 	}
 
 	public void closeDoor() {
@@ -628,7 +624,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 			}
 		}
 		this.is_opened = false;
-		this.setChanged();
+		this.markUpdated();
 	}
 
 	public boolean isStabilized() {
@@ -700,7 +696,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 			iterator = BlockUtilities.TransformHorizontalDirectionInt(iterator, msc_direction, 1, -10, 0);
 		}
 		if( player != null ) {
-			player.sendSystemMessage(Component.literal("Multiblock formed successfully"));
+			player.sendSystemMessage(Component.translatable("untransfur.msc.message.multiblock_formed"));
 		}
 		discoverAugments();
 		return true;

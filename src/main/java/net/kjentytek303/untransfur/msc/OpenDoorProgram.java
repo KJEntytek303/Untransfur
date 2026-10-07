@@ -23,7 +23,7 @@ public class OpenDoorProgram extends MSCScheduledCommand {
 		boolean ret = bentity.isDrained() && !bentity.isOpen();
 		if( !ret ) {
 			bentity.failure_chance += 0.015;
-			bentity.setChanged();
+			bentity.markUpdated();
 		}
 		return ret;
 	}

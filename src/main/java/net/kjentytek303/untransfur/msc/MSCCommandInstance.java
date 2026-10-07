@@ -62,12 +62,12 @@ public class MSCCommandInstance implements Function<MSCControllerBlockEntity, Bo
 		}
 		ticks_elapsed++;
 		if(!should_count_final && command.apply(msc, argument)) {
-			msc.setChanged();
+			msc.markUpdated();
 			return true;
 		}
 		should_count_final = true;
 		additional_delay--;
-		msc.setChanged();
+		msc.markUpdated();
 		return additional_delay > 0;
 	}
 

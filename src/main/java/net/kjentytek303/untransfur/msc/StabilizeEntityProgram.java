@@ -19,7 +19,7 @@ public class StabilizeEntityProgram extends MSCScheduledCommand {
 			return false;
 		}
 		bentity.failure_chance += 0.025;
-		bentity.setChanged();
+		bentity.markUpdated();
 		return false;
 	}
 
@@ -31,7 +31,7 @@ public class StabilizeEntityProgram extends MSCScheduledCommand {
 			&& bentity.hasEntity();
 		if(!ret) {
 			bentity.failure_chance += 0.015;
-			bentity.setChanged();
+			bentity.markUpdated();
 		}
 		return ret;
 	}

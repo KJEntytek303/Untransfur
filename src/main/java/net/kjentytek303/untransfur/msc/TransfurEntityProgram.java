@@ -34,7 +34,7 @@ public class TransfurEntityProgram extends MSCScheduledCommand {
 
 		if(variant == null) {
 			bentity.failure_chance += 0.025;
-			bentity.setChanged();
+			bentity.markUpdated();
 			return false;
 		}
 
@@ -65,7 +65,7 @@ public class TransfurEntityProgram extends MSCScheduledCommand {
 			bentity.getChamberedEntity().get().getType().is(ChangedTags.EntityTypes.HUMANOIDS);
 		if( !ret ) {
 			bentity.failure_chance += 0.015;
-			bentity.setChanged();
+			bentity.markUpdated();
 		}
 		return ret;
 	}
