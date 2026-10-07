@@ -9,6 +9,7 @@
 	"block.untransfur.msc_redstone_logic_adapter": "MSC Redstone Logic Adapter",
 	"block.untransfur.msc_smooth_wall": "MSC Wall",
 	"block.untransfur.msc_tank": "MSC Tank",
+	"block.untransfur.untransfur_syringe": "Untransfur Syringe",
 
 	"item.untransfur.msc_program_rom": "MSC Program ROM",
 	"item.untransfur.msc_program_rom.tooltip": "Program: %s",

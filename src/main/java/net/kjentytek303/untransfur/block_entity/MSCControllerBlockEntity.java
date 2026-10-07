@@ -675,7 +675,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 				for (int z=0; z<6; z++) {
 					if ( ! ( this.isOpen() ? MSC_OPEN_MULTIBLOCK_DEFINITION.get(x,y,z).test(level.getBlockState(iterator)) : MSC_MULTIBLOCK_DEFINITION.get(x, y, z).test(level.getBlockState(iterator)))
 					) {
-						if (player != null ) { //TODO: Move this into component translatable
+						if (player != null ) {
 							player.sendSystemMessage(Component.translatable("untransfur.msc.error.assembly_failed", level.getBlockState(iterator).getBlock().getName(), iterator.getX(), iterator.getY(), iterator.getZ() ));
 							player.sendSystemMessage(
 								this.isOpen() ?
