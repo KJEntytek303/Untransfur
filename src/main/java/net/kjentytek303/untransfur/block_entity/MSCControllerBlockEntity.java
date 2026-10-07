@@ -2,6 +2,7 @@ package net.kjentytek303.untransfur.block_entity;
 
 import net.kjentytek303.untransfur.block.MSCControllerBlock;
 import net.kjentytek303.untransfur.config.ServerCfg;
+import net.kjentytek303.untransfur.event.UntransfurPlayerByComplexMSC;
 import net.kjentytek303.untransfur.init.InitDamageSources;
 import net.kjentytek303.untransfur.init.InitMSCCommands;
 import net.kjentytek303.untransfur.msc.ControllerStatus;
@@ -23,6 +24,8 @@ import net.ltxprogrammer.changed.init.ChangedAnimationEvents;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.ltxprogrammer.changed.init.ChangedItems;
 import net.ltxprogrammer.changed.item.Syringe;
+import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.process.TransfurEvents;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -50,6 +53,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.WaterFluid;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
@@ -287,6 +291,18 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 
 	public Optional<IAbstractChangedEntity> getChamberedLatex() {
 		return getChamberedEntity().map(IAbstractChangedEntity::forEither);
+	}
+
+	public void performComplexUntransfur() {
+		getChamberedLatex().ifPresent(latex -> {
+			if( latex.isPlayer() && latex.getTransfurVariantInstance() != null ) {
+				var event = new UntransfurPlayerByComplexMSC(getBlockState(), getBlockPos(), latex.getTransfurVariantInstance().getHost(), latex.getTransfurVariantInstance(), null );
+				if(MinecraftForge.EVENT_BUS.post(event) ) {
+					return;
+				}
+				TransfurEvents.finalizeUntransfurPlayerEvent(event);
+			}
+		});
 	}
 
 	public List<ContainerWithIndex> findItems(ItemPredicate pred, boolean limitTags) {
