@@ -9,6 +9,7 @@
 	"block.untransfur.msc_redstone_logic_adapter": "Nagy sztáziskamra redstone logikai adapter",
 	"block.untransfur.msc_smooth_wall": "Nagy sztáziskamra fal",
 	"block.untransfur.msc_tank": "Nagy sztáziskamra tartály",
+	"block.untransfur.untransfur_syringe": "Visszatranszfuráló fecskendő",
 
 	"item.untransfur.msc_program_rom": "Nagy sztáziskamra ROM program",
 	"item.untransfur.msc_program_rom.tooltip": "Program: %s",
@@ -22,6 +23,7 @@
 	"untransfur.msc.error.broken_multiblock_definition": "Hibás többblokkos definíció, jelentsd hibaként.",
 	"untransfur.msc.error.expected_block": "Várt blokk: %s",
 	"untransfur.msc.error.expected_tag": "A(z) %s címke várható blokkja",
+	"untransfur.msc.message.multiblock_formed": "Többblokkos szerkezet sikeresen létrejött",
 	
 	"untransfur.msc.program.untransfur:capture_entity": "§a§oEntitás elfogása§r",
 	"untransfur.msc.program.untransfur:close_door": "§a§oAjtó bezárása§r",
