@@ -16,20 +16,18 @@ public class FillChamberProgram extends MSCScheduledCommand {
 	@Override
 	public Boolean apply(MSCControllerBlockEntity bentity, ItemStack argument) {
 
-		bentity.fluid_level0 = bentity.fluid_level;
-		bentity.fluid_level += (0.05f / 15.0f); //15 seconds to fill
+		bentity.setFluidLevel(bentity.getFluidLevel() + 0.05f / 15.0f); //15 seconds to fill
 
-		if (bentity.fluid_level > 0.5f) {
+		if (bentity.getFluidLevel() > 0.5f) {
 			bentity.ensureCapturedIsStillInside();
 		}
 
 		if (bentity.isFilled()) {
-			bentity.fluid_level0 = 1.0f;
-			bentity.fluid_level = 1.0f;
-			bentity.setChanged();
+			bentity.setFluidLevel(1.0f);
+			bentity.markUpdated();
 			return false;
 		}
-		bentity.setChanged();
+		bentity.markUpdated();
 		return true;
 	}
 

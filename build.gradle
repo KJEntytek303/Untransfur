@@ -155,9 +155,9 @@ dependencies {
     implementation fg.deobf("net.ltxprogrammer.changed:Changed-m1.20.1-f47.4.0:v0.15.7") {
         changing = true
     }
-   // implementation fg.deobf("net.stonenibbler.changed_survival_protocol:changed_survive_protocol-1.2.0:1.2.0") {
-   //     changing = true
-   // }
+   implementation fg.deobf("net.stonenibbler.changed_survival_protocol:changed_survive_protocol-1.2.0:1.2.0") {
+       changing = true
+   }
 
 
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings

@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "rotation=0": {
+      "model": "untransfur:block/dropped_untransfur_syringe"
+    },
+    "rotation=1": {
+      "model": "untransfur:block/dropped_untransfur_syringe225"
+    },
+    "rotation=2": {
+      "model": "untransfur:block/dropped_untransfur_syringe45"
+    },
+    "rotation=3": {
+      "model": "untransfur:block/dropped_untransfur_syringe675"
+    },
+    "rotation=4": {
+      "model": "untransfur:block/dropped_untransfur_syringe",
+      "y": 90
+    },
+    "rotation=5": {
+      "model": "untransfur:block/dropped_untransfur_syringe225",
+      "y": 90
+    },
+    "rotation=6": {
+      "model": "untransfur:block/dropped_untransfur_syringe45",
+      "y": 90
+    },
+    "rotation=7": {
+      "model": "untransfur:block/dropped_untransfur_syringe675",
+      "y": 90
+    },
+    "rotation=8": {
+      "model": "untransfur:block/dropped_untransfur_syringe",
+      "y": 180
+    },
+    "rotation=9": {
+      "model": "untransfur:block/dropped_untransfur_syringe225",
+      "y": 180
+    },
+    "rotation=10": {
+      "model": "untransfur:block/dropped_untransfur_syringe45",
+      "y": 180
+    },
+    "rotation=11": {
+      "model": "untransfur:block/dropped_untransfur_syringe675",
+      "y": 180
+    },
+    "rotation=12": {
+      "model": "untransfur:block/dropped_untransfur_syringe",
+      "y": 270
+    },
+    "rotation=13": {
+      "model": "untransfur:block/dropped_untransfur_syringe225",
+      "y": 270
+    },
+    "rotation=14": {
+      "model": "untransfur:block/dropped_untransfur_syringe45",
+      "y": 270
+    },
+    "rotation=15": {
+      "model": "untransfur:block/dropped_untransfur_syringe675",
+      "y": 270
+    }
+  }
+}

@@ -68,17 +68,43 @@ public class MSCControllerRenderer implements BlockEntityRenderer<MSCControllerB
 		if(!pBlockEntity.getBlockState().is(InitBlocks.MSC_CONTROLLER.get())) {
 			return;
 		};
+		if( pBlockEntity.isDrained()) {
+			return;
+		}
+		float fluid_level = pBlockEntity.getFluidLevel();
+
+		//Front
 		pPoseStack.pushPose();
 		rotateToBentity(pPoseStack, pBlockEntity);
-		drawQuad(builder, pPoseStack, 1f, 1, 0.5f, -2f, 7, 0.5f, sprite.getU0(), sprite.getU1(), sprite.getV0(), sprite.getV1(), pPackedLight, tint_color);
+		drawQuad(builder, pPoseStack, 1f, 1, 0.5f, -2f, getFluidYHeight(fluid_level), 0.5f, sprite.getU0(), sprite.getU1(), sprite.getV0(), sprite.getV1(), pPackedLight, tint_color);
 		pPoseStack.popPose();
 
 		pPoseStack.pushPose();
 		pPoseStack.mulPose(Axis.YP.rotationDegrees(180));
 		pPoseStack.translate(-1, 0, -1);
 		rotateToBentity(pPoseStack, pBlockEntity);
-		drawQuad(builder, pPoseStack, 1f, 1, 0.5f, -2f, 7, 0.5f, sprite.getU0(), sprite.getU1(), sprite.getV0(), sprite.getV1(), pPackedLight, tint_color);
+		drawQuad(builder, pPoseStack, 1f, 1, 0.5f, -2f, getFluidYHeight(fluid_level), 0.5f, sprite.getU0(), sprite.getU1(), sprite.getV0(), sprite.getV1(), pPackedLight, tint_color);
 		pPoseStack.popPose();
+
+		//Top
+		if(!pBlockEntity.isFilled() && !pBlockEntity.isDrained()) {
+			pPoseStack.pushPose();
+			rotateToBentity(pPoseStack, pBlockEntity);
+			pPoseStack.translate(-0.5, 0, -2);
+			drawQuad(builder, pPoseStack, 1.5f, getFluidYHeight(fluid_level), -1f, -1.5f, getFluidYHeight(fluid_level), 2.5f, sprite.getU0(), sprite.getU1(), sprite.getV0(), sprite.getV1(), pPackedLight, tint_color);
+			pPoseStack.popPose();
+
+			pPoseStack.pushPose();
+			rotateToBentity(pPoseStack, pBlockEntity);
+			pPoseStack.mulPose(Axis.XP.rotationDegrees(180));
+			pPoseStack.translate(-0.5, 0, 0);
+			drawQuad(builder, pPoseStack, 1.5f, -getFluidYHeight(fluid_level), -0.5f, -1.5f, -getFluidYHeight(fluid_level),  3f, sprite.getU0(), sprite.getU1(), sprite.getV0(), sprite.getV1(), pPackedLight, tint_color);
+			pPoseStack.popPose();
+		}
+	}
+
+	public static float getFluidYHeight(float fluid_level) {
+		return fluid_level * 7;
 	}
 
 	public static void drawVertex( VertexConsumer builder, PoseStack pose_stack, float x, float y, float z, float u, float v, int packed_light, int color) {

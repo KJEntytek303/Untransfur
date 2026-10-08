@@ -9,6 +9,7 @@
 	"block.untransfur.msc_redstone_logic_adapter": "MSC Redstone Logic Adapter",
 	"block.untransfur.msc_smooth_wall": "MSC Wall",
 	"block.untransfur.msc_tank": "MSC Tank",
+	"block.untransfur.untransfur_syringe": "Untransfur Syringe",
 
 	"item.untransfur.msc_program_rom": "MSC Program ROM",
 	"item.untransfur.msc_program_rom.tooltip": "Program: %s",
@@ -22,6 +23,7 @@
 	"untransfur.msc.error.broken_multiblock_definition": "Broken multiblock definition, report as a bug",
 	"untransfur.msc.error.expected_block": "Expected %s",
 	"untransfur.msc.error.expected_tag": "Expected block of tag %s",
+	"untransfur.msc.message.multiblock_formed": "Multiblock formed successfully",
 
 	"untransfur.msc.program.untransfur:capture_entity": "§a§oCapture Entity§r",
 	"untransfur.msc.program.untransfur:close_door": "§a§oClose Door§r",

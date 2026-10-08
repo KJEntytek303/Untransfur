@@ -16,10 +16,9 @@ public class DrainChamberProgram extends MSCScheduledCommand {
 
 	@Override
 	public Boolean apply(MSCControllerBlockEntity bentity, ItemStack argument) {
-		bentity.fluid_level0 = bentity.fluid_level;
-		bentity.fluid_level -= 0.05f / 15.0f;
+		bentity.setFluidLevel( bentity.getFluidLevel() - 0.05f / 15.0f);
 
-		if (bentity.fluid_level > 0.5f) {
+		if (bentity.getFluidLevel() > 0.5f) {
 			bentity.ensureCapturedIsStillInside();
 		} else if( bentity.getEntityHolder() != null ) {
 			bentity.getEntityHolder().getPassengers().forEach(Entity::stopRiding);
@@ -33,11 +32,10 @@ public class DrainChamberProgram extends MSCScheduledCommand {
 			});
 		}
 		if( bentity.isDrained() ) {
-			bentity.fluid_level = 0.0f;
-			bentity.fluid_level0 = 0.0f;
+			bentity.setFluidLevel(0.0f);
 			bentity.extension_attempts = 0;
 		}
-		bentity.setChanged();
+		bentity.markUpdated();
 		return !bentity.isDrained();
 	}
 
