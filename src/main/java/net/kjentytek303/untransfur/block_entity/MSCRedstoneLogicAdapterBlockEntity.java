@@ -1,7 +1,6 @@
 package net.kjentytek303.untransfur.block_entity;
 
 import net.kjentytek303.untransfur.Untransfur;
-import net.kjentytek303.untransfur.block.MSCControllerBlock;
 import net.kjentytek303.untransfur.block.MSCRedstoneLogicAdapterBlock;
 import net.kjentytek303.untransfur.client.menu.MSCRedstoneLogicAdapterMenu;
 import net.kjentytek303.untransfur.init.InitBlockEntities;

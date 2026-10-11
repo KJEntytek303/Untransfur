@@ -1,6 +1,5 @@
 package net.kjentytek303.untransfur.item;
 
-import net.kjentytek303.untransfur.config.ServerCfg;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;

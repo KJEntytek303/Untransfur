@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+     "untransfur:untransfur_syringe",
+     { "id": "changed_addon:laethin_syringe", "required": false }
+
+  ]
+}

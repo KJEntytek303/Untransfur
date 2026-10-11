@@ -95,23 +95,4 @@ public class MSCDefaultCommands { /*
 		msc.one_time_menu_open = true;
 		return false;
 	}*/
-
-	public static boolean UntransfurEntity(@NotNull MSCControllerBlockEntity msc, Object args ) {
-		//Check if we have a flinston syringe.
-		//Check if entity is stabilized
-		//If latex: Check if we have enough biomass
-		//If true, post untransfur event.
-		msc.getChamberedEntity().ifPresent( entity -> {
-			if( !( entity instanceof Player player )) {
-				return;
-				//apply untf
-			}
-			var event = new TransfurEvents.UntransfurPlayerByBlockEvent(msc.getBlockState(), msc.getBlockPos(), player, ProcessTransfur.getPlayerTransfurVariant(player), null);
-			if(!MinecraftForge.EVENT_BUS.post(event)) {
-				TransfurEvents.finalizeUntransfurPlayerEvent(event);
-			}
-		});
-
-		return false;
-	}
 }

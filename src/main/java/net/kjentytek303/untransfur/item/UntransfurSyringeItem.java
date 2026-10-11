@@ -45,7 +45,6 @@ public class UntransfurSyringeItem extends BlockItem implements SpecializedAnima
 	
 	@Override
 	public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level pLevel, Player pPlayer, @NotNull InteractionHand pUsedHand) {
-		ItemStack itemstack = pPlayer.getItemInHand(pUsedHand);
 		return ItemUtils.startUsingInstantly(pLevel, pPlayer, pUsedHand);
 	}
 	

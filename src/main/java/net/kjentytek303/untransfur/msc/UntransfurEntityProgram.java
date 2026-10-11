@@ -2,9 +2,13 @@ package net.kjentytek303.untransfur.msc;
 
 import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
-import net.ltxprogrammer.changed.entity.ChangedEntity;
+import net.kjentytek303.untransfur.util.ContainerWithIndex;
+import net.kjentytek303.untransfur.util.ItemPredicate;
+import net.kjentytek303.untransfur.util.UntfTags;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.List;
 
 
 public class UntransfurEntityProgram extends MSCScheduledCommand {
@@ -16,6 +20,9 @@ public class UntransfurEntityProgram extends MSCScheduledCommand {
 	//TODO
 	@Override
 	public Boolean apply(MSCControllerBlockEntity bentity, ItemStack argument) {
+
+		List<ContainerWithIndex> complex_syringes = bentity.findItems(new ItemPredicate(UntfTags.Items.MSC_COMPLEX_UNTRANSFUR_ITEMS), true);
+		List<ContainerWithIndex> biomass = bentity.findItems(new ItemPredicate( UntfTags.Items.BIOMASS ), true);
 
 		//check if we can do MSCComplexUnransfur.
 			//Organics - untf syringe.
