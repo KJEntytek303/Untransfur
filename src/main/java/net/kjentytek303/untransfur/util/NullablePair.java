@@ -6,16 +6,16 @@ import java.util.Objects;
 
 
 public class NullablePair<First_t, Second_t> {
-	public First_t first;
-	public Second_t second;
+	public @Nullable First_t first;
+	public @Nullable Second_t second;
 
-	public NullablePair(First_t first, Second_t second) {
+	public NullablePair(@Nullable First_t first, @Nullable Second_t second) {
 		this.first = first;
 		this.second = second;
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(@Nullable Object other) {
 		if (other == this) {
 			return true;
 		}

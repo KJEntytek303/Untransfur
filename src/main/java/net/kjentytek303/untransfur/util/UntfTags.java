@@ -17,5 +17,9 @@ public class UntfTags {
 
 	public static class Items {
 		public static final TagKey<Item> MSC_COMPATIBLE_ITEMS = ItemTags.create(Untransfur.modResource("msc_input_item"));
+		public static final TagKey<Item> MSC_COMPLEX_UNTRANSFUR_ITEMS = ItemTags.create(Untransfur.modResource("msc_complex_untransfur_items"));
+		public static final TagKey<Item> MSC_UNTRANSFUR_ITEMS = ItemTags.create(Untransfur.modResource("msc_untransfur_items"));
+		public static final TagKey<Item> BIOMASS = ItemTags.create(Untransfur.modResource("biomass"));
+
 	}
 }

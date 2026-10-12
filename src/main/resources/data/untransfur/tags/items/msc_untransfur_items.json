@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+     "#untransfur:msc_complex_untransfur_items",
+     { "id": "changed_addon:litix_camonia_syringe", "required": false }
+
+  ]
+}

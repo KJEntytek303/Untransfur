@@ -31,6 +31,11 @@ public class WaitProgram extends MSCScheduledCommand {
 	@Contract(pure = true)
 	public MSCCommandInstance asInstance(ItemStack argument ) {
 		var ret = super.asInstance(argument);
+		if (argument.equals(ItemStack.EMPTY)) {
+			ret.additional_delay = 60 * 20;
+			return ret;
+		}
+
 		//TODO I should probably move this into a datapack.
 		Item item = argument.getItem();
 		if (item.equals(GOLD_NUGGET)) {
@@ -38,9 +43,6 @@ public class WaitProgram extends MSCScheduledCommand {
 		}
 		else if (item.equals(GOLD_INGOT)) {
 			ret.additional_delay = 30 * 20;
-		}
-		else if (item.equals(ItemStack.EMPTY)) {
-			ret.additional_delay = 60 * 20;
 		}
 		else if (item.equals(IRON_NUGGET)) {
 			ret.additional_delay = 2 * 60 * 20;

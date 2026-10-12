@@ -8,7 +8,6 @@ import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.init.InitBlockEntities;
 import net.kjentytek303.untransfur.init.InitMenus;
 import net.kjentytek303.untransfur.init.InitPackets;
-import net.kjentytek303.untransfur.msc.MSCScheduledCommand;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -84,10 +83,6 @@ public class Untransfur
 
     public static ResourceLocation modResource(String path) {
         return ResourceLocation.fromNamespaceAndPath(MODID, path);
-    }
-
-    public static String modResourceStr(String path) {
-        return MODID + ":" + path;
     }
 
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)

@@ -19,9 +19,16 @@ errored=0
 ./gtmpg.pl
 if [[ $errored != 0 ]]; then
 	echo "autocopy.sh: Error: Assembly failed." >&2
-else
-	cp -R ./generated/data/* ../../src/main/resources/data/
-	cp -R ./generated/assets/* ../../src/main/resources/assets/
+	exit 1;
 fi
+
+./ihda-i.pl
+if [[ $errored != 0 ]]; then
+	echo "autocopy.sh: Error: Assembly failed." >&2
+	exit 1;
+fi
+
+cp -R ./generated/data/* ../../src/main/resources/data/
+cp -R ./generated/assets/* ../../src/main/resources/assets/
 
 exit $errored

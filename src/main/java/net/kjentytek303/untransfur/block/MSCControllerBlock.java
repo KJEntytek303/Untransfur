@@ -1,6 +1,7 @@
 package net.kjentytek303.untransfur.block;
 
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
+import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.init.InitBlockEntities;
 import net.kjentytek303.untransfur.msc.ControllerStatus;
 import net.kjentytek303.untransfur.util.BlockUtilities;
@@ -106,7 +107,7 @@ public class MSCControllerBlock extends BaseEntityBlock implements SeatableBlock
 			msc.invalidateMultiblock(true);
 		}
 
-		if( msc.checkForBlowUp() ) {
+		if(ServerCfg.MSC_CHECK_FAILURE_ON_DESTROY.get() && msc.checkForBlowUp() ) {
 			msc.blowUp();
 		}
 		pLevel.removeBlockEntity(pPos);

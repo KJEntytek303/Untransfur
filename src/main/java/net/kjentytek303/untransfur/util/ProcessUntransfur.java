@@ -1,16 +1,7 @@
 package net.kjentytek303.untransfur.util;
 
-import net.kjentytek303.untransfur.init.InitDamageSources;
 import net.kjentytek303.untransfur.network.UntransfurVariables;
-import net.ltxprogrammer.changed.init.ChangedAttributes;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 
 public class ProcessUntransfur {
