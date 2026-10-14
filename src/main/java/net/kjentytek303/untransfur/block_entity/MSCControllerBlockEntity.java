@@ -511,6 +511,13 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 
 		if (!bentity.current_command.apply(bentity)) { //Command finished
 			bentity.current_command = null;
+			if(bentity.isStabilized() && ServerCfg.MSC_CRASHES_AFTER_STASIS_EXTENSIONS.get() != -1) {
+				bentity.extension_attempts++;
+			}
+		}
+
+		if(ServerCfg.MSC_CRASHES_AFTER_STASIS_EXTENSIONS.get() != -1 && bentity.extension_attempts > ServerCfg.MSC_CRASHES_AFTER_STASIS_EXTENSIONS.get()) {
+			bentity.crash();
 		}
 
 		bentity.markUpdated();

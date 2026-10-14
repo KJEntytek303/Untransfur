@@ -69,10 +69,12 @@ public class ServerCfg {
 		MSC_CRASH_DURATION = BUILDER.defineInRange("msc.failures.crash_duration", 60*20, 0, Integer.MAX_VALUE);
 
 		BUILDER.comment("How many stasis extension attempts can be made with redstone, before MSC controller crashes?");
+		BUILDER.comment("Note: each program executed during stasis adds 1 to the internal counter.");
+		BUILDER.comment("Extending stasis directly with the ToggleStasis command increments it by 3");
 		BUILDER.comment("0 disables redstone stasis extensions");
 		BUILDER.comment("-1 means unlimited extensions");
-		BUILDER.comment("Default: 3");
-		MSC_CRASHES_AFTER_STASIS_EXTENSIONS = BUILDER.defineInRange("msc.failures.redstone_crashes_after_stasis_extensions", 3, -1, Integer.MAX_VALUE);
+		BUILDER.comment("Default: 9");
+		MSC_CRASHES_AFTER_STASIS_EXTENSIONS = BUILDER.defineInRange("msc.failures.redstone_crashes_after_stasis_extensions", 9, -1, Integer.MAX_VALUE);
 
 		BUILDER.comment("How often does the MSC check whether it should blow up? (In ticks)");
 		BUILDER.comment("0 disables periodic checks");
