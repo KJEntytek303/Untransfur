@@ -1,5 +1,6 @@
 package net.kjentytek303.untransfur.block_entity;
 
+import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.block.MSCControllerBlock;
 import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.event.UntransfurPlayerByComplexMSC;
@@ -473,6 +474,9 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		var entities_within = bentity.getLivingEntitiesWithin();
 
 		for( var augment_pos : AUGMENT_POSITIONS ) {
+			if( level.getGameTime() % 100 == 0) {
+				Untransfur.LOGGER.debug("MSCAugPos: {}", TransformHorizontalDirectionBlockPos(bentity.multiblock_root, bentity.msc_direction, augment_pos));
+			}
 			if( level.getBlockEntity(TransformHorizontalDirectionBlockPos(bentity.multiblock_root, bentity.msc_direction, augment_pos)) instanceof IMSCAugment mscaug) {
 				mscaug.msc_tick();
 			}
@@ -792,7 +796,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		}
 		for(int x=1; x<4; x++) {
 			for(int y=0; y<7; y+=6) {
-				AUGMENT_POSITIONS.add(new BlockPos(x, y, (y/6) * 5));
+				AUGMENT_POSITIONS.add(new BlockPos(x, y, 1 + (y/6) * 4));
 			}
 		}
 
