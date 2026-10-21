@@ -1,0 +1,19 @@
+{
+  "replace": false,
+  "values": [
+     "minecraft:magma_block",
+     "minecraft:wet_sponge",
+     "minecraft:crying_obsidian",
+     "minecraft:dripstone",
+     "#minecraft:leaves",
+     "#minecraft:dirt",
+     "#minecraft:nylium",
+     "minecraft:budding_amethyst",
+     "#minecraft:ice",
+     "minecraft:budding_amethyst",
+     "changed:dark_latex_block",
+     "changed:white_latex_block",
+     "changed:white_latex_pillar"
+
+  ]
+}

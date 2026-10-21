@@ -13,6 +13,8 @@ public class UntfTags {
 		public static final TagKey<Block> MSC_AUGMENT_BLOCKS = BlockTags.create(Untransfur.modResource("msc_augment"));
 		public static final TagKey<Block> MSC_INPUT = BlockTags.create(Untransfur.modResource("msc_input"));
 		public static final TagKey<Block> MSC_OUTPUT = BlockTags.create(Untransfur.modResource("msc_output"));
+		public static final TagKey<Block> DAMAGES_MSC_SLIGHTLY = BlockTags.create(Untransfur.modResource("damages_msc_slightly"));
+		public static final TagKey<Block> DAMAGES_MSC_HEAVILY = BlockTags.create(Untransfur.modResource("damages_msc_heavily"));
 	}
 
 	public static class Items {
