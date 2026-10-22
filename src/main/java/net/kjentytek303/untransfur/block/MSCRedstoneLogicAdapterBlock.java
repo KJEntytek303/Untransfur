@@ -144,7 +144,7 @@ public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 			}
 		} else if( getInputSignal(state, level, pos) == 15) {
 			level.setBlockAndUpdate(pos, state.setValue(POWERED, true));
-			if( level.getBlockEntity(pos) instanceof MSCRedstoneLogicAdapterBlockEntity msc_adapter && getInputSignal(state, level, pos) > 0) {
+			if( level.getBlockEntity(pos) instanceof MSCRedstoneLogicAdapterBlockEntity msc_adapter ) {
 				msc_adapter.addProgram();
 			}
 		}

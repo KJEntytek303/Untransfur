@@ -372,7 +372,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		List<ContainerWithIndex> slotBuffer = new ArrayList<>();
 
 		//Iterate over all augments;
-		for( var augment_pos : output_augments ) finished: {
+		for( var augment_pos : output_augments ) {
 			BlockEntity bentity = level.getBlockEntity(augment_pos);
 			if( bentity == null ) {
 				continue;
@@ -404,11 +404,14 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 				//can insert and ran out of items to insert
 				if(count <= 0 ){
 					success = true;
-					break finished;
+					break;
 				}
 			}
 			if(!buffered_container.slots.isEmpty()) {
 				slotBuffer.add(buffered_container);
+			}
+			if(success) {
+				break;
 			}
 		}
 		if(!success) {
@@ -469,6 +472,16 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 				bentity.markUpdated();
 				return;
 			}
+		}
+
+		if( level.getGameTime() % 31 == 0) {
+			int rain_damage = bentity.checkRainDamage();
+			bentity.failure_chance += rain_damage / 5600.0f;
+		}
+
+		if( level.getGameTime() % 47 == 0) {
+			int block_damage = bentity.checkBlockDamage();
+			bentity.failure_chance += block_damage / 5085.0f;
 		}
 
 		var commands = bentity.scheduled_commands;

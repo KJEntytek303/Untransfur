@@ -49,7 +49,7 @@ public abstract class AbstractMSCBusBlockEntity extends BaseContainerBlockEntity
 	}
 	@Override
 	public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
-		return super.getCapability(cap);
+		return getCapability(cap, null);
 	}
 	public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
 		if( cap == ForgeCapabilities.ITEM_HANDLER && ( side == null || side == this.getBlockState().getValue(FACING) ) ) {
