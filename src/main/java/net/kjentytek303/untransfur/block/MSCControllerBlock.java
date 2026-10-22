@@ -70,7 +70,7 @@ public class MSCControllerBlock extends BaseEntityBlock implements SeatableBlock
 		}
 		BlockEntity be = pLevel.getBlockEntity(pPos);
 		if( be instanceof MSCControllerBlockEntity msc ) {
-			if(msc.checkMultiblock(pLevel, pPos, pPlayer) && !msc.isCrashed() && msc.current_command == null) {
+			if(msc.checkMultiblock(pPlayer) && !msc.isCrashed() && msc.current_command == null) {
 				setStatus(pState, pLevel, pPos, ControllerStatus.INACTIVE);
 			}
 		}

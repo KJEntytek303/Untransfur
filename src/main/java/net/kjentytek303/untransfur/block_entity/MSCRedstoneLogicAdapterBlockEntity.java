@@ -4,6 +4,7 @@ import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.block.MSCRedstoneLogicAdapterBlock;
 import net.kjentytek303.untransfur.client.menu.MSCRedstoneLogicAdapterMenu;
 import net.kjentytek303.untransfur.init.InitBlockEntities;
+import net.kjentytek303.untransfur.init.InitBlocks;
 import net.kjentytek303.untransfur.init.InitItems;
 import net.kjentytek303.untransfur.init.InitMSCCommands;
 import net.kjentytek303.untransfur.msc.IMSCAugment;
@@ -29,7 +30,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.stream.IntStream;
 
-import static net.kjentytek303.untransfur.block.MSCRedstoneLogicAdapterBlock.ACTIVE;
+import static net.kjentytek303.untransfur.block.MSCRedstoneLogicAdapterBlock.POWERED;
+import static net.kjentytek303.untransfur.block.MSCRedstoneLogicAdapterBlock.RECEIVING;
 
 
 public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity implements MenuProvider, WorldlyContainer, IMSCAugment {
@@ -144,23 +146,12 @@ public class MSCRedstoneLogicAdapterBlockEntity extends BaseContainerBlockEntity
 
 	@Override
 	public void msc_tick() {
-		if(this.controller == null && getBlockState().getBlock() instanceof MSCRedstoneLogicAdapterBlock rla) {
-			level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(ACTIVE, false));
-		}
-		if(this.controller == null) {
-			return;
-		}
-		if( ! ( getBlockState().getBlock() instanceof MSCRedstoneLogicAdapterBlock rla )) {
-			return;
-		}
-		if(     (getSignal() == 15 && !getBlockState().getValue(ACTIVE)) ||
-			(getSignal() == 0 && getBlockState().getValue(ACTIVE))
-		) {
-			level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(ACTIVE, getSignal() == 15));
+		if( !getBlockState().getValue(RECEIVING) && getBlockState().getValue(POWERED) != (getOutputSignal() == 15)) {
+			level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(POWERED, getOutputSignal() == 15));
 		}
 	}
 
-	public int getSignal() {
+	public int getOutputSignal() {
 		//if no controller or controller not running - null
 		if( this.controller == null || this.controller.current_command == null ) {
 			return 0;

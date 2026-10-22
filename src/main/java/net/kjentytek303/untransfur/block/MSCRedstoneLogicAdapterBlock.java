@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
-	public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
+	public static final BooleanProperty RECEIVING = BooleanProperty.create("receiver");
 
 	public MSCRedstoneLogicAdapterBlock(Properties pProperties) {
 		super(pProperties);
@@ -42,13 +42,16 @@ public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext pContext) {
-		return this.defaultBlockState().setValue(FACING, pContext.getNearestLookingDirection().getOpposite()).setValue(POWERED, false).setValue(ACTIVE, false);
+		if( pContext.getPlayer() != null && pContext.getPlayer().isCrouching()) {
+			return this.defaultBlockState().setValue(FACING, pContext.getNearestLookingDirection().getOpposite()).setValue(POWERED, false).setValue(RECEIVING, true);
+		}
+		return this.defaultBlockState().setValue(FACING, pContext.getNearestLookingDirection().getOpposite()).setValue(POWERED, false).setValue(RECEIVING, false);
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		super.createBlockStateDefinition(builder);
-		builder.add(POWERED, ACTIVE);
+		builder.add(POWERED, RECEIVING);
 	}
 
 	@Override
@@ -58,11 +61,11 @@ public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 
 	@Override
 	public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
-		if( !state.getValue(ACTIVE)) {
+		if( state.getValue(RECEIVING) ) {
 			return 0;
 		}
 		if( level.getBlockEntity(pos) instanceof MSCRedstoneLogicAdapterBlockEntity bentity) {
-			return side == state.getValue(FACING).getOpposite() ? bentity.getSignal() : 0;
+			return side == state.getValue(FACING).getOpposite() ? bentity.getOutputSignal() : 0;
 		}
 		return 0;
 	}
@@ -98,6 +101,10 @@ public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 		if( level.isClientSide() ) {
 			return InteractionResult.sidedSuccess(true);
 		}
+		if( player.isCrouching() ) {
+			level.setBlockAndUpdate(pos, state.setValue(RECEIVING, !state.getValue(RECEIVING)).setValue(POWERED, false));
+			return InteractionResult.sidedSuccess(false);
+		}
 
 		BlockEntity entity = level.getBlockEntity(pos);
 		if( entity instanceof MSCRedstoneLogicAdapterBlockEntity msc_re) {
@@ -113,6 +120,9 @@ public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 	}
 
 	public int getInputSignal(BlockState state, Level level, BlockPos pos) {
+		if( !state.getValue(RECEIVING) ) {
+			return 0;
+		}
 		int ret = 0;
 		for( var direction : Direction.values()) {
 			if( direction != state.getValue(FACING)) {
@@ -125,19 +135,19 @@ public class MSCRedstoneLogicAdapterBlock extends AbstractMSCBlock {
 
 	@Override
 	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos from_pos, boolean is_moving) {
-		int signal = getInputSignal(state, level, pos);
-		//Powered and receiving signal or unpowered and no signal
-		if( signal == 0 && state.getValue(POWERED)) {
-			level.setBlockAndUpdate( pos, state.setValue(POWERED, false));
+		if( !state.getValue(RECEIVING)) {
 			return;
 		}
-
-		if( signal > 0 && !state.getValue(POWERED)) {
-			level.setBlockAndUpdate( pos, state.setValue(POWERED, true));
-			BlockEntity entity = level.getBlockEntity(pos);
-			if (entity instanceof MSCRedstoneLogicAdapterBlockEntity msc_adapter) {
+		if(state.getValue(POWERED)) {
+			if( getInputSignal( state, level, pos) == 0) {
+				level.setBlockAndUpdate(pos, state.setValue(POWERED, false));
+			}
+		} else if( getInputSignal(state, level, pos) == 15) {
+			level.setBlockAndUpdate(pos, state.setValue(POWERED, true));
+			if( level.getBlockEntity(pos) instanceof MSCRedstoneLogicAdapterBlockEntity msc_adapter ) {
 				msc_adapter.addProgram();
 			}
 		}
+
 	}
 }

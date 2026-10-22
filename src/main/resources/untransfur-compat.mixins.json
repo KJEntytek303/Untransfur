@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "net.kjentytek303.untransfur.mixin.compat",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_17",
+  "plugin": "net.ltxprogrammer.changed.mixin.compatibility.ChangedMixinPlugin",
+  "refmap": "untransfur.refmap.json",
+  "mixins": [
+    "csp.CSPTransfurEventsMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+  ]
+}

@@ -1,5 +1,6 @@
 package net.kjentytek303.untransfur.block_entity;
 
+import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.block.MSCControllerBlock;
 import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.event.UntransfurPlayerByComplexMSC;
@@ -69,6 +70,7 @@ import static net.kjentytek303.untransfur.init.InitBlockEntities.MSC_CONTROLLER_
 import static net.kjentytek303.untransfur.init.InitBlocks.MSC_CONTROLLER;
 import static net.kjentytek303.untransfur.init.InitBlocks.MSC_SMOOTH_WALL;
 import static net.kjentytek303.untransfur.util.BlockUtilities.TransformHorizontalDirectionBlockPos;
+import static net.kjentytek303.untransfur.util.BlockUtilities.TransformHorizontalDirectionInt;
 import static net.kjentytek303.untransfur.util.BlockUtilities.fillWithBlock;
 import static net.kjentytek303.untransfur.util.BlockUtilities.fillWithTag;
 import static net.kjentytek303.untransfur.util.BlockUtilities.isBlock;
@@ -159,9 +161,9 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	public MSCControllerBlockEntity(BlockPos pos, BlockState state) {
 		super( MSC_CONTROLLER_BLOCK_ENTITY.get(), pos, state);
 		msc_direction = state.getValue(FACING).getOpposite();
-		this.multiblock_root = BlockUtilities.TransformHorizontalDirectionInt(pos, msc_direction, -2, 0, -5);
+		this.multiblock_root = TransformHorizontalDirectionInt(pos, msc_direction, -2, 0, -5);
 		if( this.getLevel() != null ) {
-			multiblock_valid = checkMultiblock(this.getLevel(), pos, null);
+			multiblock_valid = checkMultiblock(null);
 			if (multiblock_valid) {
 				setBlockStatus(ControllerStatus.INACTIVE);
 			}
@@ -370,7 +372,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		List<ContainerWithIndex> slotBuffer = new ArrayList<>();
 
 		//Iterate over all augments;
-		for( var augment_pos : output_augments ) finished: {
+		for( var augment_pos : output_augments ) {
 			BlockEntity bentity = level.getBlockEntity(augment_pos);
 			if( bentity == null ) {
 				continue;
@@ -402,11 +404,14 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 				//can insert and ran out of items to insert
 				if(count <= 0 ){
 					success = true;
-					break finished;
+					break;
 				}
 			}
 			if(!buffered_container.slots.isEmpty()) {
 				slotBuffer.add(buffered_container);
+			}
+			if(success) {
+				break;
 			}
 		}
 		if(!success) {
@@ -447,14 +452,14 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		}
 		bentity.failure_chance = Math.max(0.0, bentity.failure_chance - ServerCfg.MSC_REGENERATION_AMOUNT.get() );
 		if( level.getGameTime() % 20 == 0) {
-			if( bentity.multiblock_valid && !bentity.checkMultiblock(level, pos, null)) {
+			if( bentity.multiblock_valid && !bentity.checkMultiblock(null)) {
 				bentity.invalidateMultiblock(false);
 				bentity.failure_chance += 0.03;
 				bentity.multiblock_valid = false;
 				bentity.markUpdated();
 				return;
 
-			} else if( !bentity.multiblock_valid && bentity.checkMultiblock(level, pos, null) ) {
+			} else if( !bentity.multiblock_valid && bentity.checkMultiblock(null) ) {
 				bentity.multiblock_valid = true;
 				bentity.setBlockStatus(ControllerStatus.INACTIVE);
 				bentity.markUpdated();
@@ -469,10 +474,23 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 			}
 		}
 
+		if( level.getGameTime() % 31 == 0) {
+			int rain_damage = bentity.checkRainDamage();
+			bentity.failure_chance += rain_damage / 5600.0f;
+		}
+
+		if( level.getGameTime() % 47 == 0) {
+			int block_damage = bentity.checkBlockDamage();
+			bentity.failure_chance += block_damage / 5085.0f;
+		}
+
 		var commands = bentity.scheduled_commands;
 		var entities_within = bentity.getLivingEntitiesWithin();
 
 		for( var augment_pos : AUGMENT_POSITIONS ) {
+			if( level.getGameTime() % 100 == 0) {
+				Untransfur.LOGGER.debug("MSCAugPos: {}", TransformHorizontalDirectionBlockPos(bentity.multiblock_root, bentity.msc_direction, augment_pos));
+			}
 			if( level.getBlockEntity(TransformHorizontalDirectionBlockPos(bentity.multiblock_root, bentity.msc_direction, augment_pos)) instanceof IMSCAugment mscaug) {
 				mscaug.msc_tick();
 			}
@@ -621,13 +639,13 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	}
 
 	public void openDoor() {
-		if(!checkMultiblock(level, getBlockPos(), null)) {
+		if(!checkMultiblock(null)) {
 			invalidateMultiblock(false);
 			return;
 		}
 		for(int x=1; x<=3; x++) {
 			for(int y=1; y<6; y++) {
-				level.setBlockAndUpdate(BlockUtilities.TransformHorizontalDirectionInt(this.multiblock_root, msc_direction, x, y, 5 ), Blocks.AIR.defaultBlockState());
+				level.setBlockAndUpdate(TransformHorizontalDirectionInt(this.multiblock_root, msc_direction, x, y, 5 ), Blocks.AIR.defaultBlockState());
 			}
 		}
 
@@ -636,13 +654,13 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 	}
 
 	public void closeDoor() {
-		if(!checkMultiblock(level, getBlockPos(), null)) {
+		if(!checkMultiblock(null)) {
 			invalidateMultiblock(false);
 			return;
 		}
 		for(int x=1; x<=3; x++) {
 			for(int y=1; y<6; y++) {
-				level.setBlockAndUpdate(BlockUtilities.TransformHorizontalDirectionInt(this.multiblock_root, msc_direction, x, y, 5 ), Blocks.GLASS.defaultBlockState());
+				level.setBlockAndUpdate(TransformHorizontalDirectionInt(this.multiblock_root, msc_direction, x, y, 5 ), Blocks.GLASS.defaultBlockState());
 			}
 		}
 		this.is_opened = false;
@@ -681,14 +699,76 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		return true;
 	}
 
-
-
-
-	public boolean checkMultiblock(Level level, BlockPos msc_controller_pos, @Nullable Player player) {
-		BlockState msc_controller = level.getBlockState(msc_controller_pos);
-		if( !msc_controller.is(MSC_CONTROLLER.get()) ) {
-			return false;
+	public int checkRainDamage() {
+		int counter = 0;
+		if(!level.isRaining()) {
+			return 0;
 		}
+
+		for(int x=-1; x<=5; x++) {
+			for(int z=-1; z<=6; z++) {
+				counter += level.canSeeSky(TransformHorizontalDirectionInt(multiblock_root, msc_direction, x, 9, z)) ? 1 : 0;
+			}
+		}
+		return counter;
+	}
+
+	public int checkBlockDamage() {
+		int counter = 0;
+		//Left-Right
+		for( int x=-1; x<=5; x+=6 ) {
+			for( int y=-1; y<=10; y++) {
+				for( int z=-1; z<=6; z++) {
+					if(level.getBlockState(TransformHorizontalDirectionInt(multiblock_root, msc_direction, x,y,z)).is(UntfTags.Blocks.DAMAGES_MSC_HEAVILY)) {
+						counter += 5;
+					} else if( level.getBlockState(TransformHorizontalDirectionInt(multiblock_root, msc_direction, x,y,z)).is(UntfTags.Blocks.DAMAGES_MSC_SLIGHTLY)) {
+						counter += 1;
+					}
+				}
+			}
+		}
+
+		//Front-Back
+		for( int x=0; x<5; x++ ) {
+			for(int y=-1; y<=10; y++) {
+				for(int z=-1; z<=6; z+=7) {
+					if(level.getBlockState(TransformHorizontalDirectionInt(multiblock_root, msc_direction, x,y,z)).is(UntfTags.Blocks.DAMAGES_MSC_HEAVILY)) {
+						counter += 5;
+					} else if( level.getBlockState(TransformHorizontalDirectionInt(multiblock_root, msc_direction, x,y,z)).is(UntfTags.Blocks.DAMAGES_MSC_SLIGHTLY)) {
+						counter += 1;
+					}
+				}
+			}
+		}
+
+		//Back over backplate
+		for(int x=1; x<4; x++) {
+			for( int y=5; y<10; y++ ) {
+				if(level.getBlockState(TransformHorizontalDirectionInt(multiblock_root, msc_direction, x,y,0)).is(UntfTags.Blocks.DAMAGES_MSC_HEAVILY)) {
+					counter += 5;
+				} else if( level.getBlockState(TransformHorizontalDirectionInt(multiblock_root, msc_direction, x,y,0)).is(UntfTags.Blocks.DAMAGES_MSC_SLIGHTLY)) {
+					counter += 1;
+				}
+			}
+		}
+
+		//Top-Bottom
+		for( int x=0; x<5; x++) {
+			for( int y=-1; y<=10; y+=11) {
+				for( int z=0; z<6; z++) {
+					if(level.getBlockState(TransformHorizontalDirectionInt(multiblock_root, msc_direction, x,y,z)).is(UntfTags.Blocks.DAMAGES_MSC_HEAVILY)) {
+						counter += 5;
+					} else if( level.getBlockState(TransformHorizontalDirectionInt(multiblock_root, msc_direction, x,y,z)).is(UntfTags.Blocks.DAMAGES_MSC_SLIGHTLY)) {
+						counter += 1;
+					}
+				}
+			}
+		}
+		return counter;
+	}
+
+
+	public boolean checkMultiblock(@Nullable Player player) {
 		BlockPos.MutableBlockPos iterator = new BlockPos.MutableBlockPos( multiblock_root.getX(), multiblock_root.getY(), multiblock_root.getZ());
 
 		//Check Block-by-block
@@ -711,11 +791,11 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 						}
 						return false;
 					}
-					iterator = BlockUtilities.TransformHorizontalDirectionInt(iterator, msc_direction, 0, 0, 1);
+					iterator = TransformHorizontalDirectionInt(iterator, msc_direction, 0, 0, 1);
 				}
-				iterator = BlockUtilities.TransformHorizontalDirectionInt(iterator, msc_direction,0, 1, -6);
+				iterator = TransformHorizontalDirectionInt(iterator, msc_direction,0, 1, -6);
 			}
-			iterator = BlockUtilities.TransformHorizontalDirectionInt(iterator, msc_direction, 1, -10, 0);
+			iterator = TransformHorizontalDirectionInt(iterator, msc_direction, 1, -10, 0);
 		}
 		if( player != null ) {
 			player.sendSystemMessage(Component.translatable("untransfur.msc.message.multiblock_formed"));
@@ -770,7 +850,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 
 	public void blowUp() {
 		invalidateMultiblock(true);
-		BlockPos explosion_root = BlockUtilities.TransformHorizontalDirectionInt(getBlockPos(), getBlockState().getValue(FACING), 0, 1, -2);
+		BlockPos explosion_root = TransformHorizontalDirectionInt(getBlockPos(), getBlockState().getValue(FACING), 0, 1, -2);
 		level.explode(null, explosion_root.getX(), explosion_root.getY(), explosion_root.getZ(), 50, true, Level.ExplosionInteraction.BLOCK);
 	}
 
@@ -792,7 +872,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		}
 		for(int x=1; x<4; x++) {
 			for(int y=0; y<7; y+=6) {
-				AUGMENT_POSITIONS.add(new BlockPos(x, y, (y/6) * 5));
+				AUGMENT_POSITIONS.add(new BlockPos(x, y, 1 + (y/6) * 4));
 			}
 		}
 
