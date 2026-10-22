@@ -50,7 +50,6 @@ public class TransfurEntityProgram extends MSCScheduledCommand {
 				ProcessTransfur.transfur(living_entity, ImmediateTransfurDecision.unsafe(variant, TransfurCause.STASIS_CHAMBER));
 			}
 		});
-		bentity.setIntoOutput(new ItemStack(ChangedItems.SYRINGE.get(), 1));
 		return false;
 	}
 
