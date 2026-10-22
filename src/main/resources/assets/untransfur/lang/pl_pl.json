@@ -1,0 +1,41 @@
+{
+	"block.untransfur.msc_advanced_logic_adapter": "Rozszerzony adapter kontrolny MKS",
+	"block.untransfur.msc_controller": "Kontroler mega komory stazy",
+	"block.untransfur.msc_input_bus": "Magistrala wejściowa MKS",
+	"block.untransfur.msc_input_hatch": "Właz wejściowy MKS",
+	"block.untransfur.msc_metal_block": "Obudowa MKS",
+	"block.untransfur.msc_output_bus": "Magistrala wyjściowa MKS",
+	"block.untransfur.msc_output_hatch": "Właz wyjściowy MKS",
+	"block.untransfur.msc_redstone_logic_adapter": "Adapter redstone MKS",
+	"block.untransfur.msc_smooth_wall": "Ściana MKS",
+	"block.untransfur.msc_tank": "Zbiornik MKS",
+	"block.untransfur.untransfur_syringe": "Strzykawka odtransfurująca",
+
+	"item.untransfur.biomass": "Biomasa",
+	"item.untransfur.msc_program_rom": "ROM z programem MKS",
+	"item.untransfur.msc_program_rom.tooltip": "Program: %s",
+	"item.untransfur.msc_program_rom.tooltip.empty": "§c§oPusty§r",
+	"item.untransfur.untransfur_syringe": "Strzykawka odtransfurująca",
+	"item.untransfur.untransfur_syringe.desc": "Może nie należy się tym dźgać...",
+
+	"untransfur.creative_tabs.untransfur": "Untransfur Mod",
+
+	"untransfur.msc.error.assembly_failed": "Błąd: Niewłaściwy blok '%s', na pozycji %d, %d, %d",
+	"untransfur.msc.error.broken_multiblock_definition": "Zepsuta definicja multiblocka, zgłoś jako błąd",
+	"untransfur.msc.error.expected_block": "Oczekiwano %s",
+	"untransfur.msc.error.expected_tag": "Oczekiwano bloku otagowanego jako %s",
+	"untransfur.msc.message.multiblock_formed": "Multiblock złożony pomyślnie",
+
+	"untransfur.msc.program.untransfur:capture_entity": "§a§oZłap istotę§r",
+	"untransfur.msc.program.untransfur:close_door": "§a§oZamknij drzwi§r",
+	"untransfur.msc.program.untransfur:drain_chamber": "§a§oOpróżnij komorę§r",
+	"untransfur.msc.program.untransfur:empty": "§c§oPusty§r",
+	"untransfur.msc.program.untransfur:fill_chamber": "§a§oWypełnij komorę§r",
+	"untransfur.msc.program.untransfur:open_door": "§a§oOtwórz drzwi§r",
+	"untransfur.msc.program.untransfur:release_entity": "§a§oWypuść istotę§r",
+	"untransfur.msc.program.untransfur:stabilize_entity": "§a§oUstabilizuj istotę§r",
+	"untransfur.msc.program.untransfur:transfur_entity": "§a§oStransfurruj istotę§r",
+	"untransfur.msc.program.untransfur:untransfur_entity": "§a§oOdtransfurruj istotę§r",
+	"untransfur.msc.program.untransfur:wait": "§a§oPoczekaj§r",
+	"untransfur.msc.program.untransfur:wake_entity": "§a§oWybudź istotę§r"
+}
