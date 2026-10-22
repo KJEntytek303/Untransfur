@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " f ",
+    "brc",
+    " d "
+  ],
+  "key": {
+	  "d": {"item": "minecraft:dispenser" },
+	  "b": { "item": "minecraft:water_bucket" },
+	  "c": { "item": "changed:oxygenated_water_canister" },
+	  "r": { "item": "changed:compact_disc" },
+	  "f": { "item": "changed:vent_fan" }
+  },
+  "result": {
+    "item": "untransfur:msc_program_rom",
+    "nbt": "{\"program\":\"untransfur:drain_chamber\"}"
+  }
+}

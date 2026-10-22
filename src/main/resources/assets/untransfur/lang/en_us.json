@@ -11,6 +11,7 @@
 	"block.untransfur.msc_tank": "MSC Tank",
 	"block.untransfur.untransfur_syringe": "Untransfur Syringe",
 
+	"item.untransfur.biomass": "Biomass",
 	"item.untransfur.msc_program_rom": "MSC Program ROM",
 	"item.untransfur.msc_program_rom.tooltip": "Program: %s",
 	"item.untransfur.msc_program_rom.tooltip.empty": "§c§oEmpty§r",

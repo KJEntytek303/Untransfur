@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " l ",
+    " r ",
+    "   "
+  ],
+  "key": {
+	  "l": { "item": "untransfur:untransfur_syringe" },
+	  "r": { "item": "changed:compact_disc" }
+  },
+  "result": {
+    "item": "untransfur:msc_program_rom",
+    "nbt": "{\"program\":\"untransfur:untransfur_entity\"}"
+  }
+}

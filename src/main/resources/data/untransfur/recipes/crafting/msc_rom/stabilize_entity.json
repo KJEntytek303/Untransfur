@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " h ",
+    "grc",
+    " h "
+  ],
+  "key": {
+	  "g": { "item": "minecraft:glistering_melon_slice" },
+	  "r": { "item": "changed:compact_disc" },
+	  "h": { "item": "minecraft:chain" },
+	  "c": { "item": "minecraft:golden_carrot"}
+  },
+  "result": {
+    "item": "untransfur:msc_program_rom",
+    "nbt": "{\"program\":\"untransfur:stabilize_entity\"}"
+  }
+}
