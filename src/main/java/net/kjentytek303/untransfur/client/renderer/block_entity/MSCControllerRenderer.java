@@ -34,7 +34,7 @@ public class MSCControllerRenderer implements BlockEntityRenderer<MSCControllerB
 	public void render(@NotNull MSCControllerBlockEntity pBlockEntity, float pPartialTick, @NotNull PoseStack pPoseStack,
 			   @NotNull MultiBufferSource pBuffer, int pPackedLight, int pPackedOverlay) {
 
-		if( pBlockEntity.isDrained() || pBlockEntity.getLevel() != null) {
+		if( pBlockEntity.isDrained() || pBlockEntity.getLevel() == null) {
 			return;
 		}
 
