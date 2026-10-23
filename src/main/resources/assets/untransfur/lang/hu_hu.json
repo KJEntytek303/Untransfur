@@ -11,6 +11,7 @@
 	"block.untransfur.msc_tank": "Nagy sztáziskamra tartály",
 	"block.untransfur.untransfur_syringe": "Visszatranszfuráló fecskendő",
 
+	"item.untransfur.biomass": "Biomassza",
 	"item.untransfur.msc_program_rom": "Nagy sztáziskamra ROM program",
 	"item.untransfur.msc_program_rom.tooltip": "Program: %s",
 	"item.untransfur.msc_program_rom.tooltip.empty": "§c§oÜres§r",
