@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "   ",
+    " rp",
+    "   "
+  ],
+  "key": {
+	  "p": { "item": "minecraft:piston" },
+	  "r": { "item": "changed:compact_disc" }
+  },
+  "result": {
+    "item": "untransfur:msc_program_rom",
+    "nbt": "{\"program\":\"untransfur:release_entity\"}"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "gr ",
+    "   ",
+    "   "
+  ],
+  "key": {
+	  "g": { "item": "minecraft:glass" },
+	  "r": { "item": "changed:compact_disc" }
+  },
+  "result": {
+    "item": "untransfur:msc_program_rom",
+    "nbt": "{\"program\":\"untransfur:open_door\"}"
+  }
+}

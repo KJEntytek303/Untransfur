@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " b ",
+    "brb",
+    " b "
+  ],
+  "key": {
+	  "b": { "item": "minecraft:iron_bars" },
+	  "r": { "item": "changed:compact_disc" }
+  },
+  "result": {
+    "item": "untransfur:msc_program_rom",
+    "nbt": "{\"program\":\"untransfur:capture_entity\"}"
+  }
+}

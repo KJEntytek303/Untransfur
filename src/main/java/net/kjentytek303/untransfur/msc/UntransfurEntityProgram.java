@@ -36,6 +36,7 @@ public class UntransfurEntityProgram extends MSCScheduledCommand {
 
 		//Case COMPLEX
 		//if we have a latex inside, apply flinston solution effect, long enough to ensure that the said entity dies.
+		//if said entity is an organic, apply unsafe_untransfur effect, long enough to ensure
 
 		bentity.performComplexUntransfur();
 
