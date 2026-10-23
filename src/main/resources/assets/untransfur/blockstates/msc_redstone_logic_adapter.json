@@ -1,26 +1,99 @@
 {
   "variants": {
-    "facing=north": {
-      "model": "untransfur:block/msc_redstone_logic_adapter"
+    "facing=north,receiver=false,powered=false": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_transmitter"
     },
-    "facing=east": {
-      "model": "untransfur:block/msc_redstone_logic_adapter",
+    "facing=east,receiver=false,powered=false": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_transmitter",
       "y": 90
     },
-    "facing=south": {
-      "model": "untransfur:block/msc_redstone_logic_adapter",
+    "facing=south,receiver=false,powered=false": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_transmitter",
       "y": 180
     },
-    "facing=west": {
-      "model": "untransfur:block/msc_redstone_logic_adapter",
+    "facing=west,receiver=false,powered=false": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_transmitter",
       "y": 270
     },
-    "facing=down": {
-      "model": "untransfur:block/msc_redstone_logic_adapter",
+    "facing=down,receiver=false,powered=false": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_transmitter",
       "x": 90
     },
-    "facing=up": {
-      "model": "untransfur:block/msc_redstone_logic_adapter",
+    "facing=up,receiver=false,powered=false": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_transmitter",
+      "x": 270
+    },
+
+    "facing=north,receiver=true,powered=false": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_receiver"
+    },
+    "facing=east,receiver=true,powered=false": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_receiver",
+      "y": 90
+    },
+    "facing=south,receiver=true,powered=false": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_receiver",
+      "y": 180
+    },
+    "facing=west,receiver=true,powered=false": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_receiver",
+      "y": 270
+    },
+    "facing=down,receiver=true,powered=false": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_receiver",
+      "x": 90
+    },
+    "facing=up,receiver=true,powered=false": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_receiver",
+      "x": 270
+    },
+
+
+    "facing=north,receiver=false,powered=true": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_transmitter_powered"
+    },
+    "facing=east,receiver=false,powered=true": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_transmitter_powered",
+      "y": 90
+    },
+    "facing=south,receiver=false,powered=true": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_transmitter_powered",
+      "y": 180
+    },
+    "facing=west,receiver=false,powered=true": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_transmitter_powered",
+      "y": 270
+    },
+    "facing=down,receiver=false,powered=true": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_transmitter_powered",
+      "x": 90
+    },
+    "facing=up,receiver=false,powered=true": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_transmitter_powered",
+      "x": 270
+    },
+
+    "facing=north,receiver=true,powered=true": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_receiver_powered"
+    },
+    "facing=east,receiver=true,powered=true": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_receiver_powered",
+      "y": 90
+    },
+    "facing=south,receiver=true,powered=true": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_receiver_powered",
+      "y": 180
+    },
+    "facing=west,receiver=true,powered=true": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_receiver_powered",
+      "y": 270
+    },
+    "facing=down,receiver=true,powered=true": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_receiver_powered",
+      "x": 90
+    },
+    "facing=up,receiver=true,powered=true": {
+      "model": "untransfur:block/msc_redstone_logic_adapter_receiver_powered",
       "x": 270
     }
   }
