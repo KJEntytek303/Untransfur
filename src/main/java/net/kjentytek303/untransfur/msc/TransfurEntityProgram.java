@@ -7,7 +7,6 @@ import net.kjentytek303.untransfur.util.NullablePair;
 import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.ai.ImmediateTransfurDecision;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
-import net.ltxprogrammer.changed.init.ChangedItems;
 import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.resources.ResourceLocation;
@@ -46,8 +45,15 @@ public class TransfurEntityProgram extends MSCScheduledCommand {
 			}
 			if(is_safe) {
 				ProcessTransfur.transfur(living_entity, ImmediateTransfurDecision.safe(variant, TransfurCause.STASIS_CHAMBER));
+				if( !bentity.getLivingEntitiesWithin().isEmpty() ) {
+					bentity.chamberEntity( bentity.getLivingEntitiesWithin().get(0));
+				}
+
 			} else {
 				ProcessTransfur.transfur(living_entity, ImmediateTransfurDecision.unsafe(variant, TransfurCause.STASIS_CHAMBER));
+				if( !bentity.getLivingEntitiesWithin().isEmpty() ) {
+					bentity.chamberEntity( bentity.getLivingEntitiesWithin().get(0));
+				}
 			}
 		});
 		return false;
@@ -73,6 +79,7 @@ public class TransfurEntityProgram extends MSCScheduledCommand {
 	public MSCCommandInstance asInstance(ItemStack argument) {
 		MSCCommandInstance ret = super.asInstance(argument);
 		ret.additional_delay += 30 * 20;
+		ret.ensure_captured_entity = true;
 		return ret;
 	}
 }

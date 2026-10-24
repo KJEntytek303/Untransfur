@@ -10,10 +10,10 @@
      "#minecraft:nylium",
      "minecraft:budding_amethyst",
      "#minecraft:ice",
-     "minecraft:budding_amethyst",
      "changed:dark_latex_block",
      "changed:white_latex_block",
-     "changed:white_latex_pillar"
+     "changed:white_latex_pillar",
+     "#minecraft:snow"
 
   ]
 }

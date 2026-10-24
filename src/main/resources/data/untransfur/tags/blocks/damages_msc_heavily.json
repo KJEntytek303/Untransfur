@@ -4,7 +4,8 @@
      "minecraft:lava",
      "minecraft:water",
      "minecraft:fire",
-     "minecraft:soul_fire"
+     "minecraft:soul_fire",
+     "minecraft:powder_snow"
 
   ]
 }

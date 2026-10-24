@@ -18,6 +18,7 @@ public class MSCCommandInstance implements Function<MSCControllerBlockEntity, Bo
 	public int ticks_elapsed = 0;
 	public boolean should_count_final = false;
 	public int additional_delay = 20;
+	public boolean ensure_captured_entity = false;
 
 	//For MSCController
 	public static MSCCommandInstance fromCompound(CompoundTag tag) {
@@ -57,6 +58,10 @@ public class MSCCommandInstance implements Function<MSCControllerBlockEntity, Bo
 	@Override
 	public Boolean apply(MSCControllerBlockEntity msc) {
 		this.started = true;
+		if( ensure_captured_entity ) {
+			msc.ensureCapturedIsStillInside();
+		}
+
 		if(msc.getLevel().isClientSide) {
 			return false;
 		}

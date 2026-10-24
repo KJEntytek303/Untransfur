@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "show_notification": false,
+  "category": "misc",
+  "pattern": [
+    "fmf",
+    "lbs",
+    "fmf"
+  ],
+  "key": {
+    "f": {
+      "item": "rotten_flesh"
+    },
+    "m": {
+      "item": "bone_meal"
+    },
+    "b": {
+      "item": "changed:latex_base"
+    },
+    "s": {
+      "item": "minecraft:slime_ball"
+    },
+    "l": [
+	    { "item": "changed:white_latex_goo" },
+	    { "item": "changed:dark_latex_goo" },
+	    { "item": "minecraft:slime_ball" }
+    ]
+  },
+  "result": {
+    "item": "untransfur:biomass"
+  }
+}
