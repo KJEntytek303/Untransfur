@@ -1,0 +1,13 @@
+{
+  "piece": {
+    "type": "changed:room",
+    "template": "untransfur:facility/msc_room",
+    "loot_table": "changed:chests/high_tier_lab"
+  },
+  "spawn_weight": 13,
+  "min": 0,
+  "max": 1,
+  "neighboring_zones": [
+    "changed:general"
+  ]
+}
