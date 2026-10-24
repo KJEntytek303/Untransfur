@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:block/orientable",
   "textures": {
-    "front": "untransfur:block/msc_redstone_logic_adapter_front",
+    "front": "untransfur:block/msc_redstone_logic_adapter_receiver_powered",
     "side": "untransfur:block/msc_metal_block",
     "top": "untransfur:block/msc_metal_block"
   }

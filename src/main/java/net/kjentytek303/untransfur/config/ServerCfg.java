@@ -13,6 +13,7 @@ public class ServerCfg {
 	//MSC
 	//public static final ForgeConfigSpec.ConfigValue<Integer> MSC_MAX_STASIS_DURATION;
 	public static final ForgeConfigSpec.ConfigValue<Integer> MSC_MAX_COMMAND_SCHEDULE;
+	public static final ForgeConfigSpec.ConfigValue<Integer> MSC_BIOMASS_REQUIREMENT;
 	public static final ForgeConfigSpec.ConfigValue<Boolean> MSC_BLOWS_UP;
 	public static final ForgeConfigSpec.ConfigValue<Boolean> MSC_CHECK_FAILURE_ON_DESTROY;
 	public static final ForgeConfigSpec.ConfigValue<Integer> MSC_CRASH_DURATION;
@@ -86,6 +87,10 @@ public class ServerCfg {
 		BUILDER.comment("1 means the MSC will regenerate all it's damage in a single tick.");
 		BUILDER.comment("Default: 1e-4 (0.0001)");
 		MSC_REGENERATION_AMOUNT = BUILDER.defineInRange("msc.failures.regeneration_amount", 1e-4, 0.0, 1.0 );
+
+		BUILDER.comment("How much biomass is required to perform complex MSC Untransfur?");
+		BUILDER.comment("Default: 16");
+		MSC_BIOMASS_REQUIREMENT = BUILDER.defineInRange("msc.biomass_required_for_complex_untf", 16, 0, Integer.MAX_VALUE);
 
 		//Dropped syringe
 		BUILDER.comment("Makes untransfur syringes lying on the ground shatter only when a player steps on them");

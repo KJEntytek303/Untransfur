@@ -1,5 +1,5 @@
 {
-  "parent": "untransfur:block/msc_redstone_logic_adapter",
+  "parent": "untransfur:block/msc_redstone_logic_adapter_transmitter",
   "display": {
     "thirdperson": {
       "rotation": [

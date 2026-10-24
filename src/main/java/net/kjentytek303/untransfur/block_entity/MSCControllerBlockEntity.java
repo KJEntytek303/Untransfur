@@ -1,6 +1,6 @@
 package net.kjentytek303.untransfur.block_entity;
 
-import net.kjentytek303.untransfur.Untransfur;
+import net.kjentytek303.untransfur.Untransfur;// {{{
 import net.kjentytek303.untransfur.block.MSCControllerBlock;
 import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.event.UntransfurPlayerByComplexMSC;
@@ -81,7 +81,7 @@ import static net.minecraft.world.level.block.Blocks.DISPENSER;
 import static net.minecraft.world.level.block.Blocks.REDSTONE_BLOCK;
 import static net.minecraft.world.level.block.Blocks.SMOOTH_STONE;
 import static net.minecraft.world.level.block.Blocks.SMOOTH_STONE_SLAB;
-import static net.minecraftforge.common.Tags.Blocks.GLASS;
+import static net.minecraftforge.common.Tags.Blocks.GLASS;// }}}
 
 
 //Credit to LTXProgrammer for the original block and code.
@@ -362,7 +362,10 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		}
 		return new NullablePair<>(null, false);
 	}
-
+	/**
+	 * @param stack stack to insert to MSC Output
+	 * @return - true on success, false on failure.
+	 */
 	public boolean setIntoOutput(ItemStack stack) {
 		List<BlockPos> output_augments = findAugments(UntfTags.Blocks.MSC_OUTPUT);
 		boolean success = false;
@@ -466,6 +469,7 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 			}
 		}
 
+
 		if( ServerCfg.MSC_EXPLOSION_CHECK_RATE.get() != 0 && level.getGameTime() % ServerCfg.MSC_EXPLOSION_CHECK_RATE.get() == 0) {
 			if ( bentity.checkForBlowUp() ) {
 				bentity.blowUp();
@@ -482,6 +486,10 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		if( level.getGameTime() % 47 == 0) {
 			int block_damage = bentity.checkBlockDamage();
 			bentity.failure_chance += block_damage / 5085.0f;
+		}
+
+		if( !bentity.multiblock_valid ) {
+			return;
 		}
 
 		var commands = bentity.scheduled_commands;
@@ -513,12 +521,18 @@ public class MSCControllerBlockEntity extends BlockEntity implements SeatableBlo
 		}
 
 		if (commands.isEmpty() && bentity.current_command == null ) {
+			if( !bentity.isCrashed() ) {
+				bentity.setBlockStatus(ControllerStatus.INACTIVE);
+			}
 			return;
 		}
 
 		if(bentity.current_command == null) {
 			bentity.current_command = commands.get(0);
 			commands.remove(0);
+			if( !bentity.isCrashed() ) {
+				bentity.setBlockStatus(ControllerStatus.RUNNING);
+			}
 		}
 
 		if (!bentity.current_command.test(bentity)) {
