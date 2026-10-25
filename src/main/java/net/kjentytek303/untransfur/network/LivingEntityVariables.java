@@ -81,7 +81,7 @@ public class LivingEntityVariables {
 
 		public void syncPlayerVariables(LivingEntity entity) {
 			if( entity instanceof ServerPlayer serverPlayer ) {
-				Untransfur.PACKET_HANDLER.send(PacketDistributor.PLAYER.with( ()-> serverPlayer ), new LivingEntityVariables.SyncPacket(this));
+			//	Untransfur.PACKET_HANDLER.send(PacketDistributor.PLAYER.with( ()-> serverPlayer ), new LivingEntityVariables.SyncPacket(this));
 			}
 		}
 

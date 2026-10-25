@@ -46,7 +46,7 @@ public class UntransfurVariables {
 
 		public void syncPlayerVariables(Entity entity) {
 			if( entity instanceof ServerPlayer serverPlayer ) {
-				Untransfur.PACKET_HANDLER.send(PacketDistributor.PLAYER.with( ()-> serverPlayer ), new SyncPacket(this));
+			//	Untransfur.PACKET_HANDLER.send(PacketDistributor.PLAYER.with( ()-> serverPlayer ), new SyncPacket(this));
 			}
 		}
 

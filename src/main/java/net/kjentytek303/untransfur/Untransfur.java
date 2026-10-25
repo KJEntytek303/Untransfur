@@ -7,7 +7,7 @@ import net.kjentytek303.untransfur.client.screen.MSCRedstoneLogicAdapterScreen;
 import net.kjentytek303.untransfur.config.ServerCfg;
 import net.kjentytek303.untransfur.init.InitBlockEntities;
 import net.kjentytek303.untransfur.init.InitMenus;
-import net.kjentytek303.untransfur.init.InitPackets;
+//import net.kjentytek303.untransfur.init.InitPackets;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -48,7 +48,7 @@ public class Untransfur
     public static final String MODID = "untransfur";
     public static final Logger LOGGER = LogUtils.getLogger();
     private static final String PROTOCOL_VERSION = "1";
-    public static final SimpleChannel PACKET_HANDLER = NetworkRegistry.newSimpleChannel(Untransfur.modResource("network"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals );
+    //public static final SimpleChannel PACKET_HANDLER = NetworkRegistry.newSimpleChannel(Untransfur.modResource("network"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals );
     private static int message_id = 0;
 
     public Untransfur(FMLJavaModLoadingContext context)
@@ -70,7 +70,7 @@ public class Untransfur
         MinecraftForge.EVENT_BUS.register(this);
 
     }
-
+/*
     public static <T> void addNetworkMessage(Class<T> messageType, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, Supplier<NetworkEvent.Context>> messageConsumer) {
         PACKET_HANDLER.registerMessage(message_id, messageType, encoder, decoder, messageConsumer);
         message_id++;
@@ -80,7 +80,7 @@ public class Untransfur
         PACKET_HANDLER.registerMessage(message_id, messageType, encoder, decoder, messageConsumer, Optional.of(direction));
         message_id++;
     }
-
+*/
     public static ResourceLocation modResource(String path) {
         return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
@@ -103,7 +103,7 @@ public class Untransfur
     public static class CommonEvents {
         @SubscribeEvent
         public static void commonSetup( FMLCommonSetupEvent event ) {
-            InitPackets.addPackets(event);
+  //          InitPackets.addPackets(event);
         }
     }
 }

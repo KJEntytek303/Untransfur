@@ -7,7 +7,7 @@ import net.kjentytek303.untransfur.network.UntransfurVariables;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.network.NetworkDirection;
 
-
+/*
 public class InitPackets {
 	public static void addPackets(FMLCommonSetupEvent event ) {
 		Untransfur.addNetworkMessage(UntransfurVariables.SyncPacket.class,
@@ -24,3 +24,4 @@ public class InitPackets {
 		);
 	}
 }
+*/
