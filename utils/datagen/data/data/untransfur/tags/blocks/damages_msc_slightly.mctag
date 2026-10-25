@@ -1,7 +1,8 @@
 minecraft:magma_block
 minecraft:wet_sponge
 minecraft:crying_obsidian
-minecraft:dripstone
+minecraft:dripstone_block
+minecraft:pointed_dripstone
 #minecraft:leaves
 #minecraft:dirt
 #minecraft:nylium
