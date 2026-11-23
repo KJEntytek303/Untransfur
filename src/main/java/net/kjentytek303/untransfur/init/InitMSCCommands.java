@@ -2,18 +2,7 @@ package net.kjentytek303.untransfur.init;
 
 import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
-import net.kjentytek303.untransfur.msc.CaptureEntityProgram;
-import net.kjentytek303.untransfur.msc.CloseDoorProgram;
-import net.kjentytek303.untransfur.msc.DrainChamberProgram;
-import net.kjentytek303.untransfur.msc.FillChamberProgram;
-import net.kjentytek303.untransfur.msc.MSCScheduledCommand;
-import net.kjentytek303.untransfur.msc.OpenDoorProgram;
-import net.kjentytek303.untransfur.msc.ReleaseEntityProgram;
-import net.kjentytek303.untransfur.msc.StabilizeEntityProgram;
-import net.kjentytek303.untransfur.msc.TransfurEntityProgram;
-import net.kjentytek303.untransfur.msc.UntransfurEntityProgram;
-import net.kjentytek303.untransfur.msc.WaitProgram;
-import net.kjentytek303.untransfur.msc.WakeEntityProgram;
+import net.kjentytek303.untransfur.msc.*;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -59,6 +48,8 @@ public class InitMSCCommands {
 	public static final RegistryObject<MSCScheduledCommand> RELEASE_ENTITY = MSC_COMMAND_REGISTRY.register(ReleaseEntityProgram.ID.getPath(), ReleaseEntityProgram::new);
 
 	public static final RegistryObject<MSCScheduledCommand> DRAIN_CHAMBER = MSC_COMMAND_REGISTRY.register(DrainChamberProgram.ID.getPath(), DrainChamberProgram::new);
+
+	public static final RegistryObject<MSCScheduledCommand> SAMPLE_ENTITY = MSC_COMMAND_REGISTRY.register(SampleEntityProgram.ID.getPath(), SampleEntityProgram::new);
 
 
 	public static MSCScheduledCommand findByResLoc(@NotNull ResourceLocation location) {

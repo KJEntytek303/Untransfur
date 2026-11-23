@@ -33,6 +33,7 @@
 	"untransfur.msc.program.untransfur:fill_chamber": "§a§oFill Chamber§r",
 	"untransfur.msc.program.untransfur:open_door": "§a§oOpen Door§r",
 	"untransfur.msc.program.untransfur:release_entity": "§a§oRelease Entity§r",
+	"untransfur.msc.program.untransfur:sample_latex": "§a§oSample Entity§r",
 	"untransfur.msc.program.untransfur:stabilize_entity": "§a§oStabilize Entity§r",
 	"untransfur.msc.program.untransfur:transfur_entity": "§a§oTransfur Entity§r",
 	"untransfur.msc.program.untransfur:untransfur_entity": "§a§oUntransfur Entity§r",
