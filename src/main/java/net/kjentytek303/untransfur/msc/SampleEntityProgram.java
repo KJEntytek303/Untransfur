@@ -4,10 +4,9 @@ import net.kjentytek303.untransfur.Untransfur;
 import net.kjentytek303.untransfur.block_entity.MSCControllerBlockEntity;
 import net.kjentytek303.untransfur.util.ContainerWithIndex;
 import net.kjentytek303.untransfur.util.ItemPredicate;
-import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
-import net.ltxprogrammer.changed.init.ChangedItems;
+import net.ltxprogrammer.changed.init.ChangedDamageSources;
 import net.ltxprogrammer.changed.item.Syringe;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.resources.ResourceLocation;
@@ -70,6 +69,7 @@ public class SampleEntityProgram extends MSCScheduledCommand {
 				return;
 			}
 			syringes.get(0).item_handler.extractItem(syringes.get(0).slots.get(0), 1, false);
+			entity.hurt(ChangedDamageSources.BLOODLOSS.source(bentity.getLevel().registryAccess()), 0.35F);
 		});
 		return false;
 	}

@@ -33,7 +33,7 @@
 	"untransfur.msc.program.untransfur:fill_chamber": "§a§oWypełnij komorę§r",
 	"untransfur.msc.program.untransfur:open_door": "§a§oOtwórz drzwi§r",
 	"untransfur.msc.program.untransfur:release_entity": "§a§oWypuść istotę§r",
-	"untransfur.msc.program.untransfur:sample_latex": "§a§oPobierz próbkę z istoty§r",
+	"untransfur.msc.program.untransfur:sample_entity": "§a§oPobierz próbkę z istoty§r",
 	"untransfur.msc.program.untransfur:stabilize_entity": "§a§oUstabilizuj istotę§r",
 	"untransfur.msc.program.untransfur:transfur_entity": "§a§oStransfurruj istotę§r",
 	"untransfur.msc.program.untransfur:untransfur_entity": "§a§oOdtransfurruj istotę§r",
