@@ -33,6 +33,7 @@
 	"untransfur.msc.program.untransfur:fill_chamber": "§a§oKamra kitöltése§r",
 	"untransfur.msc.program.untransfur:open_door": "§a§oAjtó megnyitása§r",
 	"untransfur.msc.program.untransfur:release_entity": "§a§oEntitás elengedése§r",
+	"untransfur.msc.program.untransfur:sample_entity": "§a§oEntitás mintavétele§r",
 	"untransfur.msc.program.untransfur:stabilize_entity": "§a§oEntitás stabilizálása§r",
 	"untransfur.msc.program.untransfur:transfur_entity": "§a§oEntitás transzfurálása§r",
 	"untransfur.msc.program.untransfur:untransfur_entity": "§a§oEntitás visszatranszfurálása§r",
